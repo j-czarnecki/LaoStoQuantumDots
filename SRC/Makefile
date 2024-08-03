@@ -1,0 +1,72 @@
+TARGET = ../bin/lao_sto_qd.x
+
+
+## the command shell
+SHELL = /bin/sh
+
+
+F90 = gfortran #ifort
+F77 = gfortran #ifort
+CC =
+
+
+F90FLAGS = -Ofast  -m64 -ffree-line-length-none
+F77FLAGS = -Ofast  -m64 -ffree-line-length-none
+
+#F90FLAGS = -w -O3
+#F77FLAGS = -w -O3 
+
+
+CFLAGS =
+
+## name of the program to link the program units
+LNK = $(F90)
+
+## flags to use at link time
+LFLAGS = $(F90LAGS)
+
+## LLIBS are libraries to use at link time
+LIBS = -L ./lib -larpack
+
+LIBS_MKL = -I${MKLROOT}/include \
+	   -I/opt/intel/mkl/include \
+	   -Wl,--start-group \
+           ${MKLROOT}/lib/intel64/libmkl_gf_lp64.so \
+           ${MKLROOT}/lib/intel64/libmkl_gnu_thread.so \
+           ${MKLROOT}/lib/intel64/libmkl_core.so \
+          -Wl,--end-group \
+          -lgomp -lpthread -lm -ldl
+
+
+#################################################################
+#      objects files
+#################################################################
+
+OBJS =  constants.o \
+        indata.o \
+        hamiltonian.o \
+		diagonalize.o \
+        main.o
+	
+
+#################################################################
+#      rules 
+#################################################################
+
+$(TARGET) : $(OBJS)
+	$(LNK) -o $(TARGET) $(LFLAGS) $^ $(LIBS) $(LIBS_MKL) 
+
+
+%.o : %.f90
+	$(F90) $(F90FLAGS) -c $< -o $@
+
+%.o : %.f
+	$(F77) $(F77FLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(OBJS_PLOT) $(OBJS_ANALYZE)
+	rm -f *.mod
+	rm -f $(TARGET)
+
+			
+			
