@@ -1,10 +1,9 @@
 &calculation_parameters
-        Nx=5,            
-        Ny=5,
+	Nx=10,            
+	Ny=10,
 	dx=0.39,
 	norbs=6, 
-	nstate=10
-		/
+	nstate=10/
 
 &physical_parameters
 	th=0.04,		
@@ -13,12 +12,10 @@
 	dso=20e-3,
 	drso=20e-3,
 	dE=0.047,
-	g=3.0
-		/
+	g=3.0/
 
 &external_parameters
-        Bx=0.0,               
-        By=0.0,
-        Bz=2.0
-                /
+	Bx=0.0,               
+	By=0.0,
+	Bz=2.0/
 

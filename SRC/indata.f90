@@ -1,7 +1,7 @@
 
 MODULE indata
   USE constants
-  IMPLICIT  NONE
+  IMPLICIT NONE
   SAVE
 
   !parameters for numerical calculations
@@ -12,114 +12,111 @@ MODULE indata
   INTEGER :: nstate         !number of single electron states taken for calculations
 
   !physical paramters for LAO/STO
-  REAL :: tl  
-  REAL :: th
-  REAL :: td
-  REAL :: dso
-  REAL :: drso
-  REAL :: dE
-  REAL :: g
+  REAL*8 :: tl
+  REAL*8 :: th
+  REAL*8 :: td
+  REAL*8 :: dso
+  REAL*8 :: drso
+  REAL*8 :: dE
+  REAL*8 :: g
 
   !external parameters
-  REAL :: Bx  
-  REAL :: By
-  REAL :: Bz
+  REAL*8 :: Bx
+  REAL*8 :: By
+  REAL*8 :: Bz
 
-  REAL :: a !lattice constant
+  !Derived parameters
+  REAL*8 :: a !lattice constant
 
-  
   NAMELIST /calculation_parameters/             &
        &  Nx,                                   &
        &  Ny,                                   &
        &  dx,                                   &
        &  norbs,                                &
        &  nstate
-  
-  
+
   NAMELIST /physical_parameters/               &
        &  tl,                                  &
        &  th,                                  &
-       &  td,			                             &
-       &  dso,			                           &
+       &  td,                                                     &
+       &  dso,                                                   &
        &  drso,                                &
        &  dE,                                  &
        &  g
-  
+
   ! calculations flags
-       NAMELIST /external_parameters/          &
-       &  Bx,                                  &
-       &  By,                                  &
-       &  Bz
-       
+  NAMELIST /external_parameters/          &
+  &  Bx,                                  &
+  &  By,                                  &
+  &  Bz
+
 CONTAINS
 
-
 !===================================================================
-SUBROUTINE INDATA_GET(nmlfile)
-  IMPLICIT NONE
-  CHARACTER(*), INTENT(IN) :: nmlfile
+  SUBROUTINE INDATA_GET(nmlfile)
+    IMPLICIT NONE
+    CHARACTER(*), INTENT(IN) :: nmlfile
 
-  INTEGER :: i
-  
-  OPEN(33, FILE=TRIM(nmlfile), FORM="FORMATTED", ACTION="READ",  &
-       &   STATUS="OLD")
+    INTEGER :: i
 
-  !default values
-  Nx=0
-  Ny=0
+    OPEN (33, FILE=TRIM(nmlfile), FORM="FORMATTED", ACTION="READ",  &
+         &   STATUS="OLD")
 
-  tl=0.0
-  th=0.0
-  td=0.0
-  dso=0.0
-  drso=0.0
-  dx=0.0
-  dE=0.0
-  g=0
-  norbs=1
-  nstate=10
+    !default values
+    Nx = 0
+    Ny = 0
 
-  Bx=0.0
-  By=0.0
-  Bz=0.0
-  
+    tl = 0.0
+    th = 0.0
+    td = 0.0
+    dso = 0.0
+    drso = 0.0
+    dx = 0.0
+    dE = 0.0
+    g = 0
+    norbs = 1
+    nstate = 10
+
+    Bx = 0.0
+    By = 0.0
+    Bz = 0.0
+
 ! read namelist
-  READ(33,NML=calculation_parameters)  
-  
-  IF(Nx.le.0) then
-    print *, "Nx has to be a positive interger. STOP"
-    STOP
-  ENDIF
-  
-  IF(Ny.le.0) then
-    print *, "Ny has to be a positive interger. STOP"
-    STOP
-  ENDIF
+    READ (33, NML=calculation_parameters)
 
-  IF(dx.le.0) then
-    print *, "dx has to be a positive interger. STOP"
-    STOP
-  ENDIF
+    IF (Nx .LE. 0) THEN
+      PRINT *, "Nx has to be a positive interger. STOP"
+      STOP
+    END IF
 
-  ! read namelist
-  READ(33,NML=physical_parameters)  
+    IF (Ny .LE. 0) THEN
+      PRINT *, "Ny has to be a positive interger. STOP"
+      STOP
+    END IF
 
-  a=0.39*nm2au
-  th=th*eV2au
-  tl=tl*eV2au
-  td=td*eV2au
-  dso=dso*eV2au
-  drso=drso*eV2au
-  dx=dx*nm2au
-  dE=dE*eV2au
+    IF (dx .LE. 0) THEN
+      PRINT *, "dx has to be a positive interger. STOP"
+      STOP
+    END IF
 
-  ! read namelist
-  READ(33,NML=external_parameters) 
-  Bx=Bx*T2au
-  By=By*T2au
-  Bz=Bz*T2au
+    ! read namelist
+    READ (33, NML=physical_parameters)
 
+    a = 0.39 * nm2au !Julian: is this meant to be a fixed value?
+    th = th * eV2au
+    tl = tl * eV2au
+    td = td * eV2au
+    dso = dso * eV2au
+    drso = drso * eV2au
+    dx = dx * nm2au
+    dE = dE * eV2au
 
-END SUBROUTINE INDATA_GET
+    ! read namelist
+    READ (33, NML=external_parameters)
+    Bx = Bx * T2au
+    By = By * T2au
+    Bz = Bz * T2au
+
+  END SUBROUTINE INDATA_GET
 
 END MODULE indata
