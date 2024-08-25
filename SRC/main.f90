@@ -3,6 +3,9 @@ PROGRAM MAIN
   USE indata
   USE hamiltonian
   USE diagonalize
+  USE combinatory
+  USE many_body
+  USE constants
 
   IMPLICIT NONE
 
@@ -13,6 +16,8 @@ PROGRAM MAIN
   !COMPLEX*16, ALLOCATABLE :: psi_lapack(:, :, :, :, :)
   !REAL*8, ALLOCATABLE :: ev_lapack(:)
   COMPLEX*16, ALLOCATABLE :: Psi_1(:, :), Psi_2(:,:)
+  COMPLEX*16, ALLOCATABLE :: Psi_1_sorted(:,:,:,:,:)
+  REAL*8, ALLOCATABLE :: Particle_density(:,:), Particle_density_sorted(:,:,:,:,:)
   REAL*8, ALLOCATABLE :: Energies_1(:), Energies_2(:)
   INTEGER*4, ALLOCATABLE :: Combination_current(:)
   INTEGER*4,  ALLOCATABLE :: Combinations(:,:)
@@ -25,7 +30,7 @@ PROGRAM MAIN
   INTEGER*4, ALLOCATABLE :: Changed_indeces(:,:,:,:)
   LOGICAL, ALLOCATABLE :: Index_found(:)
   INTEGER*4 :: k_electrons, total
-  INTEGER :: ix, iy, iorb
+  INTEGER :: ix, iy, iorb, is, nn
   INTEGER*4 :: i,j,k,l, n
   REAL*8 :: x, y, omega
   INTEGER*4 :: ham_1_size
@@ -71,6 +76,9 @@ PROGRAM MAIN
   !ALLOCATE (psi_lapack(nstate, -Nx:Nx, -Ny:Ny, norbs / 2, 2))
   !ALLOCATE (ev_lapack(nstate))
   !ALLOCATE (psi_arpack(nstate, -Nx:Nx, -Ny:Ny, norbs / 2, 2))
+  ALLOCATE(Particle_density(ham_1_size, nstate))
+  ALLOCATE(Particle_density_sorted(nstate, -Nx:Nx, -Ny:Ny, norbs/2, 2))
+  ALLOCATE(Psi_1_sorted(nstate, -Nx:Nx, -Ny:Ny, norbs/2, 2))
   ALLOCATE (Psi_1(ham_1_size, nstate))
   ALLOCATE (Energies_1(nstate))
   ALLOCATE (Psi_2(ham_2_size, nstate))
@@ -91,14 +99,15 @@ PROGRAM MAIN
 
   !#################### ONE-ELECTRON PROBLEM ####################
   omega = 3.0E-3 * eV2au !Julian: is this meant to be a fixed value? Maybe should be in input .nml file?
-  potential = 0.0
-  DO ix = -Nx, Nx
-    DO iy = -Ny, Ny
-      x = ix * dx
-      y = iy * dx
-      potential(ix, iy) = 0.5 * omega**2 * (x**2 + y**2)
-    END DO
-  END DO
+  potential = 0.0d0
+  ! DO ix = -Nx, Nx
+  !   DO iy = -Ny, Ny
+  !     x = ix * dx
+  !     y = iy * dx
+  !     !potential(ix, iy) = 0.5 * omega**2 * (x**2 + y**2)
+  !     !IF (x**2 + y**2 > 5*dx) potential(ix, iy) = 1e6
+  !   END DO
+  ! END DO
 
   CALL HAMILTONIAN_CREATE(Hamiltonian_1(:,:), ham_1_size, Nx, Ny, norbs, potential)
 
@@ -108,6 +117,8 @@ PROGRAM MAIN
   !CALL DIAGONALIZE_ARPACK(psi_arpack, ev_arpack, Nx, Ny, norbs, nstate, potential)
   CALL DIAGONALIZE_ARPACK(Hamiltonian_1, ham_1_size, Psi_1, Energies_1, Nx, Ny, norbs, nstate)
   !###############################################################
+
+  CALL WRITE_STATE_MAP(Psi_1, ham_1_size, nstate, norbs, Nx, Ny, dx, '../RUNS/Psi_1')
 
 
   !#################### TWO-ELECTRON PROBLEM #####################
@@ -122,59 +133,9 @@ PROGRAM MAIN
     Combinations(i, :) = Combination_current(:)
   END DO
 
-  DO i = 1, ham_2_size
-    DO j = 1, ham_2_size
-      n_changed = 0
+  CALL GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces, ham_2_size, k_electrons)
 
-      !Check how many indeces are changed between combinations specifying row and column
-      !For each element of row-combination check heter it exists in column-combination.
-      !If not, increment N_changed_indexes by 1 and write index without match to Changed_indeces(i,j,n_chnanged,1)
-      DO k = 1, k_electrons
-        same_index = .FALSE.
-        DO l = 1, k_electrons
-          IF(Combinations(i,k) == Combinations(j,l)) THEN
-            same_index = .TRUE.
-            EXIT
-          END IF
-        END DO
-        IF(.NOT. same_index) THEN
-          n_changed = n_changed + 1
-          IF (n_changed < 3) THEN
-            Changed_indeces(i,j,n_changed,1) = Combinations(i,k)
-          END IF
-        END IF
-      END DO
-      N_changed_indeces(i,j) = MIN(n_changed, 3)
-
-      n_changed = 0
-      !For each element of column-combination check wheter it exists in row-combination.
-      !TODO: Consider whther it could be done in a more efficient way
-      DO k = 1, k_electrons
-        same_index = .FALSE.
-        DO l = 1, k_electrons
-          IF(Combinations(j,k) == Combinations(i,l)) THEN
-            same_index = .TRUE.
-            EXIT
-          END IF
-        END DO
-        IF(.NOT. same_index) THEN
-          n_changed = n_changed + 1
-          IF (n_changed < 3) THEN
-            Changed_indeces(i,j,n_changed,2) = Combinations(j,k)
-          END IF
-        END IF
-      END DO
-
-      !PRINT*, N_changed_indeces(i,j)
-      !PRINT*
-      !PRINT*
-      !WRITE(*,'(I2)', ADVANCE = 'NO') N_changed_indeces(i,j)
-      !WRITE(*, *) 'i = ', i, ' j = ', j, ' N_changed  = ', N_changed_indeces(i,j), ' Unpaired row: ', (Changed_indeces(i,j,k,1), k = 1, 2), ' Unparied column: ', (Changed_indeces(i,j,k,2), k = 1, 2)
-    END DO
-    !WRITE(*,*)
-  END DO
-
-  PRINT*, "Constructing mult-body hamiltonian..."
+  PRINT*, "Constructing multi-body hamiltonian..."
   !CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:,1), Psi_1(:,2), Psi_1(:,3), Psi_1(:,4), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
   !Computing diagonal elements of Hamiltonian_2
   DO i = 1, ham_2_size
@@ -185,15 +146,15 @@ PROGRAM MAIN
 
     !Interaction elements
     DO k = 1, k_electrons
-      DO l = 1, k_electrons !Check whether sum could be reduced to sum_{k, l>k}. Then I will get rid of 0.5*
+      DO l = k + 1, k_electrons !Check whether sum could be reduced to sum_{k, l>k}. Then I will get rid of 0.5*
         IF (Combinations(i,k) /= Combinations(i,l)) THEN
           !PRINT*, Combinations(i,k), Combinations(i,l)
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
-          Hamiltonian_2(i,i) = Hamiltonian_2(i,i) + 0.5*interaction_element !Check whether it should be  * 0.5.
+          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+          Hamiltonian_2(i,i) = Hamiltonian_2(i,i) + interaction_element !Check whether it should be  * 0.5.
           !PRINT*, interaction_element
 
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
-          Hamiltonian_2(i,i) = Hamiltonian_2(i,i) - 0.5*interaction_element !Check whether it should be  * 0.5
+          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+          Hamiltonian_2(i,i) = Hamiltonian_2(i,i) - interaction_element !Check whether it should be  * 0.5
           !PRINT*, interaction_element
           !PRINT*
         END IF
@@ -205,15 +166,16 @@ PROGRAM MAIN
 
 
   DO i = 1, ham_2_size
+    PRINT*, "i = ", i
     DO j = i + 1, ham_2_size
-      PRINT*, i, j
+      !PRINT*, i, j
       !If statements' order determined by frequency of given elements      
       IF (N_changed_indeces(i,j) == 2) THEN
         !Interaction elements
-        CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Changed_indeces(i,j, 2, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
+        CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Changed_indeces(i,j, 2, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
         Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + interaction_element
 
-        CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 2, 2)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
+        CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 2, 2)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
         Hamiltonian_2(i,j) = Hamiltonian_2(i,j) - interaction_element
 
       ELSE IF (N_changed_indeces(i,j) == 1) THEN
@@ -223,10 +185,10 @@ PROGRAM MAIN
 
         !Interaction elements
         DO k = 1, k_electrons
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
+          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
           Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + interaction_element
 
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx)
+          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
           Hamiltonian_2(i,j) = Hamiltonian_2(i,j) - interaction_element
 
         END DO
@@ -234,8 +196,6 @@ PROGRAM MAIN
         STOP
         !ERROR
       END IF
-
-
     END DO
   END DO
 
@@ -248,9 +208,11 @@ PROGRAM MAIN
   CALL DIAGONALIZE_ARPACK(Hamiltonian_2, ham_2_size, Psi_2, Energies_2, Nx, Ny, norbs, nstate)
 
 
-
+  CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, Psi_2, N_changed_indeces,&
+  &Changed_indeces, ham_1_size, ham_2_size, Nx, Ny, nstate, nstate, dx, k_electrons)
 
   !##########################################################
+  CALL WRITE_STATE_MAP(DCMPLX(Particle_density, 0.0d0), ham_1_size, nstate, norbs, Nx, Ny, dx, '../RUNS/Density')
 
 
 
@@ -266,26 +228,7 @@ PROGRAM MAIN
     WRITE (*, '(200e20.12)') Energies_2(i) / eV2au! ,ev_lapack(i) / eV2au
   END DO
 
-  ! state_to_write = 3
-  ! OPEN (1, FILE="psi_lapack.dat")
-  ! DO ix = -Nx, Nx
-  !   DO iy = -Ny, Ny
-  !     x = ix * dx
-  !     y = iy * dx
-  !     WRITE (1, *) x, y, (ABS(psi_lapack(state_to_write, ix, iy, iorb, 1))**2 + ABS(psi_lapack(state_to_write, ix, iy, iorb, 2))**2, iorb=1, 3)
-  !   END DO
-  ! END DO
-  ! CLOSE (1)
 
-  ! OPEN (1, FILE="psi_arpack.dat")
-  ! DO ix = -Nx, Nx
-  !   DO iy = -Ny, Ny
-  !     x = ix * dx
-  !     y = iy * dx
-  !     WRITE (1, *) x, y, (ABS(psi_arpack(state_to_write, ix, iy, iorb, 1))**2 + ABS(psi_arpack(state_to_write, ix, iy, iorb, 2))**2, iorb=1, 3)
-  !   END DO
-  ! END DO
-  ! CLOSE (1)
 
   DEALLOCATE (potential)
   !DEALLOCATE (psi_lapack)
@@ -301,141 +244,40 @@ PROGRAM MAIN
   DEALLOCATE (Combination_current)
 END PROGRAM MAIN
 
-
-SUBROUTINE GET_COMBINATION(Combination, N, k)
-  !! Returns set of indices that form a k-element combination from set {1, 2, ..., N}.
-  !! Should be initialized with an array conataining first combination with last element diminished by 1.
-  !! Example: k=3,then in first iteration Combination = [1, 2, 2] should be passed and will return [1,2,3]
-  !! It Could be viewed as traversing an upper triangle of N-dimensional tensor and writing all sets of indices.
-  IMPLICIT NONE
-  INTEGER*4, INTENT(OUT) :: Combination(k) !! Array containg set of indices forming a k-element combination
-  INTEGER*4, INTENT(IN) :: N !! Number of elements in the set
-  INTEGER*4, INTENT(IN) :: k !! Number of elements in combination
-  
-  INTEGER*4 :: i, j, m
-
-  Combination(k) = Combination(k) + 1
-
-  j = k
-  i = 0
-  DO  WHILE (j .GT. 1 .AND. Combination(j) .GT. N - i)
-    Combination(j - 1) = Combination(j - 1) + 1
-    !TODO: This probably could be done only once to reduce some spare operations.
-    DO m = j, k
-      Combination(m) = Combination(m - 1) + 1
-    END DO
-    j = j - 1
-    i = i + 1
-  END DO
-  
-END SUBROUTINE
-
-SUBROUTINE INIT_COMBINATION(Combination, k)
-  !! Initializes COmbination array so that it could be passed to GET_COBINATION subroutine
-  IMPLICIT NONE
-  INTEGER*4, INTENT(OUT) :: Combination(k) !! Array containg set of indices forming a k-element combination
-                                           !! with last eleent shifted by -1
-  INTEGER*4, INTENT(IN) :: k !! Number of elements in combination
-  INTEGER*4 :: i
-
-  DO i = 1, k - 1
-    Combination(i) = i
-  END DO
-  Combination(k) = Combination(k - 1)
-
-END SUBROUTINE
-
-SUBROUTINE CALCULATE_INTERACTION_ELEMENTS(Psi_1, Psi_2, Psi_3, Psi_4, size, matrix_element, norbs, Nx, Ny, dx)
+SUBROUTINE WRITE_STATE_MAP(Psi, psi_size, nstates, norbs, Nx, Ny, dx, filename)
   USE constants
   IMPLICIT NONE
-  INTEGER*4, INTENT(IN) :: size, norbs, Nx, Ny
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size, nstates)
+  INTEGER*4, INTENT(IN) :: Nx, Ny, psi_size, nstates, norbs
   REAL*8, INTENT(IN) :: dx
-  COMPLEX*16, INTENT(OUT) :: matrix_element
-  COMPLEX*16, INTENT(IN) :: Psi_1(size), Psi_2(size), Psi_3(size), Psi_4(size)
+  CHARACTER(LEN=*), INTENT(IN) :: filename
+  CHARACTER(LEN=200) :: filename_state
 
-  REAL*8, EXTERNAL :: get_x_from_psi_index, get_y_from_psi_index
+  INTEGER*4 :: nn, ix, iy, is, i, iorb
 
-  INTEGER*4 :: i,j,k,l,m,n, si, sj, oi, oj, ok, ol
-  INTEGER*4 :: i_so, j_so, k_so, l_so !index of spin-orbitals
-  REAL*8 :: xi, yi, ri, xj, yj, rj, r_ij
-  REAL*8, PARAMETER :: epsilon(3) = [0.336, 0.306, 0.015] !eps(i,i,i,i), eps(i,j,i,j), eps(i,j,j,i) 
-  
-  matrix_element = (0.0d0, 0.0d0)
+  DO is = 1, nstates
+    WRITE(filename_state, '(2A, I0, A)') filename, '_n', is, '.dat'
+    OPEN (1, FILE=filename_state)
+    WRITE(1,*) '#x[nm] y[nm] |Psi(orb1, s = +)|**2 |Psi(orb1, s = -)|**2 |Psi(orb2, s = +)|**2 ...'
 
-  !Only two loops determining position due to two center approach.
-  !delta(r_j1, r_j3) and delta(r_j2, r_j4)
-  DO i = 1, size, norbs
-    DO j = 1, size, norbs
-      xi = get_x_from_psi_index(i,norbs, Nx, Ny, dx)
-      yi = get_y_from_psi_index(i,norbs, Nx, Ny, dx)
+    nn = 1
+    DO iy = -Ny, Ny
+    DO ix = -Nx, Nx
+      WRITE(1,'(2E20.8)', ADVANCE='NO') ix*dx/nm2au, iy*dx/nm2au
 
-
-      xj = get_x_from_psi_index(j,norbs, Nx, Ny, dx)
-      yj = get_y_from_psi_index(j,norbs, Nx, Ny, dx)
-
-      r_ij = SQRT((xi - xj)**2 + (yi - yj)**2)
-      !Only iteratinng over two spins, because we assume orthogonality  of spin states
-      !delta(s_j1, s_j3) and delta(s_j2, s_j4)
-      DO si = 0, 1
-        DO sj = 0, 1
-
-          IF (r_ij /= 0.0d0) THEN
-
-            !delta(o_j1, o_j3) and delta(o_j2, o_j4)
-            DO oi = 0, norbs/2 - 1
-              DO oj = 0, norbs/2 - 1
-                i_so = si + 2*oi
-                j_so = sj + 2*oj
-                !PRINT*, si, sj, oi, oj, i_so, j_so
-                matrix_element = matrix_element + 1/r_ij*CONJG(Psi_1(i + i_so)*Psi_2(j + j_so))*Psi_3(i + i_so)*Psi_4(j + j_so)
-              END DO
-            END DO
-          ELSE
-
-            DO oi = 0, norbs/2 - 1
-              DO oj = 0, norbs/2 - 1
-                DO ok = 0, norbs/2 - 1
-                  DO ol = 0, norbs/2 - 1
-                    i_so = si + 2*oi
-                    j_so = sj + 2*oj
-                    k_so = si + 2*ok
-                    l_so = sj + 2*ol
-        
-                    IF (oi == ok .AND. oj == ol) THEN
-                      matrix_element = matrix_element + epsilon(2) * CONJG(Psi_1(i + i_so)*Psi_2(j + j_so))*Psi_3(i + k_so)*Psi_4(j + l_so)
-                    ELSE IF (oi == ol .AND. oj == ok) THEN
-                      matrix_element = matrix_element + epsilon(3) * CONJG(Psi_1(i + i_so)*Psi_2(j + j_so))*Psi_3(i + k_so)*Psi_4(j + l_so)
-                    ELSE IF (oi == oj .AND.oi == ok .AND. oi == ol) THEN
-                      matrix_element = matrix_element + epsilon(1) * CONJG(Psi_1(i + i_so)*Psi_2(j + j_so))*Psi_3(i + k_so)*Psi_4(j + l_so)
-                    END IF
-
-                  END DO
-                END DO
-              END DO
-            END DO
-
-          END IF
-
+      DO iorb = 1, norbs / 2
+        DO i = 1, 2
+          WRITE(1, '(E20.8)', ADVANCE='NO') ABS(Psi(nn,is))**2
+          nn = nn + 1
         END DO
       END DO
-
+      WRITE(1,*)
     END DO
+    END DO
+    IF (nn /= psi_size + 1) PRINT*, "Error in printing state map, nn /= psi_size + 1"
+
+    CLOSE(1)
   END DO
 
-  !PRINT*, matrix_element
 
-END SUBROUTINE CALCULATE_INTERACTION_ELEMENTS
-
-REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, Ny, dx)
-  IMPLICIT NONE
-  INTEGER*4 :: i, norbs, Nx, Ny
-  REAL*8 :: dx
-  get_x_from_psi_index = ((i/norbs)/(2*Ny + 1) - Nx) * dx
-END FUNCTION get_x_from_psi_index
-
-REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
-  IMPLICIT NONE
-  INTEGER*4 :: i, norbs, Nx, Ny
-  REAL*8 :: dx
-  get_y_from_psi_index = (MOD(i/norbs, 2*Ny + 1) - Ny) * dx
-END FUNCTION get_y_from_psi_index
+END SUBROUTINE WRITE_STATE_MAP

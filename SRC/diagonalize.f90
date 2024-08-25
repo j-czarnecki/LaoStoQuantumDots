@@ -3,8 +3,7 @@ MODULE diagonalize
   USE hamiltonian
   IMPLICIT NONE
   SAVE
-
-CONTAINS
+  CONTAINS
 
   SUBROUTINE DIAGONALIZE_LAPACK(psi, ev, nnx, nny, norbitals, nnstate, potential)
     USE indata

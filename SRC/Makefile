@@ -23,7 +23,7 @@ CFLAGS =
 LNK = $(F90)
 
 ## flags to use at link time
-LFLAGS = $(F90LAGS)
+LFLAGS = $(F90FLAGS)
 
 ## LLIBS are libraries to use at link time
 LIBS = -L ./lib -larpack
@@ -42,11 +42,13 @@ LIBS_MKL = -I${MKLROOT}/include \
 #      objects files
 #################################################################
 
-OBJS =  constants.o \
+OBJS =  main.o \
+			  constants.o \
         indata.o \
         hamiltonian.o \
-		diagonalize.o \
-        main.o
+				diagonalize.o \
+				combinatory.o \
+				many_body.o
 	
 
 #################################################################
@@ -56,17 +58,43 @@ OBJS =  constants.o \
 $(TARGET) : $(OBJS)
 	$(LNK) -o $(TARGET) $(LFLAGS) $^ $(LIBS) $(LIBS_MKL) 
 
-
 %.o : %.f90
 	$(F90) $(F90FLAGS) -c $< -o $@
 
 %.o : %.f
 	$(F77) $(F77FLAGS) -c $< -o $@
 
+all: $(TARGET)
+
 clean:
 	rm -f $(OBJS) $(OBJS_PLOT) $(OBJS_ANALYZE)
 	rm -f *.mod
 	rm -f $(TARGET)
 
-			
-			
+#Dependencies
+main.o: indata.o \
+				hamiltonian.o \
+				diagonalize.o \
+				combinatory.o \
+				many_body.o \
+				constants.o
+
+combinatory.o:	
+
+indata.o: constants.o
+
+hamiltonian.o: indata.o
+
+diagonalize.o: indata.o \
+							 hamiltonian.o
+
+many_body.o: combinatory.o
+
+constants.mod: #Has to be .mod, or else module is not found
+
+
+
+
+
+
+	

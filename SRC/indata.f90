@@ -19,6 +19,7 @@ MODULE indata
   REAL*8 :: drso
   REAL*8 :: dE
   REAL*8 :: g
+  REAL*8 :: eps_r
 
   !external parameters
   REAL*8 :: Bx
@@ -42,7 +43,8 @@ MODULE indata
        &  dso,                                                   &
        &  drso,                                &
        &  dE,                                  &
-       &  g
+       &  g,                                   &
+       &  eps_r
 
   ! calculations flags
   NAMELIST /external_parameters/          &
@@ -110,6 +112,8 @@ CONTAINS
     drso = drso * eV2au
     dx = dx * nm2au
     dE = dE * eV2au
+
+    IF (eps_r == 0.0d0) STOP "eps_r cannot be 0.0"
 
     ! read namelist
     READ (33, NML=external_parameters)
