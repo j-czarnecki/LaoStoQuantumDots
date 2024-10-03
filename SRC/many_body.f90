@@ -25,11 +25,11 @@ MODULE many_body
     DO ri = 1, size, norbs
       DO rj = 1, size, norbs
         xi = get_x_from_psi_index(ri,norbs, Nx, Ny, dx)
-        yi = get_y_from_psi_index(ri,norbs, Nx, Ny, dx)
+        yi = get_y_from_psi_index(ri,norbs, Ny, dx)
 
 
         xj = get_x_from_psi_index(rj,norbs, Nx, Ny, dx)
-        yj = get_y_from_psi_index(rj,norbs, Nx, Ny, dx)
+        yj = get_y_from_psi_index(rj,norbs, Ny, dx)
 
         r_ij = SQRT((xi - xj)**2 + (yi - yj)**2)
         !Only iteratinng over two spins, because we assume orthogonality  of spin states
@@ -110,7 +110,7 @@ MODULE many_body
       DO i = 1, ham_2_size
         DO j = i + 1, ham_2_size
           IF (N_changed_indeces(i,j) == 1) THEN
-            Particle_density(:,nstate) = Particle_density(:,nstate) + norm*CONJG(Psi_2(i,nstate))*Psi_2(j,nstate)*CONJG(Psi_2(j, Changed_indeces(i,j,1,1)))*Psi_2(j, Changed_indeces(i,j,1,2))
+            Particle_density(:,nstate) = Particle_density(:,nstate) + REAL(norm*CONJG(Psi_2(i,nstate))*Psi_2(j,nstate)*CONJG(Psi_2(j, Changed_indeces(i,j,1,1)))*Psi_2(j, Changed_indeces(i,j,1,2)))
           END IF
         END DO
       END DO
@@ -125,9 +125,9 @@ MODULE many_body
     get_x_from_psi_index = ((i/norbs)/(2*Ny + 1) - Nx) * dx
   END FUNCTION get_x_from_psi_index
 
-  REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
+  REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Ny, dx)
     IMPLICIT NONE
-    INTEGER*4 :: i, norbs, Nx, Ny
+    INTEGER*4 :: i, norbs, Ny
     REAL*8 :: dx
     get_y_from_psi_index = (MOD(i/norbs, 2*Ny + 1) - Ny) * dx
   END FUNCTION get_y_from_psi_index

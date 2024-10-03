@@ -16,8 +16,7 @@ PROGRAM MAIN
   !COMPLEX*16, ALLOCATABLE :: psi_lapack(:, :, :, :, :)
   !REAL*8, ALLOCATABLE :: ev_lapack(:)
   COMPLEX*16, ALLOCATABLE :: Psi_1(:, :), Psi_2(:,:)
-  COMPLEX*16, ALLOCATABLE :: Psi_1_sorted(:,:,:,:,:)
-  REAL*8, ALLOCATABLE :: Particle_density(:,:), Particle_density_sorted(:,:,:,:,:)
+  REAL*8, ALLOCATABLE :: Particle_density(:,:)
   REAL*8, ALLOCATABLE :: Energies_1(:), Energies_2(:)
   INTEGER*4, ALLOCATABLE :: Combination_current(:)
   INTEGER*4,  ALLOCATABLE :: Combinations(:,:)
@@ -69,6 +68,7 @@ PROGRAM MAIN
   ham_2_size = GAMMA(nstate + 1.0d0)/(GAMMA(k_electrons + 1.0d0) * GAMMA(nstate - k_electrons + 1.0d0))
   slater_norm = SQRT(GAMMA(k_electrons + 1.0d0))
   PRINT*, "Number of combinations: ", ham_2_size
+  PRINT*, "Size of one-body hamiltonian: ", ham_1_size
   
   
   ALLOCATE(Combination_current(k_electrons))
@@ -76,19 +76,18 @@ PROGRAM MAIN
   !ALLOCATE (psi_lapack(nstate, -Nx:Nx, -Ny:Ny, norbs / 2, 2))
   !ALLOCATE (ev_lapack(nstate))
   !ALLOCATE (psi_arpack(nstate, -Nx:Nx, -Ny:Ny, norbs / 2, 2))
-  ALLOCATE(Particle_density(ham_1_size, nstate))
-  ALLOCATE(Particle_density_sorted(nstate, -Nx:Nx, -Ny:Ny, norbs/2, 2))
-  ALLOCATE(Psi_1_sorted(nstate, -Nx:Nx, -Ny:Ny, norbs/2, 2))
+  ALLOCATE (Particle_density(ham_1_size, nstate))
   ALLOCATE (Psi_1(ham_1_size, nstate))
   ALLOCATE (Energies_1(nstate))
   ALLOCATE (Psi_2(ham_2_size, nstate))
   ALLOCATE (Energies_2(nstate))
-  ALLOCATE(Hamiltonian_1(ham_1_size, ham_1_size))
-  ALLOCATE(Hamiltonian_2(ham_2_size, ham_2_size))
+  ALLOCATE (Hamiltonian_1(ham_1_size, ham_1_size))
+  ALLOCATE (Hamiltonian_2(ham_2_size, ham_2_size))
   ALLOCATE (N_changed_indeces(ham_2_size, ham_2_size))
   ALLOCATE (Combinations(ham_2_size, k_electrons))
   ALLOCATE (Changed_indeces(ham_2_size, ham_2_size, 2, 2))
-  ALLOCATE( Index_found(k_electrons))
+  ALLOCATE (Index_found(k_electrons))
+  PRINT*, "Memory check..."
 
 
   Hamiltonian_1(:,:) = DCMPLX(0.0d0, 0.0d0)
@@ -96,25 +95,27 @@ PROGRAM MAIN
   N_changed_indeces(:,:) = 0
   Changed_indeces(:,:,:,:) = 0
 
+  PRINT*, "Memory check 2..."
 
   !#################### ONE-ELECTRON PROBLEM ####################
-  omega = 3.0E-3 * eV2au !Julian: is this meant to be a fixed value? Maybe should be in input .nml file?
+  omega = 37.378e-3 * eV2au !Julian: is this meant to be a fixed value? Maybe should be in input .nml file?
   potential = 0.0d0
-  ! DO ix = -Nx, Nx
-  !   DO iy = -Ny, Ny
-  !     x = ix * dx
-  !     y = iy * dx
-  !     !potential(ix, iy) = 0.5 * omega**2 * (x**2 + y**2)
-  !     !IF (x**2 + y**2 > 5*dx) potential(ix, iy) = 1e6
-  !   END DO
-  ! END DO
+  DO ix = -Nx, Nx
+    DO iy = -Ny, Ny
+      x = ix * dx
+      y = iy * dx
+      potential(ix, iy) = 0.5 * 0.286 * omega**2 * (x**2 + y**2)
+    END DO
+  END DO
 
+  PRINT*, "Creating one electron hamiltonian..."
   CALL HAMILTONIAN_CREATE(Hamiltonian_1(:,:), ham_1_size, Nx, Ny, norbs, potential)
 
   !Julian: I will split it a bit differently - hamiltonian should be initialized here in main.f90 and passed to DIAGONALIZE_XXX.
   !Then DIAGONALIZE_ARPACK will be more universal. It could reshape 1D eigenvector from ARPACK to a map like psi_arpack in main.f90 in the end of the subroutine.
   !CALL DIAGONALIZE_LAPACK(psi_lapack, ev_lapack, Nx, Ny, norbs, nstate, potential)
   !CALL DIAGONALIZE_ARPACK(psi_arpack, ev_arpack, Nx, Ny, norbs, nstate, potential)
+  PRINT*, "Diagonalizing one electron hamiltonian..."
   CALL DIAGONALIZE_ARPACK(Hamiltonian_1, ham_1_size, Psi_1, Energies_1, Nx, Ny, norbs, nstate)
   !###############################################################
 
@@ -149,12 +150,12 @@ PROGRAM MAIN
       DO l = k + 1, k_electrons !Check whether sum could be reduced to sum_{k, l>k}. Then I will get rid of 0.5*
         IF (Combinations(i,k) /= Combinations(i,l)) THEN
           !PRINT*, Combinations(i,k), Combinations(i,l)
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
-          Hamiltonian_2(i,i) = Hamiltonian_2(i,i) + interaction_element !Check whether it should be  * 0.5.
-          !PRINT*, interaction_element
+          ! CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+          ! Hamiltonian_2(i,i) = Hamiltonian_2(i,i) + interaction_element !Check whether it should be  * 0.5.
+          ! !PRINT*, interaction_element
 
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
-          Hamiltonian_2(i,i) = Hamiltonian_2(i,i) - interaction_element !Check whether it should be  * 0.5
+          ! CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,l)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+          ! Hamiltonian_2(i,i) = Hamiltonian_2(i,i) - interaction_element !Check whether it should be  * 0.5
           !PRINT*, interaction_element
           !PRINT*
         END IF
@@ -172,24 +173,24 @@ PROGRAM MAIN
       !If statements' order determined by frequency of given elements      
       IF (N_changed_indeces(i,j) == 2) THEN
         !Interaction elements
-        CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Changed_indeces(i,j, 2, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
-        Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + interaction_element
+        ! CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Changed_indeces(i,j, 2, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+        ! Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + interaction_element
 
-        CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 2, 2)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
-        Hamiltonian_2(i,j) = Hamiltonian_2(i,j) - interaction_element
+        ! CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)), Psi_1(:, Changed_indeces(i,j, 2, 2)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+        ! Hamiltonian_2(i,j) = Hamiltonian_2(i,j) - interaction_element
 
       ELSE IF (N_changed_indeces(i,j) == 1) THEN
         !Single electron energies
         !Computes <psi_i|H_1|psi_p> where psi is one-electron wavefunction and index i was changed to index p.
-        Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + dx**2*DOT_PRODUCT(Psi_1(:, Changed_indeces(i,j,1,1)), MATMUL(Hamiltonian_1, Psi_1(:, Changed_indeces(i,j,1,2))))
+        !Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + dx**2*DOT_PRODUCT(Psi_1(:, Changed_indeces(i,j,1,1)), MATMUL(Hamiltonian_1, Psi_1(:, Changed_indeces(i,j,1,2))))
 
         !Interaction elements
         DO k = 1, k_electrons
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
-          Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + interaction_element
+          ! CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Combinations(i,k)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+          ! Hamiltonian_2(i,j) = Hamiltonian_2(i,j) + interaction_element
 
-          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
-          Hamiltonian_2(i,j) = Hamiltonian_2(i,j) - interaction_element
+          ! CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,k)), Psi_1(:, Changed_indeces(i,j, 1, 2)), ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
+          ! Hamiltonian_2(i,j) = Hamiltonian_2(i,j) - interaction_element
 
         END DO
       ELSE IF (N_changed_indeces(i,j) /= 3) THEN
@@ -220,12 +221,14 @@ PROGRAM MAIN
   !Julian: This is only data output. I will wrap it in some subroutines to make the main function cleaner.
   WRITE (*, *) "Porownanie energii LAPACK i ARPACK"
   DO i = 1, nstate
-    WRITE (*, '(200e20.12)') Energies_1(i) / eV2au! ,ev_lapack(i) / eV2au
+    !WRITE (*, '(200e20.12)') Energies_1(i) / eV2au * 1e3! ,ev_lapack(i) / eV2au
+    WRITE (*, *) Energies_1(i) / eV2au * 1e3! ,ev_lapack(i) / eV2au
   END DO
 
   WRITE (*, *) "Multi-body energies"
   DO i = 1, nstate
-    WRITE (*, '(200e20.12)') Energies_2(i) / eV2au! ,ev_lapack(i) / eV2au
+    !WRITE (*, '(200e20.12)') Energies_2(i) / eV2au * 1e3! ,ev_lapack(i) / eV2au
+    WRITE (*, *) Energies_2(i) / eV2au * 1e3! ,ev_lapack(i) / eV2au
   END DO
 
 

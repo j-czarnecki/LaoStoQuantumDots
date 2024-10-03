@@ -66,6 +66,11 @@ $(TARGET) : $(OBJS)
 
 all: $(TARGET)
 
+debug: F90FLAGS = -O0  -m64 -ffree-line-length-none -Wall -g
+debug: F77FLAGS = -O0  -m64 -ffree-line-length-none -Wall -g
+debug: $(TARGET)
+
+
 clean:
 	rm -f $(OBJS) $(OBJS_PLOT) $(OBJS_ANALYZE)
 	rm -f *.mod

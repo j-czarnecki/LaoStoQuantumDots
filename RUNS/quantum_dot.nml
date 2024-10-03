@@ -1,7 +1,7 @@
 &calculation_parameters
 	Nx=25,            
 	Ny=25,
-	dx=0.59,
+	dx=.39,
 	norbs=6, 
 	nstate=10/
 
@@ -9,8 +9,8 @@
 	th=0.04,		
 	tl=0.875,
 	td=0.04,
-	dso=20e-3,
-	drso=20e-3,
+	dso=0.01,
+	drso=0.02,
 	dE=0.047,
 	g=3.0,
 	eps_r = 100.0/
@@ -18,5 +18,5 @@
 &external_parameters
 	Bx=0.0,               
 	By=0.0,
-	Bz=0.0/
+	Bz=10.0/
 

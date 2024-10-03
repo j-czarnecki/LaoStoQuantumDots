@@ -59,8 +59,6 @@ CONTAINS
     IMPLICIT NONE
     CHARACTER(*), INTENT(IN) :: nmlfile
 
-    INTEGER :: i
-
     OPEN (33, FILE=TRIM(nmlfile), FORM="FORMATTED", ACTION="READ",  &
          &   STATUS="OLD")
 

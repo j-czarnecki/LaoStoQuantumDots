@@ -5,103 +5,103 @@ MODULE diagonalize
   SAVE
   CONTAINS
 
-  SUBROUTINE DIAGONALIZE_LAPACK(psi, ev, nnx, nny, norbitals, nnstate, potential)
-    USE indata
-    USE hamiltonian
-    IMPLICIT NONE
-    !SAVE
+  ! SUBROUTINE DIAGONALIZE_LAPACK(psi, ev, nnx, nny, norbitals, nnstate, potential)
+  !   USE indata
+  !   USE hamiltonian
+  !   IMPLICIT NONE
+  !   !SAVE
 
-    COMPLEX*16, INTENT(OUT):: psi(nstate, -nnx:nnx, -nny:nny, norbitals / 2, 2)
-    REAL*8, INTENT(OUT):: ev(nstate)
-    INTEGER, INTENT(IN) :: nnx, nny, norbitals, nnstate
-    REAL*8, INTENT(INOUT):: potential(-nnx:nnx, -nny:nny)
+  !   COMPLEX*16, INTENT(OUT):: psi(nstate, -nnx:nnx, -nny:nny, norbitals / 2, 2)
+  !   REAL*8, INTENT(OUT):: ev(nstate)
+  !   INTEGER, INTENT(IN) :: nnx, nny, norbitals, nnstate
+  !   REAL*8, INTENT(INOUT):: potential(-nnx:nnx, -nny:nny)
 
-    INTEGER :: size, ix, iy, is, iorb, nn
-    COMPLEX*16, ALLOCATABLE :: ham(:, :)
-    REAL*8 :: probability_norm
+  !   INTEGER :: size, ix, iy, is, iorb, nn
+  !   COMPLEX*16, ALLOCATABLE :: ham(:, :)
+  !   REAL*8 :: probability_norm
 
-    !do rozwiazania problemu wlasnego w LAPACKU
-    CHARACTER * 1 JOBVL, JOBVR
-    INTEGER INFO, LWORK, i, j, ii
-    COMPLEX*16, ALLOCATABLE :: W(:)
-    COMPLEX*16, ALLOCATABLE :: VL(:, :)
-    COMPLEX*16, ALLOCATABLE :: VR(:, :)
-    COMPLEX*16, ALLOCATABLE :: WORK(:)
-    DOUBLE PRECISION, ALLOCATABLE :: RWORK(:)
-    COMPLEX*16 :: tmp
+  !   !do rozwiazania problemu wlasnego w LAPACKU
+  !   CHARACTER * 1 JOBVL, JOBVR
+  !   INTEGER INFO, LWORK, i, j, ii
+  !   COMPLEX*16, ALLOCATABLE :: W(:)
+  !   COMPLEX*16, ALLOCATABLE :: VL(:, :)
+  !   COMPLEX*16, ALLOCATABLE :: VR(:, :)
+  !   COMPLEX*16, ALLOCATABLE :: WORK(:)
+  !   DOUBLE PRECISION, ALLOCATABLE :: RWORK(:)
+  !   COMPLEX*16 :: tmp
 
-    JOBVL = 'N'
-    JOBVR = 'V'
+  !   JOBVL = 'N'
+  !   JOBVR = 'V'
 
-    size = (2 * nnx + 1) * (2 * nny + 1) * norbitals
-    ALLOCATE (ham(size, size))
+  !   size = (2 * nnx + 1) * (2 * nny + 1) * norbitals
+  !   ALLOCATE (ham(size, size))
 
-    ALLOCATE (VL(size, size))
-    ALLOCATE (VR(size, size))
-    ALLOCATE (W(size))
-    LWORK = 4 * size + 1
-    ALLOCATE (WORK(LWORK))
-    ALLOCATE (RWORK(2 * size))
+  !   ALLOCATE (VL(size, size))
+  !   ALLOCATE (VR(size, size))
+  !   ALLOCATE (W(size))
+  !   LWORK = 4 * size + 1
+  !   ALLOCATE (WORK(LWORK))
+  !   ALLOCATE (RWORK(2 * size))
 
-    PRINT *
-    PRINT *, "Calculations in progress ..."
-    CALL HAMILTONIAN_CREATE(ham, size, nnx, nny, norbitals, potential)
+  !   PRINT *
+  !   PRINT *, "Calculations in progress ..."
+  !   CALL HAMILTONIAN_CREATE(ham, size, nnx, nny, norbitals, potential)
 
-    CALL ZGEEV(JOBVL, JOBVR, size, ham, size, W, VL, size, &
-               VR, size, WORK, LWORK, RWORK, INFO)
+  !   CALL ZGEEV(JOBVL, JOBVR, size, ham, size, W, VL, size, &
+  !              VR, size, WORK, LWORK, RWORK, INFO)
 
-    !sortowanie Energii
-    DO i = 1, size
-      DO j = 1, size - 1
-      IF (REAL(W(j)) .GT. REAL(W(j + 1))) THEN
-        !energie
-        tmp = W(j)
-        W(j) = W(j + 1)
-        W(j + 1) = tmp
+  !   !sortowanie Energii
+  !   DO i = 1, size
+  !     DO j = 1, size - 1
+  !     IF (REAL(W(j)) .GT. REAL(W(j + 1))) THEN
+  !       !energie
+  !       tmp = W(j)
+  !       W(j) = W(j + 1)
+  !       W(j + 1) = tmp
 
-        !wartosci wlasne
-        DO ii = 1, size
-          tmp = VR(ii, j)
-          VR(ii, j) = VR(ii, j + 1)
-          VR(ii, j + 1) = tmp
-        END DO
+  !       !wartosci wlasne
+  !       DO ii = 1, size
+  !         tmp = VR(ii, j)
+  !         VR(ii, j) = VR(ii, j + 1)
+  !         VR(ii, j + 1) = tmp
+  !       END DO
 
-      END IF
-      END DO
-    END DO
+  !     END IF
+  !     END DO
+  !   END DO
 
-    DO i = 1, nstate
-      ev(i) = W(i)
-    END DO
+  !   DO i = 1, nstate
+  !     ev(i) = W(i)
+  !   END DO
 
-    !Normalisation of wavefuctions
-    DO i = 1, nstate
-      probability_norm = SUM(ABS(VR(:, i))**2)
-      VR(:, i) = VR(:, i) / SQRT(probability_norm)
-    END DO
+  !   !Normalisation of wavefuctions
+  !   DO i = 1, nstate
+  !     probability_norm = SUM(ABS(VR(:, i))**2)
+  !     VR(:, i) = VR(:, i) / SQRT(probability_norm)
+  !   END DO
 
-    DO is = 1, nstate
-      nn = 1
-      DO iy = -nny, nny
-      DO ix = -nnx, nnx
-        DO iorb = 1, norbitals / 2
-          DO i = 1, 2
-            psi(is, ix, iy, iorb, i) = VR(nn, is)
-            nn = nn + 1
-          END DO
-        END DO
-      END DO
-      END DO
-    END DO
+  !   DO is = 1, nstate
+  !     nn = 1
+  !     DO iy = -nny, nny
+  !     DO ix = -nnx, nnx
+  !       DO iorb = 1, norbitals / 2
+  !         DO i = 1, 2
+  !           psi(is, ix, iy, iorb, i) = VR(nn, is)
+  !           nn = nn + 1
+  !         END DO
+  !       END DO
+  !     END DO
+  !     END DO
+  !   END DO
 
-    DEALLOCATE (ham)
-    DEALLOCATE (VL)
-    DEALLOCATE (VR)
-    DEALLOCATE (W)
-    DEALLOCATE (WORK)
-    DEALLOCATE (RWORK)
+  !   DEALLOCATE (ham)
+  !   DEALLOCATE (VL)
+  !   DEALLOCATE (VR)
+  !   DEALLOCATE (W)
+  !   DEALLOCATE (WORK)
+  !   DEALLOCATE (RWORK)
 
-  END SUBROUTINE DIAGONALIZE_LAPACK
+  ! END SUBROUTINE DIAGONALIZE_LAPACK
 
   SUBROUTINE DIAGONALIZE_ARPACK(ham, size, psi, ev, nnx, nny, norbitals, nnstate)
     USE indata
@@ -115,8 +115,9 @@ MODULE diagonalize
     !REAL*8, INTENT(INOUT):: potential(-nnx:nnx, -nny:nny)
     COMPLEX*16, INTENT(IN) :: ham(:, :)
     INTEGER*4, INTENT(IN) :: size
+    INTEGER*4, ALLOCATABLE :: state_index(:)
     INTEGER :: i, j, flag
-    INTEGER :: ix, iy, is, iorb, nn !, size
+    INTEGER :: nn !, size, iorb, is, ix, iy
     !COMPLEX*16, ALLOCATABLE :: ham(:, :)
 
     ! CSR args
@@ -182,6 +183,7 @@ MODULE diagonalize
       END DO
     END DO
 
+    PRINT*, "Trying to allocte compressed storage row hamiltonian..."
     ALLOCATE (ham_csr(nonzero))
     ALLOCATE (ja_csr(nonzero))
     ALLOCATE (ia_csr(size + 1))
@@ -238,6 +240,7 @@ MODULE diagonalize
     ALLOCATE (WORKev(2 * ncv))
     ALLOCATE (eigen_index(nev))
     ALLOCATE (Eigenvectors_normalised(dim, nev))
+    ALLOCATE (state_index(nev))
 
     !#################################### ARPACK LOOP #############################################
     DO
@@ -271,9 +274,11 @@ MODULE diagonalize
       STOP
     END IF
 
+    CALL indexx(n_converged, REAL(E_eigenvalues), state_index)
+
     !Sorted energies from ARPACK
     DO i = 1, nnstate
-      ev(i) = REAL(E_eigenvalues(i))
+      ev(i) = REAL(E_eigenvalues(state_index(i)))
     END DO
 
     !Julian: consider whether we need to normalize the wavefuctions
@@ -281,7 +286,7 @@ MODULE diagonalize
     !Normalisation of wavefuctions
     DO i = 1, nnstate
       DO j = 1, size
-        Eigenvectors_normalised(j, i) = Arnoldi_vector(j, i)
+        Eigenvectors_normalised(j, i) = Arnoldi_vector(j, state_index(i))
       END DO
       probability_norm = SUM(ABS(Eigenvectors_normalised(:, i))**2)
       !Eigenvectors_normalised(:, i) = Eigenvectors_normalised(:, i) / SQRT(probability_norm)
@@ -306,6 +311,7 @@ MODULE diagonalize
     DEALLOCATE (ham_csr)
     DEALLOCATE (ja_csr)
     DEALLOCATE (ia_csr)
+    DEALLOCATE (state_index)
 
   END SUBROUTINE DIAGONALIZE_ARPACK
 
