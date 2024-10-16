@@ -48,7 +48,9 @@ OBJS =  main.o \
         hamiltonian.o \
 				diagonalize.o \
 				combinatory.o \
-				many_body.o
+				many_body.o \
+				writers.o \
+				utility.o
 	
 
 #################################################################
@@ -82,9 +84,11 @@ main.o: indata.o \
 				diagonalize.o \
 				combinatory.o \
 				many_body.o \
+				writers.o \
+				utility.o \
 				constants.o
 
-combinatory.o:	
+combinatory.o:
 
 indata.o: constants.o
 
@@ -94,6 +98,11 @@ diagonalize.o: indata.o \
 							 hamiltonian.o
 
 many_body.o: combinatory.o
+
+writers.o: indata.o \
+					 constants.o
+
+utility.o: utility.o
 
 constants.mod: #Has to be .mod, or else module is not found
 

@@ -103,6 +103,153 @@ MODULE diagonalize
 
   ! END SUBROUTINE DIAGONALIZE_LAPACK
 
+
+  SUBROUTINE DIAGONALIZE_ARPACK_CRS(ham_csr, ja_csr, ia_csr, nonzero, size, psi, ev, nnx, nny, norbitals, nnstate)
+    USE indata
+    USE hamiltonian
+    IMPLICIT NONE
+
+    !COMPLEX*16, INTENT(OUT):: psi(nstate, -nnx:nnx, -nny:nny, norbitals / 2, 2)
+    ! CSR args
+    INTEGER*4, INTENT(IN) :: nonzero
+    COMPLEX*16, INTENT(IN) :: ham_csr(nonzero)
+    INTEGER*4, INTENT(IN) :: ja_csr(nonzero)
+    INTEGER*4, INTENT(IN) :: ia_csr(size + 1)
+
+    COMPLEX*16, INTENT(OUT) :: psi(size, nnstate)
+    REAL*8, INTENT(OUT):: ev(nstate)
+    INTEGER, INTENT(IN) :: nnx, nny, norbitals, nnstate
+    !REAL*8, INTENT(INOUT):: potential(-nnx:nnx, -nny:nny)
+    !COMPLEX*16, INTENT(IN) :: ham(:, :)
+    INTEGER*4, INTENT(IN) :: size
+    INTEGER*4, ALLOCATABLE :: state_index(:)
+    INTEGER :: i, j, flag
+    INTEGER :: nn !, size, iorb, is, ix, iy
+    !COMPLEX*16, ALLOCATABLE :: ham(:, :)
+
+    !For ARPACK ZNAUPD
+    INTEGER*4 :: ido  !it must be zero on the first call to znaupd
+    INTEGER*4 :: dim !dimension of hamiltonian
+    INTEGER*4 :: nev  ! number of eigenvalues obtained (?) from znaupd 0 < nev < N-1
+    REAL*8 :: accuracy !this is the tolerance of error in Ritz (?) values
+    COMPLEX*16, ALLOCATABLE :: resid(:)  !vector of lenght N
+    INTEGER*4 :: ncv !number of columns in V matrix (?) wybierane arbitralnie(?)
+    COMPLEX*16, ALLOCATABLE :: Arnoldi_vector(:, :)
+    INTEGER*4 :: iparam(11) !parameters fo znaupd
+    INTEGER*4 :: ipntr(14)
+    COMPLEX*16, ALLOCATABLE :: workd(:)
+    COMPLEX*16, ALLOCATABLE :: workl(:)
+    INTEGER*4 :: workl_length
+    REAL*8, ALLOCATABLE :: rwork(:)
+    INTEGER*4 :: info
+    INTEGER*4 :: ldv
+    INTEGER*4 :: ierr
+
+    !For APRACK ZNEUPD
+    LOGICAL*4 :: rvec
+    INTEGER*4, ALLOCATABLE :: SELECT(:)
+    COMPLEX*16, ALLOCATABLE :: E_eigenvalues(:)
+    COMPLEX*16 :: sigma
+    COMPLEX*16, ALLOCATABLE :: WORKev(:)
+    INTEGER :: n_converged
+
+    INTEGER*4, ALLOCATABLE:: eigen_index(:)
+    COMPLEX*16, ALLOCATABLE :: Eigenvectors_normalised(:, :)
+    REAL*8 :: probability_norm
+    REAL*8 :: min_nonzero
+
+!Declaration of ARPACK values
+    rvec = .TRUE.
+    ido = 0
+    nev = nnstate
+    accuracy = -1 !max machine precision
+    ncv = 4 * (nev + 1)
+    ldv = size
+    iparam(1) = 1 !exact shift strategy
+    iparam(2) = 0
+    iparam(3) = 400   !number of ARPACK loop iterations allowed
+    iparam(4) = 1      !number of blocks used in reccurency (only 1 works, according to documentation)
+    ! 5 exit parameter- number of converged eigenvalues, 6 not referenced
+    iparam(7) = 1   ! 1 for bulit-in shift-invert strategy (?), 3 for self declared shift-invert (?)
+    ! 8 if shift-invert mode is declared separately
+    !9 exit parameter
+    ipntr = 0
+    workl_length = 3 * ncv**2 + 5 * ncv   ! at least 3*ncv**2 + 5*ncv
+    info = 0
+    dim = size   !Number of points on the grid *4 due to spin-orbit hamiltonian and electron-hole
+
+    PRINT*, 'NCV = ', ncv, " NEV = ", nev, "size = ", size
+
+    ALLOCATE (resid(dim))
+    ALLOCATE (Arnoldi_vector(dim, ncv))
+    ALLOCATE (workd(3 * dim))
+    ALLOCATE (workl(workl_length))
+    ALLOCATE (rwork(ncv))
+    ALLOCATE (SELECT(ncv))
+    ALLOCATE (E_eigenvalues(nev + 1))
+    ALLOCATE (WORKev(2 * ncv))
+    ALLOCATE (eigen_index(nev))
+    ALLOCATE (Eigenvectors_normalised(dim, nev))
+    ALLOCATE (state_index(nev))
+
+    !#################################### ARPACK LOOP #############################################
+    DO
+
+      CALL ZNAUPD(ido, 'I', dim, 'SR', nev, accuracy, resid, ncv, Arnoldi_vector, ldv, iparam, ipntr, &
+      &  workd, workl, workl_length, rwork, info)
+      IF (info .LT. 0) PRINT *, "ERROR in znaupd, info = ", info
+
+      IF (ido .EQ. 99) EXIT
+      IF ((ido .NE. -1) .AND. (ido .NE. 1)) THEN
+        !prom        PRINT*, "ido = ", ido
+        STOP "ZNAUPD error"
+      END IF
+      !Hermitian matrix and vector multiplication
+      CALL avmult(dim, nonzero, ia_csr, ja_csr, ham_csr, workd(ipntr(1)), workd(ipntr(2)))
+
+    END DO
+    ! !##################################################################################################
+    !PRINT*, "ZNAUPD info: ", info
+    !PRINT*,  iparam(5), "eigenvalues found, calling zneupd"
+    IF (info .NE. 0) STOP
+
+    !ARPACK eigenvalues extraction
+    CALL ZNEUPD(rvec, 'A', SELECT, E_eigenvalues, Arnoldi_vector, ldv, sigma, WORKev, 'I', dim, &
+      & 'SR', nev, accuracy, resid, ncv, Arnoldi_vector, ldv, iparam, ipntr, workd, workl, workl_length, rwork, ierr)
+
+    ! PRINT*, "ZNEUPD ierr: ", ierr
+    n_converged = iparam(5)
+    IF (n_converged .NE. nev) THEN
+      PRINT *, "WARNING: number of eigenvalues converged: ", n_converged, "is different than nstate:", nnstate
+      STOP
+    END IF
+
+    CALL indexx(n_converged, REAL(E_eigenvalues), state_index)
+
+    !Sorted energies from ARPACK
+    DO i = 1, nnstate
+      ev(i) = REAL(E_eigenvalues(state_index(i)))
+    END DO
+
+    !Julian: consider whether we need to normalize the wavefuctions
+    !This may be spare - consult with docummentation
+    !Normalisation of wavefuctions
+    DO i = 1, nnstate
+      DO j = 1, size
+        Eigenvectors_normalised(j, i) = Arnoldi_vector(j, state_index(i))
+      END DO
+      probability_norm = SUM(ABS(Eigenvectors_normalised(:, i))**2)
+      !Eigenvectors_normalised(:, i) = Eigenvectors_normalised(:, i) / SQRT(probability_norm)
+      psi(:, i) =  Eigenvectors_normalised(:, i) / SQRT(probability_norm)
+    END DO
+
+
+    DEALLOCATE (state_index)
+
+  END SUBROUTINE DIAGONALIZE_ARPACK_CRS
+
+
+
   SUBROUTINE DIAGONALIZE_ARPACK(ham, size, psi, ev, nnx, nny, norbitals, nnstate)
     USE indata
     USE hamiltonian
@@ -155,6 +302,7 @@ MODULE diagonalize
     INTEGER*4, ALLOCATABLE:: eigen_index(:)
     COMPLEX*16, ALLOCATABLE :: Eigenvectors_normalised(:, :)
     REAL*8 :: probability_norm
+    REAL*8 :: min_nonzero
 
     !size = (2 * nnx + 1) * (2 * nny + 1) * norbitals
     !ALLOCATE (ham(size, size))
@@ -177,7 +325,7 @@ MODULE diagonalize
     nonzero = 0
     DO i = 1, size
       DO j = i, size
-        IF (ABS(ham(i, j)) .NE. 0.0) THEN
+        IF (ABS(ham(i, j)) .NE. 0.0d0) THEN
           nonzero = nonzero + 1
         END IF
       END DO

@@ -453,105 +453,98 @@ c     write(*,*)chiaja(i),jab(i),'h'
      >  m, res, info)
 
       do ip=1,in2
-      do isp=1,2
-      do io=1,3
-
-      do i=1,inw
-      rin1=r(i,1)
-      rin2=r(i,2)
-      iorb=r(i,3)
-      is=r(i,4)
-      if(abs(rin1-rpo(ip,1))+abs(rin2-rpo(ip,2)).lt.a/10)then
-      if(io.eq.iorb.and.
-     >isp.eq.(1-is)/2+1)then
-      rdm(ip,1)=r(i,1)
-      rdm(ip,2)=r(i,2)
-      do ist=1,m0
-      cpsi(ip,io,isp,ist)=cfeast(i,ist)
+            do isp=1,2
+                  do io=1,3
+                        do i=1,inw
+                              rin1=r(i,1)
+                              rin2=r(i,2)
+                              iorb=r(i,3)
+                              is=r(i,4)
+                              if(abs(rin1-rpo(ip,1))+abs(rin2-rpo(ip,2)).lt.a/10)then
+                                    if(io .eq. iorb .and. isp .eq. (1-is)/2 + 1)then
+                                          rdm(ip,1)=r(i,1)
+                                          rdm(ip,2)=r(i,2)
+                                          do ist=1,m0
+                                                cpsi(ip,io,isp,ist)=cfeast(i,ist)
 c     write(*,*) ip,io,isp,ist
-      enddo
+                                          enddo
 c     write(1200+r(i,3)*10+r(i,4),222) rin1,rin2,cdabs(cfeast(i,1))
-      endif
-      endif
-      enddo
-
-      enddo
-      enddo
+                                    endif
+                              endif
+                        enddo
+                  enddo
+            enddo
       enddo
 
       is=1
       do ip=1,-in2
-      write(13,222) rpo(ip,1),rpo(ip,2),
-     >cdabs(cpsi(ip,1,1,is)),
-     >cdabs(cpsi(ip,2,1,is)),
-     >cdabs(cpsi(ip,3,1,is)),
-     >cdabs(cpsi(ip,1,2,is)),
-     >cdabs(cpsi(ip,2,2,is)),
-     >cdabs(cpsi(ip,3,2,is))
+            write(13,222) rpo(ip,1),rpo(ip,2),
+            >cdabs(cpsi(ip,1,1,is)),
+            >cdabs(cpsi(ip,2,1,is)),
+            >cdabs(cpsi(ip,3,1,is)),
+            >cdabs(cpsi(ip,1,2,is)),
+            >cdabs(cpsi(ip,2,2,is)),
+            >cdabs(cpsi(ip,3,2,is))
       enddo
       
       dcont=0
       do i=1,m
-      do j=1,inw
-      ib=2*r(j,3)+r(j,4)
-      io=r(j,3)
-      is=r(j,4)
-      ib=2*(io-1)+1+(is+1)/2
-      dcont(i,ib)=dcont(i,ib)+cdabs(cfeast(j,i))**2
-      enddo
+            do j=1,inw
+                  ib=2*r(j,3)+r(j,4)
+                  io=r(j,3)
+                  is=r(j,4)
+                  ib=2*(io-1)+1+(is+1)/2
+                  dcont(i,ib)=dcont(i,ib)+cdabs(cfeast(j,i))**2
+            enddo
       enddo
       xn=0
       do i=1,jnz
-      k=nzin(i,1)
-      l=nzin(i,2)
-      xn=xn+dconjg(cfeast(k,1))*cfeast(l,1)*cnzb(i)
+            k=nzin(i,1)
+            l=nzin(i,2)
+            xn=xn+dconjg(cfeast(k,1))*cfeast(l,1)*cnzb(i)
       enddo
       write(*,*) 'z cnzb ',xn,m
 
-      write(*,*) 'zfe info ',info,iband,
-     >(efeast(m1)*27211.6,m1=1,m)
+      write(*,*) 'zfe info ',info,iband,(efeast(m1)*27211.6,m1=1,m)
 
       do  i=1,m
-      xn=0
-      do ib=1,6
-      xn=xn+dcont(i,ib)
-      enddo
-       write(*,*) 'm ',i,xn
-      do j=1,inw
+            xn=0
+            do ib=1,6
+                  xn=xn+dcont(i,ib)
+            enddo
+            write(*,*) 'm ',i,xn
+            do j=1,inw
 c     cfeast(j,i)=cfeast(j,i)/sqrt(xn)
-      enddo
-      do ib=1,6
-      dcont(i,ib)=dcont(i,ib)/xn
-      enddo
+            enddo
+            do ib=1,6
+                  dcont(i,ib)=dcont(i,ib)/xn
+            enddo
       enddo
 c     do ix=1,m
-      write(820,242) bpx,bpy,bpz,((efeast(ix)-delte)*27211.6,
-     > (dcont(ix,ic),ic=1,6),ix=1,m)
+      write(820,242) bpx,bpy,bpz,((efeast(ix)-delte)*27211.6,(dcont(ix,ic),ic=1,6),ix=1,m)
 c    >(dcont(ix,num),num=1,6)
 c     dcont(i,1)=dcont(i,1)+dcont(i,2)
 c     dcont(i,2)=dcont(i,3)+dcont(i,6)
 c     dcont(i,3)=dcont(i,4)+dcont(i,5)
 c     dcont(i,4)=dcont(i,7)+dcont(i,8)
 
-      write(*,*) 'zfe info ',info,iband,
-     >(efeast(m1)*27211.6,m1=1,m)
+      write(*,*) 'zfe info ',info,iband,(efeast(m1)*27211.6,m1=1,m)
 
 
       xn=0
       do i=1,jnz
-      k=nzin(i,1)
-      l=nzin(i,2)
-      xn=xn+dconjg(cfeast(k,1))*cfeast(l,1)*cnzb(i)
+            k=nzin(i,1)
+            l=nzin(i,2)
+            xn=xn+dconjg(cfeast(k,1))*cfeast(l,1)*cnzb(i)
       enddo
       write(*,*) 'z cnzb ',xn
 
 c    >*tra(imo,jmo,1)
 c    >*sls(1,mod(i,8)+1,mod(j,8)+1)
 
-
       do ix=1,m
-      write(520,242) ix,efeast(ix)*27211.6,
-     >(dcont(ix,num),num=1,6)
+            write(520,242) ix,efeast(ix)*27211.6,
+            >(dcont(ix,num),num=1,6)
       enddo
       xnc=0
       write(11,*) 'norm ', xnc
@@ -573,47 +566,54 @@ c    >*sls(1,mod(i,8)+1,mod(j,8)+1)
       enddo
       enddo
 c     stop
+
+
+      !################ TIME DEPENDENT CALCULATION ???
       dt=400
       w=(efeast(3)-efeast(1))
       do w0=.5,-30,.01
-      w=w0/27211.6
-      ct=0
-      cmax=0
-      ct(1)=1
-      tmax=.005/2.418e-11/dt
-      do tit=1,tmax
-      cmat=0
-      t=(tit-1)*dt
-      do k=1,m
-      cmat(k,k)=1
-      do l=1,m
-      cmat(k,l)=cmat(k,l)-dt/2/ci*sin(w*(t+dt))*com(k,l)
-     >*cdexp(ci*(efeast(k)-efeast(l))*(t+dt))
-      enddo
-      enddo
-      cb=0
-      do k=1,m
-      cb(k,1)=ct(k)
-      do l=1,m
-      cb(k,1)=cb(k,1)+dt/2/ci*sin(w*t)*com(k,l)*ct(l)
-     >*cdexp(ci*(efeast(k)-efeast(l))*t)
-      enddo
-      enddo
-      call zgesv(m,1,cmat,100,ipiv,cb,100,info)
-      do k=1,m
-      ct(k)=cb(k,1)
-      enddo
+            w=w0/27211.6
+            ct=0
+            cmax=0
+            ct(1)=1
+            tmax=.005/2.418e-11/dt
+            do tit=1,tmax
+                  cmat=0
+                  t=(tit-1)*dt
+                  do k=1,m
+                        cmat(k,k)=1
+                        do l=1,m
+                              cmat(k,l)=cmat(k,l)-dt/2/ci*sin(w*(t+dt))*com(k,l)
+                              >*cdexp(ci*(efeast(k)-efeast(l))*(t+dt))
+                        enddo
+                  enddo
+
+                  cb=0
+                  do k=1,m
+                        cb(k,1)=ct(k)
+                        do l=1,m
+                              cb(k,1)=cb(k,1)+dt/2/ci*sin(w*t)*com(k,l)*ct(l)
+                              >*cdexp(ci*(efeast(k)-efeast(l))*t)
+                        enddo
+                  enddo
+
+                  call zgesv(m,1,cmat,100,ipiv,cb,100,info)
+                  do k=1,m
+                        ct(k)=cb(k,1)
+                  enddo
 c     write(14,242)
 c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
-      do i=1,m
-      if(cdabs(ct(i)).gt.cdabs(cmax(i))) cmax(i)=cdabs(ct(i))
+            do i=1,m
+                  if(cdabs(ct(i)).gt.cdabs(cmax(i))) cmax(i)=cdabs(ct(i))
+            enddo
+            do i=1,10
+                  if(abs(tit-tmax/i).lt.0.5) then
+                        write(100+i,242)w0,t*2.411e-11,(cdabs(cmax(k))**2,k=1,m)
+                  endif
+            enddo
       enddo
-      do i=1,10
-      if(abs(tit-tmax/i).lt.0.5) then
-      write(100+i,242)w0,t*2.411e-11,(cdabs(cmax(k))**2,k=1,m)
-      endif
-      enddo
-      enddo
+
+
       write(15,242)
      > w0,(cdabs(cmax(i))**2,i=1,m)
 

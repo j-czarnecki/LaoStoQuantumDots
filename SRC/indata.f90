@@ -22,6 +22,7 @@ MODULE indata
   REAL*8 :: eps_r
 
   !external parameters
+  REAL*8 :: omega
   REAL*8 :: Bx
   REAL*8 :: By
   REAL*8 :: Bz
@@ -48,6 +49,7 @@ MODULE indata
 
   ! calculations flags
   NAMELIST /external_parameters/          &
+  &  omega,                               &
   &  Bx,                                  &
   &  By,                                  &
   &  Bz
@@ -77,6 +79,7 @@ CONTAINS
     norbs = 1
     nstate = 10
 
+    omega = 0.0
     Bx = 0.0
     By = 0.0
     Bz = 0.0
@@ -115,6 +118,7 @@ CONTAINS
 
     ! read namelist
     READ (33, NML=external_parameters)
+    omega = omega * eV2au
     Bx = Bx * T2au
     By = By * T2au
     Bz = Bz * T2au

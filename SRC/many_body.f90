@@ -5,6 +5,7 @@ MODULE many_body
 
 
   SUBROUTINE CALCULATE_INTERACTION_ELEMENTS(Psi_1, Psi_2, Psi_3, Psi_4, size, matrix_element, norbs, Nx, Ny, dx, eps_r)
+    !! Computes integral of the form <psi_1 psi_2 | 1/r_{ij} | psi_3 psi_4>
     IMPLICIT NONE
     INTEGER*4, INTENT(IN) :: size, norbs, Nx, Ny
     REAL*8, INTENT(IN) :: dx, eps_r
@@ -80,7 +81,7 @@ MODULE many_body
       END DO
     END DO
 
-    matrix_element = matrix_element*dx**2/eps_r
+    matrix_element = matrix_element/eps_r
     !PRINT*, matrix_element
 
   END SUBROUTINE CALCULATE_INTERACTION_ELEMENTS
@@ -117,6 +118,50 @@ MODULE many_body
     END DO
     
   END SUBROUTINE CALCULATE_PARTICLE_DENSITY
+
+  ! SUBROUTINE CALCULATE_X_EXPECTED_VALUE_MANY_BODY(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  !   IMPLICIT NONE
+  !   COMPLEX*16, INTENT(OUT) :: Psi_1(ham_1_size, nstates_1)
+  !   COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  !   INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  !   INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  !   INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  !   INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  !   INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+  !   INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  !   INTEGER*4 :: i, j, a, b, k
+  !   COMPLEX*16 :: x_expected !Now it is complex to test if imaginary part is ~0
+
+  !   x_expected = (0.0d0, 0.0d0)
+  !   DO a = 1, ham_2_size
+  !     DO b = 1, ham_2_size !Probably I can sum over upper triangle
+  !       IF (N_changed_indeces(a,b) == 0) THEN
+  !         DO k = 1, k_electrons
+  !           x_expected = x_expected + CONJG(C_slater(a,n))*C_slater(b,m)*&
+  !             &single_electron_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), norbs, Nx, Ny, dx, ham_1_size)
+  !         END DO
+  !       ELSE IF (N_changed_indeces(a,b) == 1) THEN
+  !         x_expected = x_expected + CONJG(C_slater(a,n))*C_slater(b,m)*&
+  !           &single_electron_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), norbs, Nx, Ny, dx, ham_1_size)
+  !       END IF
+  !     END DO
+  !   END DO
+
+  ! END SUBROUTINE CALCULATE_X_EXPECTED_VALUE_MANY_BODY
+
+
+  ! COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, Ny, dx, ham_1_size)
+  !   IMPLICIT NONE
+  !   COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
+  !   INTEGER*4, INTENT(IN) :: ham_1_size
+  !   INTEGER*4, INTENT(IN) :: norbs, Nx, Ny
+  !   REAL*8, INTENT(IN) :: dx
+  !   INTEGER*4 :: i,j
+  !   single_electron_x_expected_value = (0.0d0, 0.0d0)
+  !   DO i = 1, ham_1_size
+  !     single_electron_x_expected_value = single_electron_x_expected_value + CONJG(Psi1(i))*Psi2(i)*get_x_from_psi_index(i, norbs, Nx, Ny, dx)
+  !   END DO
+  ! END FUNCTION  single_electron_x_expected_value
 
   REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, Ny, dx)
     IMPLICIT NONE

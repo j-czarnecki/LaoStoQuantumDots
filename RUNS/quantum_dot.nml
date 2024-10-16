@@ -1,12 +1,12 @@
 &calculation_parameters
-	Nx=25,            
-	Ny=25,
+	Nx=20,
+	Ny=20,
 	dx=.39,
-	norbs=6, 
-	nstate=10/
+	norbs=6,
+	nstate=6/
 
 &physical_parameters
-	th=0.04,		
+	th=0.04,
 	tl=0.875,
 	td=0.04,
 	dso=0.01,
@@ -16,7 +16,8 @@
 	eps_r = 100.0/
 
 &external_parameters
-	Bx=0.0,               
-	By=0.0,
-	Bz=10.0/
+	omega = 37.378e-3,
+	Bx=0.0,
+	By=10.0,
+	Bz=0.0/
 

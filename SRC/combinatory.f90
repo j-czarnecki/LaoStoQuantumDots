@@ -47,7 +47,7 @@ END SUBROUTINE
 
 SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces, ham_2_size, k_electrons)
   !! Calculates number of changed indeces between two combinations of k_electrons.
-  !! For each pair of combinations it also check which indeces have been changed.
+  !! For each pair of combinations it also checks which indeces have been changed.
   IMPLICIT NONE
   INTEGER*4, INTENT(OUT) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
   INTEGER*1, INTENT(OUT) :: N_changed_indeces(ham_2_size, ham_2_size)
