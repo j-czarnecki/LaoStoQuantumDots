@@ -1,6 +1,7 @@
 MODULE writers
 USE constants
 USE indata
+USE utility
 
 IMPLICIT NONE
 CONTAINS
@@ -59,6 +60,16 @@ SUBROUTINE WRITE_ENERGIES(Energies, nstates, filename)
 
 END SUBROUTINE WRITE_ENERGIES
 
+SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, filename)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates)
+  INTEGER*4, INTENT(IN) :: ham_1_size, nstates
+  CHARACTER(LEN=*), INTENT(IN) :: filename
+  INTEGER*4 :: i, j, n
+  CHARACTER(LEN=200) :: format_string
 
+
+
+END SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS
 
 END MODULE writers

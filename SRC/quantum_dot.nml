@@ -3,7 +3,11 @@
 	Ny=20,
 	dx=.39,
 	norbs=6,
-	nstate=6/
+	nstate_1=50,
+	nstate_2 = 50,
+	k_electrons = 2,
+	dt = 1e-4,
+	t_max = 5./
 
 &physical_parameters
 	th=0.04,
@@ -18,6 +22,8 @@
 &external_parameters
 	omega = 37.378e-3,
 	Bx=0.0,
-	By=10.0,
-	Bz=0.0/
+	By=0.0,
+	Bz=10.0,
+	omega_ac = 1.727e-3,
+	f_ac = 1e6/
 

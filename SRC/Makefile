@@ -27,6 +27,7 @@ LFLAGS = $(F90FLAGS)
 
 ## LLIBS are libraries to use at link time
 LIBS = -L ./lib -larpack
+LIB_OMP = -fopenmp
 
 LIBS_MKL = -I${MKLROOT}/include \
 	   -I/opt/intel/mkl/include \
@@ -58,13 +59,13 @@ OBJS =  main.o \
 #################################################################
 
 $(TARGET) : $(OBJS)
-	$(LNK) -o $(TARGET) $(LFLAGS) $^ $(LIBS) $(LIBS_MKL) 
+	$(LNK) $(LIB_OMP) -o $(TARGET) $(LFLAGS) $^ $(LIBS) $(LIBS_MKL)
 
 %.o : %.f90
-	$(F90) $(F90FLAGS) -c $< -o $@
+	$(F90) $(LIB_OMP) $(F90FLAGS) -c $< -o $@
 
 %.o : %.f
-	$(F77) $(F77FLAGS) -c $< -o $@
+	$(F77) $(LIB_OMP) $(F77FLAGS) -c $< -o $@
 
 all: $(TARGET)
 
@@ -102,7 +103,7 @@ many_body.o: combinatory.o
 writers.o: indata.o \
 					 constants.o
 
-utility.o: utility.o
+utility.o:
 
 constants.mod: #Has to be .mod, or else module is not found
 

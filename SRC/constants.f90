@@ -25,6 +25,7 @@
   REAL(DP), PARAMETER :: nm2au   = 18.89726133921252
   REAL(DP), PARAMETER :: T2au    = 4.254382E-6
   REAL(DP), PARAMETER :: ns2au   = 4.1341373336493 * 1e7
+  REAL(DP), PARAMETER :: F2au    = 1.0d0/(5.14220652*1e11) ![V/m] ---> [a.u.]
   REAL(DP), PARAMETER :: mub     = 0.5
   REAL*8, PARAMETER :: m_eff     = 0.286
 

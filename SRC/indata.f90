@@ -9,7 +9,12 @@ MODULE indata
   INTEGER :: Ny             !number of sites in the  direction
   REAL*8  :: dx             !size of grid
   INTEGER :: norbs          !number of orbitals including spin
-  INTEGER :: nstate         !number of single electron states taken for calculations
+  INTEGER :: nstate_1       !number of single electron states taken for calculations
+  INTEGER :: nstate_2       !number of many electron states taken for calculations
+  INTEGER :: k_electrons    !number of electrons
+  REAL*8 :: dt              !Time step [ns]
+  REAL*8 :: t_max           !Time span [ns]
+  INTEGER*4 :: N_t_steps    !Number of time steps
 
   !physical paramters for LAO/STO
   REAL*8 :: tl
@@ -26,6 +31,8 @@ MODULE indata
   REAL*8 :: Bx
   REAL*8 :: By
   REAL*8 :: Bz
+  REAL*8 :: omega_ac
+  REAL*8 :: f_ac
 
   !Derived parameters
   REAL*8 :: a !lattice constant
@@ -35,7 +42,11 @@ MODULE indata
        &  Ny,                                   &
        &  dx,                                   &
        &  norbs,                                &
-       &  nstate
+       &  nstate_1,                             &
+       &  nstate_2,                             &
+       &  k_electrons,                          &
+       &  dt,                                   &
+       &  t_max
 
   NAMELIST /physical_parameters/               &
        &  tl,                                  &
@@ -52,7 +63,9 @@ MODULE indata
   &  omega,                               &
   &  Bx,                                  &
   &  By,                                  &
-  &  Bz
+  &  Bz,                                  &
+  &  omega_ac,                            &
+  &  f_ac
 
 CONTAINS
 
@@ -77,7 +90,8 @@ CONTAINS
     dE = 0.0
     g = 0
     norbs = 1
-    nstate = 10
+    nstate_1 = 6
+    nstate_2 = 2
 
     omega = 0.0
     Bx = 0.0
@@ -102,16 +116,21 @@ CONTAINS
       STOP
     END IF
 
+    a = 0.39 * nm2au !Julian: is this meant to be a fixed value?
+    dx = dx * nm2au
+    dt = dt * ns2au
+    t_max = t_max * ns2au
+    N_t_steps = INT(t_max / dt)
+
+
     ! read namelist
     READ (33, NML=physical_parameters)
 
-    a = 0.39 * nm2au !Julian: is this meant to be a fixed value?
     th = th * eV2au
     tl = tl * eV2au
     td = td * eV2au
     dso = dso * eV2au
     drso = drso * eV2au
-    dx = dx * nm2au
     dE = dE * eV2au
 
     IF (eps_r == 0.0d0) STOP "eps_r cannot be 0.0"
@@ -122,6 +141,8 @@ CONTAINS
     Bx = Bx * T2au
     By = By * T2au
     Bz = Bz * T2au
+    omega_ac = omega_ac * eV2au
+    f_ac = f_ac * F2au
 
   END SUBROUTINE INDATA_GET
 

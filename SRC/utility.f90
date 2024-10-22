@@ -3,6 +3,17 @@ USE constants
 IMPLICIT NONE
 CONTAINS
 
+PURE REAL*8 FUNCTION v_ac(f_ac, omega_ac, t)
+  IMPLICIT NONE
+  REAL*8, INTENT(IN) :: f_ac, t, omega_ac
+  v_ac = -f_ac*SIN(omega_ac*t)
+END FUNCTION v_ac
+
+PURE COMPLEX*16 FUNCTION energy_phase_offset(En, Em, t)
+  IMPLICIT NONE
+  REAL*8, INTENT(IN) :: En, Em, t
+  energy_phase_offset = EXP(imag*t*(En - Em))
+END FUNCTION energy_phase_offset
 
 PURE REAL*8 FUNCTION sigma_x_expected_value(Psi, psi_size)
   !! Calculates expectation value of sigma_x Pauli matrix.
@@ -56,6 +67,7 @@ PURE REAL*8 FUNCTION d_xy_share(Psi, psi_size, norbs)
     d_xy_share = d_xy_share + CONJG(Psi(i))*Psi(i) !Spin up
     d_xy_share = d_xy_share + CONJG(Psi(i + 1))*Psi(i + 1) !Spin down
   END DO
+  RETURN
 END FUNCTION d_xy_share
 
 
@@ -70,6 +82,7 @@ PURE REAL*8 FUNCTION d_xz_share(Psi, psi_size, norbs)
     d_xz_share = d_xz_share + CONJG(Psi(i + offset))*Psi(i + offset) !Spin up
     d_xz_share = d_xz_share + CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset) !Spin down
   END DO
+  RETURN
 END FUNCTION d_xz_share
 
 PURE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
@@ -83,6 +96,7 @@ PURE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
     d_yz_share = d_yz_share + CONJG(Psi(i + offset))*Psi(i + offset) !Spin up
     d_yz_share = d_yz_share + CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset) !Spin down
   END DO
+  RETURN
 END FUNCTION d_yz_share
 
 
