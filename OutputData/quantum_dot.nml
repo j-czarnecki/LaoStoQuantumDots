@@ -1,10 +1,10 @@
 &calculation_parameters
-	Nx=20,
-	Ny=20,
+	Nx=5,
+	Ny=5,
 	dx=.39,
 	norbs=6,
-	nstate_1=50,
-	nstate_2 = 50,
+	nstate_1=6,
+	nstate_2 = 2,
 	k_electrons = 2,
 	dt = 1e-4,
 	t_max = 5./
@@ -23,7 +23,7 @@
 	omega = 37.378e-3,
 	Bx=0.0,
 	By=0.0,
-	Bz=10.0,
+	Bz=0.0,
 	omega_ac = 1.727e-3,
 	f_ac = 1e6/
 

@@ -79,7 +79,7 @@ MODULE diagonalize
     info = 0
     dim = size   !Number of points on the grid *4 due to spin-orbit hamiltonian and electron-hole
 
-    PRINT*, 'NCV = ', ncv, " NEV = ", nev, "size = ", size
+    !PRINT*, 'NCV = ', ncv, " NEV = ", nev, "size = ", size
 
     ALLOCATE (resid(dim))
     ALLOCATE (Arnoldi_vector(dim, ncv))
@@ -102,7 +102,7 @@ MODULE diagonalize
 
       IF (ido .EQ. 99) EXIT
       IF ((ido .NE. -1) .AND. (ido .NE. 1)) THEN
-        !prom        PRINT*, "ido = ", ido
+        !prom        !PRINT*, "ido = ", ido
         STOP "ZNAUPD error"
       END IF
       !Hermitian matrix and vector multiplication
@@ -110,15 +110,15 @@ MODULE diagonalize
 
     END DO
     ! !##################################################################################################
-    !PRINT*, "ZNAUPD info: ", info
-    !PRINT*,  iparam(5), "eigenvalues found, calling zneupd"
+    !!PRINT*, "ZNAUPD info: ", info
+    !!PRINT*,  iparam(5), "eigenvalues found, calling zneupd"
     IF (info .NE. 0) STOP
 
     !ARPACK eigenvalues extraction
     CALL ZNEUPD(rvec, 'A', SELECT, E_eigenvalues, Arnoldi_vector, ldv, sigma, WORKev, 'I', dim, &
       & 'SR', nev, accuracy, resid, ncv, Arnoldi_vector, ldv, iparam, ipntr, workd, workl, workl_length, rwork, ierr)
 
-    ! PRINT*, "ZNEUPD ierr: ", ierr
+    ! !PRINT*, "ZNEUPD ierr: ", ierr
     n_converged = iparam(5)
     IF (n_converged .NE. nev) THEN
       PRINT *, "WARNING: number of eigenvalues converged: ", n_converged, "is different than nstate:", nnstate
@@ -218,7 +218,7 @@ MODULE diagonalize
     !ALLOCATE (ham(size, size))
 
     !print*
-    !print*, "Calculations in progress ..."
+    !!PRINT*, "Calculations in progress ..."
     !CALL HAMILTONIAN_CREATE(ham, size, nnx, nny, norbitals, potential)
 
     !delete elements - the matrix become UPPER
@@ -241,13 +241,13 @@ MODULE diagonalize
       END DO
     END DO
 
-    PRINT*, "Trying to allocte compressed storage row hamiltonian..."
+    !PRINT*, "Trying to allocte compressed storage row hamiltonian..."
     ALLOCATE (ham_csr(nonzero))
     ALLOCATE (ja_csr(nonzero))
     ALLOCATE (ia_csr(size + 1))
 
-    print*, "Elements:", size*size
-    print*, "Nonzero elements:", nonzero
+    !PRINT*, "Elements:", size*size
+    !PRINT*, "Nonzero elements:", nonzero
 
     nn = 1
     DO i = 1, size
@@ -286,7 +286,7 @@ MODULE diagonalize
     info = 0
     dim = size   !Number of points on the grid *4 due to spin-orbit hamiltonian and electron-hole
 
-    PRINT*, 'NCV = ', ncv, " NEV = ", nev, "size = ", size
+    !PRINT*, 'NCV = ', ncv, " NEV = ", nev, "size = ", size
 
     ALLOCATE (resid(dim))
     ALLOCATE (Arnoldi_vector(dim, ncv))
@@ -309,7 +309,7 @@ MODULE diagonalize
 
       IF (ido .EQ. 99) EXIT
       IF ((ido .NE. -1) .AND. (ido .NE. 1)) THEN
-        !prom        PRINT*, "ido = ", ido
+        !prom        !PRINT*, "ido = ", ido
         STOP "ZNAUPD error"
       END IF
       !Hermitian matrix and vector multiplication
@@ -317,15 +317,15 @@ MODULE diagonalize
 
     END DO
     ! !##################################################################################################
-    !PRINT*, "ZNAUPD info: ", info
-    !PRINT*,  iparam(5), "eigenvalues found, calling zneupd"
+    !!PRINT*, "ZNAUPD info: ", info
+    !!PRINT*,  iparam(5), "eigenvalues found, calling zneupd"
     IF (info .NE. 0) STOP
 
     !ARPACK eigenvalues extraction
     CALL ZNEUPD(rvec, 'A', SELECT, E_eigenvalues, Arnoldi_vector, ldv, sigma, WORKev, 'I', dim, &
       & 'SR', nev, accuracy, resid, ncv, Arnoldi_vector, ldv, iparam, ipntr, workd, workl, workl_length, rwork, ierr)
 
-    ! PRINT*, "ZNEUPD ierr: ", ierr
+    ! !PRINT*, "ZNEUPD ierr: ", ierr
     n_converged = iparam(5)
     IF (n_converged .NE. nev) THEN
       PRINT *, "WARNING: number of eigenvalues converged: ", n_converged, "is different than nstate:", nnstate

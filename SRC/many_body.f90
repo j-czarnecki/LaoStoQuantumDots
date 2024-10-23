@@ -1,5 +1,6 @@
 MODULE many_body
   USE combinatory
+  USE utility
   IMPLICIT NONE
   CONTAINS
 
@@ -25,10 +26,11 @@ MODULE many_body
     row_2_crs = 0
     nn = 1
     DO i = 1, ham_2_size
-      PRINT*, "i = ", i
+      !PRINT*, "i = ", i
+      WRITE(66,*) "nn / nonzero ", nn, nonzero_ham_2
       row_2_crs(i) = nn
       DO j = i, ham_2_size
-        !PRINT*, i, j
+        !!PRINT*, i, j
         !If statements' order determined by frequency of given elements
         IF (N_changed_indeces(i,j) == 2) THEN
           !Interaction elements
@@ -47,6 +49,7 @@ MODULE many_body
         ELSE IF (N_changed_indeces(i,j) == 1) THEN
           !Interaction elements
           DO k = 1, k_electrons
+            ! !PRINT*, Combinations(i, k)
             CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)),&
                                               & Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Combinations(i,k)),&
                                               & ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
@@ -69,7 +72,7 @@ MODULE many_body
           DO k = 1, k_electrons
             DO l = k + 1, k_electrons !Check whether sum could be reduced to sum_{k, l>k}. Then I will get rid of 0.5*
               IF (Combinations(i,k) /= Combinations(i,l)) THEN
-                !PRINT*, Combinations(i,k), Combinations(i,l)
+                ! !PRINT*, Combinations(i,k), Combinations(i,l)
                 CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)),&
                                                   & Psi_1(:, Combinations(i,k)), Psi_1(:, Combinations(i,l)),&
                                                   &ham_1_size, interaction_element, norbs, Nx, Ny, dx, eps_r)
@@ -88,7 +91,7 @@ MODULE many_body
         END IF
       END DO
     END DO
-    PRINT*, "Nonzero elements traversed in ham 2", nn
+    !PRINT*, "Nonzero elements traversed in ham 2", nn
     row_2_crs(ham_2_size + 1) = nn
 
   END SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS
@@ -106,8 +109,8 @@ MODULE many_body
     INTEGER*4 :: ri,rj,k,l,m,n, si, sj, oi, oj, ok, ol
     INTEGER*4 :: i_so, j_so, k_so, l_so !index of spin-orbitals
     REAL*8 :: xi, yi, xj, yj, r_ij
-    REAL*8, PARAMETER :: epsilon(3) = [0.336, 0.306, 0.015] !eps(i,i,i,i), eps(i,j,i,j), eps(i,j,j,i) 
-    
+    REAL*8, PARAMETER :: epsilon(3) = [0.336, 0.306, 0.015] !eps(i,i,i,i), eps(i,j,i,j), eps(i,j,j,i)
+
     matrix_element = (0.0d0, 0.0d0)
 
     !Only two loops determining position due to two center approach.
@@ -137,7 +140,7 @@ MODULE many_body
                 DO oj = 0, norbs/2 - 1
                   i_so = si + 2*oi
                   j_so = sj + 2*oj
-                  !PRINT*, si, sj, oi, oj, i_so, j_so
+                  !!PRINT*, si, sj, oi, oj, i_so, j_so
                   matrix_element = matrix_element + 1/r_ij*CONJG(Psi_1(ri + i_so)*Psi_2(rj + j_so))*Psi_3(ri + i_so)*Psi_4(rj + j_so)
                 END DO
               END DO
@@ -176,7 +179,7 @@ MODULE many_body
     END DO
 
     matrix_element = matrix_element/eps_r
-    !PRINT*, matrix_element
+    !!PRINT*, matrix_element
 
   END SUBROUTINE CALCULATE_INTERACTION_ELEMENTS
 
@@ -210,14 +213,14 @@ MODULE many_body
         END DO
       END DO
     END DO
-    
+
   END SUBROUTINE CALCULATE_PARTICLE_DENSITY
 
   COMPLEX*16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, Ny, dx, norbs)
     !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
     !! X = \sum_i^{k_electrons} x_i.
     IMPLICIT NONE
-    COMPLEX*16, INTENT(OUT) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
     COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
     INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
     INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
@@ -246,31 +249,99 @@ MODULE many_body
 
   END FUNCTION many_body_x_expected_value
 
-  COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, Ny, dx, ham_1_size)
+
+  COMPLEX*16 FUNCTION many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+    !! Calculates matrix element of <n|s_x|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+    !! S_x = \sum_i^{k_electrons} s_x_i.
     IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
-    INTEGER*4, INTENT(IN) :: ham_1_size
-    INTEGER*4, INTENT(IN) :: norbs, Nx, Ny
-    REAL*8, INTENT(IN) :: dx
-    INTEGER*4 :: i,j
-    single_electron_x_expected_value = (0.0d0, 0.0d0)
-    DO i = 1, ham_1_size
-      single_electron_x_expected_value = single_electron_x_expected_value + CONJG(Psi1(i))*Psi2(i)*get_x_from_psi_index(i, norbs, Nx, dx)
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: i, j, a, b, k
+
+    many_body_sigma_x_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      DO b = 1, ham_2_size !Probably I can sum over upper triangle
+        IF (N_changed_indeces(a,b) == 0) THEN
+          DO k = 1, k_electrons
+            many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+              & sigma_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
+          END DO
+        ELSE IF (N_changed_indeces(a,b) == 1) THEN
+          many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
+        END IF
+      END DO
     END DO
-    RETURN
-  END FUNCTION single_electron_x_expected_value
 
-  PURE REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
-    IMPLICIT NONE
-    INTEGER*4, INTENT(IN) :: i, norbs, Nx, Ny
-    REAL*8, INTENT(IN) :: dx
-    get_y_from_psi_index = ((i/norbs)/(2*Nx + 1) - Ny) * dx
-  END FUNCTION get_y_from_psi_index
+  END FUNCTION many_body_sigma_x_expected_value
 
-  PURE REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, dx)
+  COMPLEX*16 FUNCTION many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+    !! Calculates matrix element of <n|s_y|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+    !! S_y = \sum_i^{k_electrons} s_y_i.
     IMPLICIT NONE
-    INTEGER*4, INTENT(IN) :: i, norbs, Nx
-    REAL*8, INTENT(IN) :: dx
-    get_x_from_psi_index = (MOD(i/norbs, 2*Nx + 1) - Nx) * dx
-  END FUNCTION get_x_from_psi_index
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: i, j, a, b, k
+
+    many_body_sigma_y_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      DO b = 1, ham_2_size !Probably I can sum over upper triangle
+        IF (N_changed_indeces(a,b) == 0) THEN
+          DO k = 1, k_electrons
+            many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+              & sigma_y_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
+          END DO
+        ELSE IF (N_changed_indeces(a,b) == 1) THEN
+          many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_y_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
+        END IF
+      END DO
+    END DO
+
+  END FUNCTION many_body_sigma_y_expected_value
+
+  COMPLEX*16 FUNCTION many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+    !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+    !! S_z = \sum_i^{k_electrons} s_z_i.
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+
+    INTEGER*4 :: i, j, a, b, k
+
+    many_body_sigma_z_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      DO b = 1, ham_2_size !Probably I can sum over upper triangle
+        IF (N_changed_indeces(a,b) == 0) THEN
+          DO k = 1, k_electrons
+            many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+              & sigma_z_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
+          END DO
+        ELSE IF (N_changed_indeces(a,b) == 1) THEN
+          many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_z_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
+        END IF
+      END DO
+    END DO
+
+  END FUNCTION many_body_sigma_z_expected_value
+
 END MODULE many_body

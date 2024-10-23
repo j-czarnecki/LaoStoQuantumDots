@@ -98,10 +98,13 @@ hamiltonian.o: indata.o
 diagonalize.o: indata.o \
 							 hamiltonian.o
 
-many_body.o: combinatory.o
+many_body.o: combinatory.o \
+						 utility.o
 
 writers.o: indata.o \
-					 constants.o
+					 constants.o \
+					 utility.o \
+					 many_body.o
 
 utility.o:
 

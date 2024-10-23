@@ -311,7 +311,7 @@ CONTAINS
       END DO !End y-position loop
     END DO !End x-position loop
     row_crs(ham_1_size + 1) = n
-    PRINT*, 'Included non-zero elements in CRS format: ', n
+    !PRINT*, 'Included non-zero elements in CRS format: ', n
 
   END SUBROUTINE CREATE_ONE_ELECTRON_HAMILTONIAN_CRS
 
@@ -388,7 +388,7 @@ CONTAINS
                                              dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(td / 2.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), &
                                              dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(td / 2.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0) &
                                              /), SHAPE(h_hopping_diagonal))
-    
+
     !Hopping one to the right and one up
     !Julian: Was transposed
     h_hopping_diagonal_m = RESHAPE((/dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), dcmplx(0.0, 0.0), &
@@ -480,7 +480,7 @@ CONTAINS
         END IF
 
       END DO
-    END DO    
+    END DO
 
     CALL fill_hermitian(ham, size)
 

@@ -69,18 +69,18 @@
        ej(2,3,3,2)=0.015
        ej(3,1,1,3)=0.015
        ej(3,2,2,3)=0.015
-       
+
       dlt(0)=1
       ci=(0.0,1.0)
       pi=4*atan(1.0)
       xm=1
-     
+
 c     as=sqrt(1/xm/wx)*4./nxs
       ay=10/(2*nz+1)/.05292
       ax=10.0/(2*nx+1)/.05292
 c     ny=nx*sqrt(wx/wy)
 c     nz=nx*sqrt(wx/wz)
-      write(*,*) ,nx,ny,nz,
+      !!WRITE(*,*) ,nx,ny,nz,
      >ax*.05292,az*.05292
       nx=110
       ny=50
@@ -103,7 +103,7 @@ c budujemy sieć węzłów numer jeden
       r(in,4)=is
       num=id*2+(-is+1)/2-1
       nbas(in)=num
-c     write(*,*) id,is,num
+c     !!WRITE(*,*) id,is,num
       enddo
       enddo
       in2=in2+1
@@ -112,7 +112,7 @@ c     write(*,*) id,is,num
 c     write(13,*) r(in,1),r(in,2)
       enddo
       enddo
-      write(*,*) ((io,isp,io=1,3),isp=1,2)
+      !!WRITE(*,*) ((io,isp,io=1,3),isp=1,2)
 
       do i=1,in
       nbrx(i,0)=0
@@ -154,7 +154,7 @@ c     write(13,*) r(in,1),r(in,2)
       nbs(i,0)=nbs(i,0)+1
       nl=nbs(i,0)
       nbs(i,nl)=j
-c     write(*,*) i,j,nbas(i),nbas(j)
+c     !!WRITE(*,*) i,j,nbas(i),nbas(j)
       endif
       enddo
       enddo
@@ -199,7 +199,7 @@ c     tl=th
 
       celem2=celem2-v1*exp(-0.5*((r(i,1)-sx)**2+r(i,2)**2)/Rga**2)
       celem2=celem2-v0*exp(-0.5*((r(i,1)+sx)**2+r(i,2)**2)/Rga**2)+psz
-c     write(*,*) in
+c     !!WRITE(*,*) in
 c     inw=in
 
 
@@ -221,7 +221,7 @@ c do so loc
       do j=1,nbs(i,0)
       k=nbs(i,j)
       ib=nbas(i)
-      kb=nbas(k) 
+      kb=nbas(k)
       celem=0
       celem2=0
       if(ib.eq.1.and.kb.eq.4) celem2=ci/2
@@ -236,7 +236,7 @@ c do so loc
       if(ib.eq.5.and.kb.eq.3) celem2=-ci/2
       if(ib.eq.6.and.kb.eq.1) celem2=-1/2.
       if(ib.eq.6.and.kb.eq.4) celem2=ci/2
-      celem2=celem2*dso/3 
+      celem2=celem2*dso/3
       if(1.eq.1) then
       if(ib.eq.1.and.kb.eq.3) celem2=celem2+ci*bx/2.
       if(ib.eq.2.and.kb.eq.4) celem2=celem2+ci*bx/2.
@@ -270,8 +270,8 @@ c do so loc
 
 
 
-c     write(*,*) i,k,cdabs(celem2),' dso',ib,kb
-c     write(*,*) celem2*27211.6,r(ib,1),r(kb,1)
+c     !!WRITE(*,*) i,k,cdabs(celem2),' dso',ib,kb
+c     !!WRITE(*,*) celem2*27211.6,r(ib,1),r(kb,1)
       ig1=i
       ig2=k
       call dopiszl(ig1,ig2,ncinl,celem,celem2,crc,crc2,nmax)
@@ -280,12 +280,12 @@ c     write(*,*) celem2*27211.6,r(ib,1),r(kb,1)
 
 
 
-      write(*,*) 'him'
+      !!WRITE(*,*) 'him'
       do i=1,in
       do j=1,nbrx(i,0)
       k=nbrx(i,j)
       celem=0
-c     write(*,*) i,j,k
+c     !!WRITE(*,*) i,j,k
       celem2=0
       if(abs(r(i,3)-r(k,3)).lt.0.01.and.abs(r(i,4)-r(k,4)).lt.0.01) then
       if(nbas(i).le.4) celem2=-tl
@@ -337,7 +337,7 @@ c     write(*,*) i,j,k
       call dopiszl(ig1,ig2,ncinl,celem,celem2,crc,crc2,nmax)
       enddo
       enddo
-      
+
       do i=1,in
       do j=1,nbd(i,0)
       k=nbd(i,j)
@@ -392,7 +392,7 @@ c przepisanie potencjalu na siatke dla szredingera
 
 
 
-      
+
 
       call feastinit(ifpm)
       ifpm(4)=30
@@ -408,7 +408,7 @@ c przepisanie potencjalu na siatke dla szredingera
       cnzb(jnz)=crc(i,j)
 c     write(14,*) i,k,cnz(jnz)
 762   continue
-761   continue      
+761   continue
 
 
 
@@ -417,7 +417,7 @@ c     write(14,*) i,k,cnz(jnz)
       job(1)=2
       job(2)=1
       job(3)=1
-      job(5)=jnz      
+      job(5)=jnz
       job(6)=0
       do i=1,jnz
       iro(i)=nzin(i,1)
@@ -428,16 +428,16 @@ c     write(14,*) i,k,cnz(jnz)
       if(.not.allocated(chiaja)) allocate(chiaja(jnz))
       if(.not.allocated(csiaja)) allocate(csiaja(jnz))
       call mkl_zcsrcoo(job,inw,chiaja,ja,ia,jnz,cnz,iro,ico,info)
-      write(*,*) inw,nelem,nmax,info,jnz
+      !!WRITE(*,*) inw,nelem,nmax,info,jnz
       if(.not.allocated(iab)) allocate(iab((inw+1)))
       if(.not.allocated(jab)) allocate(jab(jnz))
       call mkl_zcsrcoo(job,inw,csiaja,jab,iab,jnz,cnzb,iro,ico,info)
 
       do  i=1,jnz
-c     write(*,*)csiaja(i),jab(i),'s'
-c     write(*,*)chiaja(i),jab(i),'h'
+c     !!WRITE(*,*)csiaja(i),jab(i),'s'
+c     !!WRITE(*,*)chiaja(i),jab(i),'h'
       enddo
-      write(*,*) inw,nelem,nmax,info,iab(inw+1),ia(inw+1),jnz
+      !!WRITE(*,*) inw,nelem,nmax,info,iab(inw+1),ia(inw+1),jnz
 
       emin=-0.02/27.2116
       emax=+.02/27.2116
@@ -446,10 +446,10 @@ c     write(*,*)chiaja(i),jab(i),'h'
       if(.not.allocated(efeast)) allocate (efeast(m0))
       if(.not.allocated(res))allocate (res(m0))
       if(.not.allocated(cfeast))allocate (cfeast(inw,m0))
-      write(*,*) 'pfeast'
+      !!WRITE(*,*) 'pfeast'
       call zfeast_hcsrgv('F',inw,chiaja,ia,ja,csiaja,iab,jab,
      >ifpm,epsout,
-     > loop, emin, emax, m0,efeast,cfeast, 
+     > loop, emin, emax, m0,efeast,cfeast,
      >  m, res, info)
 
       do ip=1,in2
@@ -466,7 +466,7 @@ c     write(*,*)chiaja(i),jab(i),'h'
                                           rdm(ip,2)=r(i,2)
                                           do ist=1,m0
                                                 cpsi(ip,io,isp,ist)=cfeast(i,ist)
-c     write(*,*) ip,io,isp,ist
+c     !!WRITE(*,*) ip,io,isp,ist
                                           enddo
 c     write(1200+r(i,3)*10+r(i,4),222) rin1,rin2,cdabs(cfeast(i,1))
                                     endif
@@ -486,7 +486,7 @@ c     write(1200+r(i,3)*10+r(i,4),222) rin1,rin2,cdabs(cfeast(i,1))
             >cdabs(cpsi(ip,2,2,is)),
             >cdabs(cpsi(ip,3,2,is))
       enddo
-      
+
       dcont=0
       do i=1,m
             do j=1,inw
@@ -503,16 +503,16 @@ c     write(1200+r(i,3)*10+r(i,4),222) rin1,rin2,cdabs(cfeast(i,1))
             l=nzin(i,2)
             xn=xn+dconjg(cfeast(k,1))*cfeast(l,1)*cnzb(i)
       enddo
-      write(*,*) 'z cnzb ',xn,m
+      !!WRITE(*,*) 'z cnzb ',xn,m
 
-      write(*,*) 'zfe info ',info,iband,(efeast(m1)*27211.6,m1=1,m)
+      !!WRITE(*,*) 'zfe info ',info,iband,(efeast(m1)*27211.6,m1=1,m)
 
       do  i=1,m
             xn=0
             do ib=1,6
                   xn=xn+dcont(i,ib)
             enddo
-            write(*,*) 'm ',i,xn
+            !!WRITE(*,*) 'm ',i,xn
             do j=1,inw
 c     cfeast(j,i)=cfeast(j,i)/sqrt(xn)
             enddo
@@ -528,7 +528,7 @@ c     dcont(i,2)=dcont(i,3)+dcont(i,6)
 c     dcont(i,3)=dcont(i,4)+dcont(i,5)
 c     dcont(i,4)=dcont(i,7)+dcont(i,8)
 
-      write(*,*) 'zfe info ',info,iband,(efeast(m1)*27211.6,m1=1,m)
+      !!WRITE(*,*) 'zfe info ',info,iband,(efeast(m1)*27211.6,m1=1,m)
 
 
       xn=0
@@ -537,7 +537,7 @@ c     dcont(i,4)=dcont(i,7)+dcont(i,8)
             l=nzin(i,2)
             xn=xn+dconjg(cfeast(k,1))*cfeast(l,1)*cnzb(i)
       enddo
-      write(*,*) 'z cnzb ',xn
+      !!WRITE(*,*) 'z cnzb ',xn
 
 c    >*tra(imo,jmo,1)
 c    >*sls(1,mod(i,8)+1,mod(j,8)+1)
@@ -548,7 +548,7 @@ c    >*sls(1,mod(i,8)+1,mod(j,8)+1)
       enddo
       xnc=0
       write(11,*) 'norm ', xnc
-      
+
       com=0
       dl=100/.05292
       damp=100/27211.6*.01
@@ -624,11 +624,11 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
       allocate(cpot(in2))
       codc=0
       eps=100
-      
+
       nost=1
 
-       write(*,*) nost,no
-       
+       !!WRITE(*,*) nost,no
+
       call srand (1233)
 
       wlos=0
@@ -648,13 +648,13 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
       r1los=r1los+1/r1
       r12los=r12los+r12
 c     write(15,*) wlos/ilos,dx,r12los/ilos
-921   continue      
+921   continue
       Zupar=wlos/ilos
 
       if(1.eq.1) then
       do 871 i=1,m
       do 871 k=1,m
-     
+
       xn=0
       do 8179 ir1=1,in2
       cl1u=0
@@ -683,7 +683,7 @@ c     stop
 
       r12=sqrt((r(ir1,1)-r(ir2,1))**2+
      >    +(r(ir1,2)-r(ir2,2))**2)
-     
+
       odl=1/eps/(r12+1/(wyklucz)*exp(-r12*10))
 c     odl=1
       cpot(ir2)=cpot(ir2)+odl*cro(ir1)
@@ -764,7 +764,7 @@ c     stop
 
 
       cnzz=0
-      jnzz=0 
+      jnzz=0
       nzz=0
 
       do  i=1,numerod
@@ -777,17 +777,17 @@ c     stop
       nzz(jnzz,1)=i
       nzz(jnzz,2)=i
       enddo
-      write(*,*) 'hiam'
+      !!WRITE(*,*) 'hiam'
 
       do 3 i=1,numerod
       do 3 j=i,numerod
-c     write(*,*) i,j
+c     !!WRITE(*,*) i,j
       ccod=0
       do 4 i1=1,ne
       do 4 i2=i1+1,ne
 c petla po permutacjach elementu l
       do 5 ip=1,lperm
-c     write(*,*) i1,i2,ip
+c     !!WRITE(*,*) i1,i2,ip
 c sprawdzenie delt dla elektronow
 c o numerach innych niz i oraz j
       llt=0
@@ -796,7 +796,7 @@ c o numerach innych niz i oraz j
      >komb(i,ie).eq.komb(j,iperm(ip,ie)))
      > llt=llt+1
 6     continue
-     
+
       if(llt.eq.ne-2) then
       iaa=komb(i,i1)
       ibb=komb(i,i2)
@@ -812,7 +812,7 @@ c o numerach innych niz i oraz j
       cnzz(jnzz)=ccod
       nzz(jnzz,1)=i
       nzz(jnzz,2)=j
-c     write(*,*) i,j,ccod
+c     !!WRITE(*,*) i,j,ccod
 
       if(j.ne.i) then
       jnzz=jnzz+1
@@ -827,7 +827,7 @@ c     write(*,*) i,j,ccod
       num=numerod
       nstt=20
       if(nstt.gt.numerod) nstt=numerod
-      write(*,*) numerod,ncc_max,jnzz,nstt,' w2e'
+      !!WRITE(*,*) numerod,ncc_max,jnzz,nstt,' w2e'
       if(allocated(cih)) deallocate(cih)
       if(.not.allocated(cih)) allocate(cih(numerod,nstt))
       call w2e(num,cnzz,nzz,milion,numerod,jnzz,enesx,nstt,cih)
@@ -925,13 +925,13 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
       deallocate(cro)
 
 
-      
+
 221   format(1200g16.8)
 
 
 
 9121  format(4i10,1g20.12)
-      
+
       deallocate(ia)
       deallocate(ja)
       deallocate(chiaja)
@@ -944,8 +944,8 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
 4321  continue
       continue
 
-222   format(1200f20.12)      
-242   format(1200g20.12)      
+222   format(1200f20.12)
+242   format(1200g20.12)
       end program
 
       function f1(xi)
@@ -1122,7 +1122,7 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
       endif
       end
 
-     
+
       subroutine wypisz(i,j,jnz,celem,cnz,nz)
       double complex cnz(100 000),celem
       dimension nz(100 000,2)
@@ -1135,7 +1135,7 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
 1     continue
       end
 
-     
+
       subroutine cc_mv ( m, n, ncc, icc, ccc, acc, x, b )
 
 c*********************************************************************72
@@ -1258,7 +1258,7 @@ c
       write ( *, '(a)' ) ' '
       write ( *, '(a)' ) trim ( title )
       write ( *, '(a)' ) '     #     I     J       Ar                Ai'
-      write ( *, '(a)' ) 
+      write ( *, '(a)' )
      &  '  ----  ----  ----  --------------  --------------'
       write ( *, '(a)' ) ' '
 
@@ -1276,8 +1276,8 @@ c
           jnext = ccc(j+1)
           go to 10
         end if
-     
-        write ( *, '(2x,i4,2x,i4,2x,i4,2x,g16.8,2x,g16.8)' ) 
+
+        write ( *, '(2x,i4,2x,i4,2x,i4,2x,g16.8,2x,g16.8)' )
      &    k, i, j, cdabs(acc(k))
 
       end do
@@ -1290,9 +1290,9 @@ c
       integer isp(nmaxcc,2),icc(nmaxcc),ccc(nmaxcc)
       double complex aspc(nmaxcc)
       integer ispc(nmaxcc,2)
-      icznik=0 
+      icznik=0
       do 122 io=1,ncc
-c     write(*,*) io,cdabs(asp(io)),isp(io,1),isp(io,2)
+c     !!WRITE(*,*) io,cdabs(asp(io)),isp(io,1),isp(io,2)
 122   continue
 c     stop
       do 2 jk=1,m
@@ -1302,12 +1302,12 @@ c     stop
       ispc(icznik,1)=isp(i,1)
       ispc(icznik,2)=isp(i,2)
       aspc(icznik)=asp(i)
-c     write(*,*) i,jk,icznik,isp(i,1),isp(i,2),asp(i)
-      endif       
+c     !!WRITE(*,*) i,jk,icznik,isp(i,1),isp(i,2),asp(i)
+      endif
 c3     continue
 2     continue
       do 30 i=1,ncc
-c     write(*,*) i,ispc(i,1),ispc(i,2),aspc(i)
+c     !!WRITE(*,*) i,ispc(i,1),ispc(i,2),aspc(i)
 30    continue
 c      stop
 
@@ -1595,7 +1595,7 @@ C
 C
 C     Compute y_{2n-1}, v_{n-1}, and A y_{2n-1}.
 C
-      CALL ZAXPBY (NLEN,VECS(1,4),BETA,VECS(1,4),ZONE,VECS(1,8)) 
+      CALL ZAXPBY (NLEN,VECS(1,4),BETA,VECS(1,4),ZONE,VECS(1,8))
       CALL ZAXPBY (NLEN,VECS(1,6),ZONE,VECS(1,5),BETA,VECS(1,6))
 C
 C     Have the caller carry out AXB, then return here.
@@ -1935,10 +1935,10 @@ C**********************************************************************
       double complex cnz2(nmax,860),celem2
       dimension nlin(nmax,0:860)
       if(abs(celem).lt.1e-10.and.abs(celem2).lt.1e-10) return
-c     write(*,*) i,j,' dl'
+c     !!WRITE(*,*) i,j,' dl'
       ibyl=0
       ni=nlin(i,0)
-c     write(*,*) ni,' aa'
+c     !!WRITE(*,*) ni,' aa'
       do 1 k=1,ni
       nk=nlin(i,k)
       if(nk.eq.j)then
@@ -1965,38 +1965,38 @@ c z M-elementowego zbioru
       return
       endif
       XNMB=1.d0
-c   write(*,*) 'komb ',n,m
-      
-      if(M-N.gt.N) then 
+c   !!WRITE(*,*) 'komb ',n,m
+
+      if(M-N.gt.N) then
       do 321 i=M-N+1,M
       XNMB=XNMB*i
 321   continue
       XNMB=XNMB/ddgamma(N)
-      else 
+      else
       do 322 i=N+1,M
       XNMB=XNMB*i
 322   continue
       XNMB=XNMB/ddgamma(M-N)
       endif
       NMB=XNMB
-      
-  
-c     write(*,*) nmb
+
+
+c     !!WRITE(*,*) nmb
 c     stop
       if(N.gt.M) then
-      write(*,*) 'N>M w KNZM'
+      !!WRITE(*,*) 'N>M w KNZM'
       stop
       endif
       if(NMB.gt.nsize.
      >or.N.gt.6) then
-      write(*,*) 'za mala tablica KNZM'
-      write(*,*) nmb,n
+      !!WRITE(*,*) 'za mala tablica KNZM'
+      !!WRITE(*,*) nmb,n
       stop
       endif
-c kombinacja startowa        
+c kombinacja startowa
       if(N.eq.1) then
       do 1 i=1,M
-1     KNZM(i,1)=i     
+1     KNZM(i,1)=i
       endif
       if(N.eq.2) then
       in=0
@@ -2004,7 +2004,7 @@ c kombinacja startowa
       do 2 i2=i1+1,M
       in=in+1
       KNZM(in,1)=i1
-2     KNZM(in,2)=i2   
+2     KNZM(in,2)=i2
       endif
       if(N.eq.3) then
       in=0
@@ -2071,23 +2071,23 @@ c kombinacja startowa
 
 
       subroutine perm(n,iperm)
-c generacja permutacji 
+c generacja permutacji
       implicit double precision (a-h,o-z)
       dimension iperm(720,0:6),ipe(0:13),ip2(0:13)
       iperm(1,0)=0
 
-c diagonala    
+c diagonala
 
       do 10 i=1,n
       iperm(1,i)=i
 10    continue
       if(n.eq.1) return
-c bierzaca permutowana ip     
+c bierzaca permutowana ip
       ip=1
 c znak permutacji
       is=1
 c liczba znalezionych permutacji
-      np=1   
+      np=1
 
 1     continue
 
@@ -2104,7 +2104,7 @@ c petla po probnych zmianach
 333   continue
       ip2(0)=is
       ip2(1)=ipe(i)
-      ip2(i)=ipe(1)     
+      ip2(i)=ipe(1)
 
 c sprawdzenie czy taka permutacja juz byla
 
@@ -2126,7 +2126,7 @@ c   write(*,122) (-1)**(iperm(np,0)),(iperm(np,j),j=1,n)
 c   write(*,122) (iperm(np,j),j=1,n)
 
       icontr=ddgamma(n)
-c   write(*,*) np,icontr
+c   !!WRITE(*,*) np,icontr
       if(np.eq.icontr) goto 1972
 3     continue
       ip=ip+1
@@ -2150,7 +2150,7 @@ c   write(*,*) np,icontr
 c n - rozmiar macierzy
 c cnz , nz - niezerowe elementy i ich idexy
 c nsi- rozmiar fizyczny cnz, nz
-c jnz -liczba niezerowych elelmentow macierzowych w cnz 
+c jnz -liczba niezerowych elelmentow macierzowych w cnz
       implicit double precision(a,b,d-h,o-z)
       implicit double complex(c)
       parameter(maxn=2000000,maxnev=50,maxncv=91,ldv=maxn)
@@ -2220,9 +2220,9 @@ c     %--------------------------------------------------%
 c
       allocate(v(ldv,maxncv))
 
-c     write(*,*) n,nsi,jnz,nst,allocated(v)
+c     !!WRITE(*,*) n,nsi,jnz,nst,allocated(v)
       do 1 i=1,jnz
-c     write(*,*) i,nz(i,1),nz(i,2),cdabs(cnz(i))
+c     !!WRITE(*,*) i,nz(i,1),nz(i,2),cdabs(cnz(i))
 1     continue
 c     stop
       nev   = nst
@@ -2380,13 +2380,13 @@ c     goto 830
       enes(imin)=e0
       do 400 ix=1,n
       c0=cust(ix,i)
-      cust(ix,i)=cust(ix,imin)  
+      cust(ix,i)=cust(ix,imin)
       cust(ix,imin)=c0
 400   continue
 334   continue
 
       do 829 i=1,nst
-       write(*,*) i,enes(i)*27211.6
+       !!WRITE(*,*) i,enes(i)*27211.6
 829   continue
 830   continue
 c      stop

@@ -64,39 +64,42 @@ PROGRAM MAIN
   !OMP specific
   INTEGER*4 :: max_num_threads, used_threads
 
+  !TODO: This is extremely bad, correct this as soon as possible
+  OPEN(unit = 66, FILE= './OutputData/log.log', FORM = "FORMATTED", ACTION = "WRITE")
+
   !read a file
-  CALL INDATA_GET("../RUNS/quantum_dot.nml")
-  WRITE (*, *) "Physical parameters:"
-  WRITE (*, *) "th=", th / eV2au
-  WRITE (*, *) "tl=", tl / eV2au
-  WRITE (*, *) "td=", td / eV2au
-  WRITE (*, *) "dso=", dso / eV2au
-  WRITE (*, *) "drso=", drso / eV2au
-  WRITE (*, *) "dE=", dE / eV2au
-  WRITE (*, *) "g=", g
-  WRITE (*, *) "Nx=", Nx
-  WRITE (*, *) "Ny=", Ny
-  WRITE (*, *) "dx=", dx / nm2au
-  WRITE (*, *) "norbs=", norbs
-  WRITE (*, *) "nstate_1=", nstate_1
-  WRITE (*, *) "nstate_2=", nstate_2
-  WRITE (*, *) "k_electrons=", k_electrons
+  CALL INDATA_GET("./OutputData/quantum_dot.nml")
+  WRITE(66,*) "Physical parameters:"
+  WRITE(66,*) "th=", th / eV2au
+  WRITE(66,*) "tl=", tl / eV2au
+  WRITE(66,*) "td=", td / eV2au
+  WRITE(66,*) "dso=", dso / eV2au
+  WRITE(66,*) "drso=", drso / eV2au
+  WRITE(66,*) "dE=", dE / eV2au
+  WRITE(66,*) "g=", g
+  WRITE(66,*) "Nx=", Nx
+  WRITE(66,*) "Ny=", Ny
+  WRITE(66,*) "dx=", dx / nm2au
+  WRITE(66,*) "norbs=", norbs
+  WRITE(66,*) "nstate_1=", nstate_1
+  WRITE(66,*) "nstate_2=", nstate_2
+  WRITE(66,*) "k_electrons=", k_electrons
 
-  WRITE (*, *)
-  WRITE (*, *) "External parameters:"
-  WRITE (*, *) "Bx=", Bx / T2au
-  WRITE (*, *) "By=", By / T2au
-  WRITE (*, *) "Bz=", Bz / T2au
-  WRITE (*, *) "F=", f_ac, f_ac/F2au
+  WRITE(66,*)
+  WRITE(66,*) "External parameters:"
+  WRITE(66,*) "Bx=", Bx / T2au
+  WRITE(66,*) "By=", By / T2au
+  WRITE(66,*) "Bz=", Bz / T2au
+  WRITE(66,*) "F=", f_ac, f_ac/F2au
 
-  max_num_threads = omp_get_max_threads()
-  WRITE (*,*) "Max num threads", max_num_threads
-  CALL omp_set_num_threads(max_num_threads)
-  !$omp parallel
-  used_threads = omp_get_num_threads()
-  PRINT*, "Hello from process", omp_get_thread_num()
-  !$omp end parallel
-  PRINT*, "Allocated threads", used_threads
+  ! max_num_threads = omp_get_max_threads()
+  ! WRITE (*,*) "Max num threads", max_num_threads
+  ! CALL omp_set_num_threads(max_num_threads)
+  ! !$omp parallel
+  ! used_threads = omp_get_num_threads()
+  ! !PRINT*, "Hello from process", omp_get_thread_num()
+  ! !$omp end parallel
+  ! !PRINT*, "Allocated threads", used_threads
 
 
   ham_1_size = (2*Nx + 1)*(2*Ny + 1)*norbs
@@ -115,10 +118,10 @@ PROGRAM MAIN
   & + ham_2_size
 
   slater_norm = SQRT(GAMMA(k_electrons + 1.0d0))
-  PRINT*, "Number of combinations: ", ham_2_size
-  PRINT*, "Size of one-body hamiltonian: ", ham_1_size
-  PRINT*, 'Nonzero elements in hamiltonian 1: ', nonzero_ham_1
-  PRINT*, 'Nonzero elements in hamiltonian 2: ', nonzero_ham_2
+  !PRINT*, "Number of combinations: ", ham_2_size
+  !PRINT*, "Size of one-body hamiltonian: ", ham_1_size
+  !PRINT*, 'Nonzero elements in hamiltonian 1: ', nonzero_ham_1
+  !PRINT*, 'Nonzero elements in hamiltonian 2: ', nonzero_ham_2
 
   ALLOCATE (Combination_current(k_electrons))
   ALLOCATE (potential(-Nx:Nx, -Ny:Ny))
@@ -141,13 +144,13 @@ PROGRAM MAIN
   ALLOCATE (A_crank_nicolson(nstate_2, nstate_2))
   ALLOCATE (B_crank_nicolson(nstate_2, 1))
   ALLOCATE (IPIV(nstate_2))
-  PRINT*, "Memory check..."
+  !PRINT*, "Memory check..."
 
 
   N_changed_indeces(:,:) = 0
   Changed_indeces(:,:,:,:) = 0
 
-  PRINT*, "Memory check 2..."
+  !PRINT*, "Memory check 2..."
   !#################### ONE-ELECTRON PROBLEM ####################
   !omega = 37.378e-3 * eV2au !Julian: is this meant to be a fixed value? Maybe should be in input .nml file?
   potential = 0.0d0
@@ -159,35 +162,27 @@ PROGRAM MAIN
     END DO
   END DO
 
-  PRINT*, "Creating one electron hamiltonian..."
+  !PRINT*, "Creating one electron hamiltonian..."
+  WRITE(66,*) "Creating one electron hamiltonian..."
   CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, potential)
   !CALL HAMILTONIAN_CREATE(Hamiltonian_1(:,:), ham_1_size, Nx, Ny, norbs, potential)
 
-  PRINT*, "Diagonalizing one electron hamiltonian..."
+  WRITE(66,*) "Diagonalizing one electron hamiltonian..."
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, Nx, Ny, norbs, nstate_1)
   !CALL DIAGONALIZE_ARPACK(Hamiltonian_1, ham_1_size, Psi_1, Energies_1, Nx, Ny, norbs, nstate)
   !###############################################################
 
-  CALL WRITE_STATE_MAP(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, '../RUNS/Psi_1')
-
-  !Julian: This is only data output. I will wrap it in some subroutines to make the main function cleaner.
-  WRITE (*, *) "Single electron energies:"
-  DO i = 1, nstate_1
-    WRITE (*, *) Energies_1(i) / eV2au * 1e3
-    WRITE(*,*) sigma_x_expected_value(Psi_1(:,i), ham_1_size), sigma_y_expected_value(Psi_1(:,i), ham_1_size), sigma_z_expected_value(Psi_1(:,i), ham_1_size)
-    WRITE(*,*) d_xy_share(Psi_1(:,i), ham_1_size, norbs), d_xz_share(Psi_1(:,i), ham_1_size, norbs), d_yz_share(Psi_1(:,i), ham_1_size, norbs)
-    WRITE(*,*) single_electron_x_expected_value(Psi_1(:,i), Psi_1(:,i), norbs, Nx, Ny, dx, ham_1_size) / nm2au
-    WRITE(*,*) SUM(Psi_1(:,i)*CONJG(Psi_1(:,i)))
-    WRITE(*,*)
-  END DO
-  CALL WRITE_ENERGIES(Energies_1, nstate_1, '../RUNS/Energies1.dat')
+  !Writing single-electron problem data to a file
+  CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
+  CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
+  CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
 
 
   !#################### TWO-ELECTRON PROBLEM #####################
   !Many problem is solved using Galerkin method, where basis
   !is chosen as combinnation of Slater determinants.
 
-
+  WRITE(66,*) "Initializing combinations..."
   !Initialize combination_row to generate next sets
   CALL INIT_COMBINATION(Combination_current, k_electrons)
   DO i = 1, ham_2_size
@@ -196,25 +191,23 @@ PROGRAM MAIN
   END DO
   CALL GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces, ham_2_size, k_electrons)
 
-  PRINT*, "Constructing multi-body hamiltonian..."
+  !PRINT*, "Constructing multi-body hamiltonian..."
+  WRITE(66,*) "Constructing many-body hamiltonian..."
   CALL CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
   & Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
 
   Energies_2(:) = 0.0d0
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, Nx, Ny, norbs, nstate_2)
 
-  CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces,&
-  &Changed_indeces, ham_1_size, ham_2_size, Nx, Ny, nstate_1, nstate_2, dx, k_electrons)
+  ! CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces,&
+  ! &Changed_indeces, ham_1_size, ham_2_size, Nx, Ny, nstate_1, nstate_2, dx, k_electrons)
 
   !##########################################################
-  CALL WRITE_STATE_MAP(DCMPLX(Particle_density, 0.0d0), ham_1_size, nstate_2, norbs, Nx, Ny, dx, '../RUNS/Density')
+  !CALL WRITE_STATE_MAP(DCMPLX(Particle_density, 0.0d0), ham_1_size, nstate_2, norbs, Nx, Ny, dx, './OutputData/Density')
 
-  WRITE (*, *) "Multi-body energies:"
-  DO i = 1, nstate_2
-    WRITE (*, *) Energies_2(i) / eV2au * 1e3
-    WRITE(*, *) many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, i, i, Nx, Ny, dx, norbs) / nm2au / k_electrons
-  END DO
-  CALL WRITE_ENERGIES(Energies_2, nstate_2, '../RUNS/Energies2.dat')
+  CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
+  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, Ny, dx, norbs, './OutputData/Expectations_2.dat')
+  CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
 
 
   !#################### TIME_DEPENDENT CALCULATION #################
@@ -229,9 +222,15 @@ PROGRAM MAIN
     END DO
   END DO
 
+
+  WRITE(66,*) "Running Crank-Nicolson scheme..."
+  !For such energy we have to trigger transition, this is only for a check.
+  omega_ac = Energies_2(2) - Energies_2(1)
+
+
   C_time = DCMPLX(0.0d0, 0.0d0)
   C_time(1) = DCMPLX(1.0d0, 0.0d0) !Initial condition, assuming full occupation of lowest energy state
-  OPEN(10, FILE = '../RUNS/Time_dependent.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+  OPEN(10, FILE = './OutputData/Time_dependent.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
   DO it = 0, N_t_steps
     A_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
     B_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
@@ -248,14 +247,14 @@ PROGRAM MAIN
 
     CALL ZGESV(nstate_2, 1, A_crank_nicolson, nstate_2, IPIV, B_crank_nicolson, nstate_2, INFO)
     B_crank_nicolson = B_crank_nicolson / SUM(ABS(B_crank_nicolson(:,1))**2)
-    IF (INFO /= 0) PRINT*, "ERROR in ZGESV, INFO = ", INFO
+    !IF (INFO /= 0) !PRINT*, "ERROR in ZGESV, INFO = ", INFO
     WRITE(10,*) it*dt / ns2au, (ABS(B_crank_nicolson(n,1))**2, n = 1, nstate_2)
     C_time(:) = B_crank_nicolson(:,1)
-    !C_time(2,:) = C_time(1,:)
   END DO
   CLOSE(10)
   !#################################################################
 
+  CLOSE(66)
 
   DEALLOCATE (potential)
   DEALLOCATE (Hamiltonian_1_crs)

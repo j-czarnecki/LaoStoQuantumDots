@@ -11,7 +11,7 @@ SUBROUTINE GET_COMBINATION(Combination, N, k)
   INTEGER*4, INTENT(OUT) :: Combination(k) !! Array containg set of indices forming a k-element combination
   INTEGER*4, INTENT(IN) :: N !! Number of elements in the set
   INTEGER*4, INTENT(IN) :: k !! Number of elements in combination
-  
+
   INTEGER*4 :: i, j, m
 
   Combination(k) = Combination(k) + 1
@@ -27,7 +27,7 @@ SUBROUTINE GET_COMBINATION(Combination, N, k)
     j = j - 1
     i = i + 1
   END DO
-  
+
 END SUBROUTINE
 
 SUBROUTINE INIT_COMBINATION(Combination, k)
@@ -100,16 +100,16 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
         END IF
       END DO
 
-      !PRINT*, N_changed_indeces(i,j)
+      !!PRINT*, N_changed_indeces(i,j)
       !PRINT*
       !PRINT*
       !WRITE(*,'(I2)', ADVANCE = 'NO') N_changed_indeces(i,j)
-      ! WRITE(*,*) 'combination(i) = ', (Combinations(i, n), n = 1, k_electrons)
-      ! WRITE(*,*) 'combination(j) = ', (Combinations(j, n), n = 1, k_electrons)
+      ! !!WRITE(*,*) 'combination(i) = ', (Combinations(i, n), n = 1, k_electrons)
+      ! !!WRITE(*,*) 'combination(j) = ', (Combinations(j, n), n = 1, k_electrons)
       ! WRITE(*, *) 'i = ', i, ' j = ', j, ' N_changed  = ', N_changed_indeces(i,j), ' Unpaired row: ', (Changed_indeces(i,j,k,1), k = 1, 2), ' Unparied column: ', (Changed_indeces(i,j,k,2), k = 1, 2)
-      ! WRITE(*,*)
+      ! !!WRITE(*,*)
     END DO
-    !WRITE(*,*)
+    !!!WRITE(*,*)
   END DO
 
 
