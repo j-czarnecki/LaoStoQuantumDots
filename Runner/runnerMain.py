@@ -6,8 +6,8 @@ def main():
   nml_name = "external_parameters"
   param_name = "Bz"
   Bz_min = 0
-  Bz_max = 40.0
-  Bz_steps = 20
+  Bz_max = 50.0
+  Bz_steps = 25
   dBz = abs(Bz_max - Bz_min) / Bz_steps
   Bz_table = [(nml_name, param_name, Bz_min + i * dBz) for i in range(Bz_steps + 1)]
 

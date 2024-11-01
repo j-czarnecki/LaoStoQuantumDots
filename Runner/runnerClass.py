@@ -38,7 +38,7 @@ class Runner(RunnerConfig):
             os.mkdir(os.path.join(path, output_dir))
         os.chdir(path)
 
-        nml = self.LAO_STO_default_nml()  # creating default namelist
+        nml = self.LAO_STO_QD_default_nml()  # creating default namelist
         for pair in paramValuePairs:
             nml[pair[0]][pair[1]] = pair[2]  # editing all key-value pairs
 
@@ -55,6 +55,6 @@ class Runner(RunnerConfig):
             print(os.path.join(runner_cwd, "..", "bin", "lao_sto_qd.x"), file=job_file)
 
         # queue slurm job
-        #simulate = subprocess.run(["sbatch", "job.sh"])
+        simulate = subprocess.run(["sbatch", "job.sh"])
         os.chdir(runner_cwd)
         return path  # for sequential runner
