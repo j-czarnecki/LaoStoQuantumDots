@@ -4,13 +4,13 @@
  td=   4.0000000000000001E-002
  dso=   1.0000000000000000E-002
  drso=   2.0000000000000000E-002
- dE=   4.7000000000000007E-002
+ dE=   4.7000000000000000E-002
  g=   3.0000000000000000     
  Nx=           5
  Ny=           5
  dx=  0.39000000000000001     
  norbs=           6
- nstate_1=           6
+ nstate_1=           8
  nstate_2=           2
  k_electrons=           2
 
@@ -23,19 +23,7 @@
  Diagonalizing one electron hamiltonian...
  Initializing combinations...
  Constructing many-body hamiltonian...
- nn / nonzero            1         120
- nn / nonzero           16         120
- nn / nonzero           30         120
- nn / nonzero           43         120
- nn / nonzero           55         120
- nn / nonzero           66         120
- nn / nonzero           76         120
- nn / nonzero           85         120
- nn / nonzero           93         120
- nn / nonzero          100         120
- nn / nonzero          106         120
- nn / nonzero          111         120
- nn / nonzero          115         120
- nn / nonzero          118         120
- nn / nonzero          120         120
- Running Crank-Nicolson scheme...
+ V_tilde i =            1
+ V_tilde i =            2
+ V_tilde i =            3
+ V_tilde i =            4

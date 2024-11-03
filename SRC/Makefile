@@ -27,7 +27,7 @@ LFLAGS = $(F90FLAGS)
 
 ## LLIBS are libraries to use at link time
 LIBS = -L ./lib -larpack
-LIB_OMP = -fopenmp
+LIB_OMP = #-fopenmp
 
 LIBS_MKL = -I${MKLROOT}/include \
 	   -I/opt/intel/mkl/include \
@@ -69,10 +69,13 @@ $(TARGET) : $(OBJS)
 
 all: $(TARGET)
 
-debug: F90FLAGS = -O0  -m64 -ffree-line-length-none -Wall -g
-debug: F77FLAGS = -O0  -m64 -ffree-line-length-none -Wall -g
+debug: F90FLAGS = -O0  -fsanitize=thread -m64 -ffree-line-length-none -Wall -g
+debug: F77FLAGS = -O0  -fsanitize=thread -m64 -ffree-line-length-none -Wall -g
 debug: $(TARGET)
 
+profile: F90FLAGS = -Ofast  -m64 -ffree-line-length-none -Wall -pg -fopt-info
+profile: F77FLAGS = -Ofast  -m64 -ffree-line-length-none -Wall -pg -fopt-info
+profile: $(TARGET)
 
 clean:
 	rm -f $(OBJS) $(OBJS_PLOT) $(OBJS_ANALYZE)

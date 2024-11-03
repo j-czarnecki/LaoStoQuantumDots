@@ -112,7 +112,7 @@ SUBROUTINE WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstates, filename)
 END SUBROUTINE WRITE_SLATER_COEFFICIENTS
 
 
-SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, Ny, dx, norbitals, filename)
+SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, dx, filename)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1)
   COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstate_2)
@@ -120,9 +120,9 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_ch
   INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
   INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
   INTEGER*4, INTENT(IN) :: nstate_1, nstate_2
-  INTEGER*4, INTENT(IN) :: Nx, Ny
+  INTEGER*4, INTENT(IN) :: Nx
   REAL*8, INTENT(IN) :: dx
-  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, norbitals
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
   CHARACTER(LEN=*), INTENT(IN) :: filename
   INTEGER*4 :: n
   CHARACTER(LEN=200) :: format_string
@@ -133,7 +133,7 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_ch
   WRITE(9,*) "#No. state [-]  <x>    <S_x>   <S_y>   <S_z>"
   DO n = 1, nstate_2
     WRITE(9, format_string) n,&
-    & REAL(many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, Ny, dx, norbs)) / nm2au / k_electrons,&
+    & REAL(many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, dx, norbs)) / nm2au / k_electrons,&
     & REAL(many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
     & REAL(many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
     & REAL(many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n))

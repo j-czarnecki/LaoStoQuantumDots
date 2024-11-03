@@ -11,7 +11,7 @@
       "program": "${workspaceFolder}/bin/lao_sto_qd.x", // Change this to your compiled program
       "args": [], // Add program arguments if needed
       "stopAtEntry": true,
-      "cwd": "${workspaceFolder}/SRC",
+      "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
@@ -34,7 +34,7 @@
       "name": "oneAPI C++: Launch & Break",
       "type": "cppdbg",
       "request": "launch",
-      "preLaunchTask": "",
+      "preLaunchTask": "debug",
       "postDebugTask": "",
       "program": "enter program name, for example ${workspaceFolder}/a.exe",
       "args": [],

@@ -9,7 +9,7 @@ PROGRAM MAIN
   USE constants
   USE utility
 
-  USE omp_lib
+  !USE omp_lib
 
   IMPLICIT NONE
 
@@ -21,7 +21,6 @@ PROGRAM MAIN
   INTEGER*4, ALLOCATABLE :: column_2_crs(:)
   INTEGER*4, ALLOCATABLE :: row_2_crs(:)
   REAL*8, ALLOCATABLE :: potential(:, :)
-  INTEGER :: state_to_write
   !COMPLEX*16, ALLOCATABLE :: psi_lapack(:, :, :, :, :)
   !REAL*8, ALLOCATABLE :: ev_lapack(:)
   COMPLEX*16, ALLOCATABLE :: Psi_1(:, :) !Eigenfunction of single-electron hamiltonian, describing real-space wavefunction
@@ -50,20 +49,17 @@ PROGRAM MAIN
   INTEGER*4, ALLOCATABLE :: IPIV(:)
   INTEGER*4 :: INFO
   INTEGER*4 :: it
-  INTEGER*4 :: total
-  INTEGER :: ix, iy, iorb, is, nn
-  INTEGER*4 :: i,j,k,l, n, m
+  INTEGER :: ix, iy
+  INTEGER*4 :: i,n, m
   REAL*8 :: x, y
   INTEGER*4 :: ham_1_size, nonzero_ham_1
   INTEGER*4 :: ham_2_size, nonzero_ham_2
-  INTEGER*4 :: n_changed
-  LOGICAL :: same_index
   REAL*8 :: slater_norm
-  COMPLEX*16 :: interaction_element
 
   !OMP specific
   INTEGER*4 :: max_num_threads, used_threads
-
+  max_num_threads = 0
+  used_threads = 0
   !TODO: This is extremely bad, correct this as soon as possible
   OPEN(unit = 66, FILE= './OutputData/log.log', FORM = "FORMATTED", ACTION = "WRITE")
 
@@ -91,15 +87,12 @@ PROGRAM MAIN
   WRITE(66,*) "By=", By / T2au
   WRITE(66,*) "Bz=", Bz / T2au
   WRITE(66,*) "F=", f_ac, f_ac/F2au
+  FLUSH(66)
 
   ! max_num_threads = omp_get_max_threads()
-  ! WRITE (*,*) "Max num threads", max_num_threads
+  ! WRITE (66,*) "Max num threads", max_num_threads
   ! CALL omp_set_num_threads(max_num_threads)
-  ! !$omp parallel
-  ! used_threads = omp_get_num_threads()
-  ! !PRINT*, "Hello from process", omp_get_thread_num()
-  ! !$omp end parallel
-  ! !PRINT*, "Allocated threads", used_threads
+
 
 
   ham_1_size = (2*Nx + 1)*(2*Ny + 1)*norbs
@@ -107,14 +100,14 @@ PROGRAM MAIN
                 & (2*Nx)*N_TOP_FACET_ELEMENTS + (2*Ny)*N_LEFT_FACET_ELEMENTS + N_RIGHT_TOP_CORNER_ELEMENTS
   !Size of two-electron hamiltonian is equal to number of combinations of one-electron wavefunctions
   !That we put into Slater determinants.
-  ham_2_size = GAMMA(nstate_1 + 1.0d0)/(GAMMA(k_electrons + 1.0d0) * GAMMA(nstate_1 - k_electrons + 1.0d0))
+  ham_2_size = INT(GAMMA(nstate_1 + 1.0d0)/(GAMMA(k_electrons + 1.0d0) * GAMMA(nstate_1 - k_electrons + 1.0d0)))
   !Number of diagonal elements is equal to number of k_electrons-element combinations from nstates
   !Number of elements with one changed index: k*(n-k)
   !Number of elements with two changed index: (k    2) * (n-k   2) <- Newton symbols
   !First lets take off-diagonal terms - swapped one or two indeces. I only store upper triangle, therefore will only have half of them.
   !After all add ham_2_size which is the number of diagonal elements
   nonzero_ham_2 = ham_2_size*(k_electrons*(nstate_1 - k_electrons)&
-  & + GAMMA(k_electrons + 1.0d0)*GAMMA(nstate_1 - k_electrons + 1.0d0) / (4*GAMMA(k_electrons - 1.0d0)*GAMMA(nstate_1 - k_electrons - 1.0d0)))/2&
+  & + INT(GAMMA(k_electrons + 1.0d0)*GAMMA(nstate_1 - k_electrons + 1.0d0) / (4*GAMMA(k_electrons - 1.0d0)*GAMMA(nstate_1 - k_electrons - 1.0d0)))/2)&
   & + ham_2_size
 
   slater_norm = SQRT(GAMMA(k_electrons + 1.0d0))
@@ -139,7 +132,7 @@ PROGRAM MAIN
   ALLOCATE (N_changed_indeces(ham_2_size, ham_2_size))
   ALLOCATE (Combinations(ham_2_size, k_electrons))
   ALLOCATE (Changed_indeces(ham_2_size, ham_2_size, 2, 2))
-  ALLOCATE (Nxm_elems(2, nstate_2))
+  ALLOCATE (Nxm_elems(nstate_2, nstate_2))
   ALLOCATE (C_time(nstate_2))
   ALLOCATE (A_crank_nicolson(nstate_2, nstate_2))
   ALLOCATE (B_crank_nicolson(nstate_2, 1))
@@ -164,11 +157,13 @@ PROGRAM MAIN
 
   !PRINT*, "Creating one electron hamiltonian..."
   WRITE(66,*) "Creating one electron hamiltonian..."
+  FLUSH(66)
   CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, potential)
   !CALL HAMILTONIAN_CREATE(Hamiltonian_1(:,:), ham_1_size, Nx, Ny, norbs, potential)
 
   WRITE(66,*) "Diagonalizing one electron hamiltonian..."
-  CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, Nx, Ny, norbs, nstate_1)
+  FLUSH(66)
+  CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, nstate_1)
   !CALL DIAGONALIZE_ARPACK(Hamiltonian_1, ham_1_size, Psi_1, Energies_1, Nx, Ny, norbs, nstate)
   !###############################################################
 
@@ -183,6 +178,7 @@ PROGRAM MAIN
   !is chosen as combinnation of Slater determinants.
 
   WRITE(66,*) "Initializing combinations..."
+  FLUSH(66)
   !Initialize combination_row to generate next sets
   CALL INIT_COMBINATION(Combination_current, k_electrons)
   DO i = 1, ham_2_size
@@ -193,20 +189,21 @@ PROGRAM MAIN
 
   !PRINT*, "Constructing multi-body hamiltonian..."
   WRITE(66,*) "Constructing many-body hamiltonian..."
+  FLUSH(66)
   CALL CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
   & Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
 
   Energies_2(:) = 0.0d0
-  CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, Nx, Ny, norbs, nstate_2)
+  CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, nstate_2)
 
   ! CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces,&
-  ! &Changed_indeces, ham_1_size, ham_2_size, Nx, Ny, nstate_1, nstate_2, dx, k_electrons)
+  ! &Changed_indeces, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons)
 
   !##########################################################
   !CALL WRITE_STATE_MAP(DCMPLX(Particle_density, 0.0d0), ham_1_size, nstate_2, norbs, Nx, Ny, dx, './OutputData/Density')
 
   CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
-  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, Ny, dx, norbs, './OutputData/Expectations_2.dat')
+  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, dx, './OutputData/Expectations_2.dat')
   CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
 
 
@@ -218,12 +215,13 @@ PROGRAM MAIN
   DO n = 1, nstate_2
     DO m = 1, nstate_2
       Nxm_elems(n,m) = many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,&
-        & ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, m, Nx, Ny, dx, norbs)
+        & ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, m, Nx, dx, norbs)
     END DO
   END DO
 
 
   WRITE(66,*) "Running Crank-Nicolson scheme..."
+  FLUSH(66)
   !For such energy we have to trigger transition, this is only for a check.
   omega_ac = Energies_2(2) - Energies_2(1)
 

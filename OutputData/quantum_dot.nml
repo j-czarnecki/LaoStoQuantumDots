@@ -3,7 +3,7 @@
 	Ny=5,
 	dx=.39,
 	norbs=6,
-	nstate_1=6,
+	nstate_1 = 8,
 	nstate_2 = 2,
 	k_electrons = 2,
 	dt = 1e-4,

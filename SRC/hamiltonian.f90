@@ -26,7 +26,7 @@ CONTAINS
 
     COMPLEX*16 :: orb
     REAL*8 :: y
-    INTEGER*4 :: i,j,n, n_row, n_col, m
+    INTEGER*4 :: i,j,n, n_row, n_col
 
     H_0 = dcmplx(0.0d0, 0.0d0)
     H_so = dcmplx(0.0d0, 0.0d0)
@@ -337,7 +337,7 @@ CONTAINS
     COMPLEX*16, ALLOCATABLE :: h_hopping_diagonal(:, :)
     COMPLEX*16, ALLOCATABLE :: h_hopping_diagonal_m(:, :)
 
-    INTEGER :: i, j, nn, k , l, n_elems
+    INTEGER :: i, j, nn, n_elems
     INTEGER, ALLOCATABLE :: ordering(:, :)
     COMPLEX*16 :: orb, one
     REAL*8 :: pot, yi

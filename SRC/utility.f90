@@ -64,8 +64,8 @@ PURE REAL*8 FUNCTION d_xy_share(Psi, psi_size, norbs)
   INTEGER*4 :: i
   d_xy_share = 0.0d0
   DO i = 1, psi_size, norbs
-    d_xy_share = d_xy_share + CONJG(Psi(i))*Psi(i) !Spin up
-    d_xy_share = d_xy_share + CONJG(Psi(i + 1))*Psi(i + 1) !Spin down
+    d_xy_share = d_xy_share + REAL(CONJG(Psi(i))*Psi(i)) !Spin up
+    d_xy_share = d_xy_share + REAL(CONJG(Psi(i + 1))*Psi(i + 1)) !Spin down
   END DO
   RETURN
 END FUNCTION d_xy_share
@@ -79,8 +79,8 @@ PURE REAL*8 FUNCTION d_xz_share(Psi, psi_size, norbs)
   offset = 2
   d_xz_share = 0.0d0
   DO i = 1, psi_size, norbs
-    d_xz_share = d_xz_share + CONJG(Psi(i + offset))*Psi(i + offset) !Spin up
-    d_xz_share = d_xz_share + CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset) !Spin down
+    d_xz_share = d_xz_share + REAL(CONJG(Psi(i + offset))*Psi(i + offset)) !Spin up
+    d_xz_share = d_xz_share + REAL(CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset)) !Spin down
   END DO
   RETURN
 END FUNCTION d_xz_share
@@ -93,19 +93,19 @@ PURE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
   offset = 4
   d_yz_share = 0.0d0
   DO i = 1, psi_size, norbs
-    d_yz_share = d_yz_share + CONJG(Psi(i + offset))*Psi(i + offset) !Spin up
-    d_yz_share = d_yz_share + CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset) !Spin down
+    d_yz_share = d_yz_share + REAL(CONJG(Psi(i + offset))*Psi(i + offset)) !Spin up
+    d_yz_share = d_yz_share + REAL(CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset)) !Spin down
   END DO
   RETURN
 END FUNCTION d_yz_share
 
-COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, Ny, dx, ham_1_size)
+COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, ham_1_size)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
   INTEGER*4, INTENT(IN) :: ham_1_size
-  INTEGER*4, INTENT(IN) :: norbs, Nx, Ny
+  INTEGER*4, INTENT(IN) :: norbs, Nx
   REAL*8, INTENT(IN) :: dx
-  INTEGER*4 :: i,j
+  INTEGER*4 :: i
   single_electron_x_expected_value = (0.0d0, 0.0d0)
   DO i = 1, ham_1_size
     single_electron_x_expected_value = single_electron_x_expected_value + CONJG(Psi1(i))*Psi2(i)*get_x_from_psi_index(i, norbs, Nx, dx)
@@ -126,5 +126,29 @@ PURE REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, dx)
   REAL*8, INTENT(IN) :: dx
   get_x_from_psi_index = (MOD(i/norbs, 2*Nx + 1) - Nx) * dx
 END FUNCTION get_x_from_psi_index
+
+INTEGER*4 FUNCTION get_upper_hermitian_index(i,j, size)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: i, j, size
+  IF (j < i) THEN
+    get_upper_hermitian_index = -1
+    PRINT*, "ERROR: j < i in get_upper_hermitian_index"
+    RETURN
+  END IF
+    get_upper_hermitian_index = ((i - 1) * (2*size - i)) / 2 + j !Mind the order!!!
+    RETURN
+END FUNCTION get_upper_hermitian_index
+
+SUBROUTINE GET_SLICE_FROM_HERMITIAN_MATRIX(Slice, Matrix, slice_size, original_dim, matrix_size,  i, j)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: slice_size, original_dim, matrix_size, i, j
+  COMPLEX*16, INTENT(IN) :: Matrix(matrix_size, slice_size)
+  COMPLEX*16, INTENT(OUT) :: Slice(slice_size)
+  IF (j >= i) THEN
+    Slice(:) = Matrix(get_upper_hermitian_index(i, j, original_dim), :)
+  ELSE
+    Slice(:) = CONJG(Matrix(get_upper_hermitian_index(j, i, original_dim), :))
+  END IF
+END SUBROUTINE
 
 END MODULE utility

@@ -54,7 +54,7 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
   INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
   INTEGER*4, INTENT(IN) :: ham_2_size, k_electrons
 
-  INTEGER*4 :: i,j,n_changed,k,l, n
+  INTEGER*4 :: i,j,n_changed,k,l
   LOGICAL :: same_index
 
   DO i = 1, ham_2_size
@@ -79,7 +79,7 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
           END IF
         END IF
       END DO
-      N_changed_indeces(i,j) = MIN(n_changed, 3)
+      N_changed_indeces(i,j) = INT(MIN(n_changed, 3), kind = 1)
 
       n_changed = 0
       !For each element of column-combination check wheter it exists in row-combination.

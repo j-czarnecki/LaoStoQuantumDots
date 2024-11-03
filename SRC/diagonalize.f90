@@ -5,7 +5,7 @@ MODULE diagonalize
   SAVE
   CONTAINS
 
-  SUBROUTINE DIAGONALIZE_ARPACK_CRS(ham_csr, ja_csr, ia_csr, nonzero, size, psi, ev, nnx, nny, norbitals, nnstate)
+  SUBROUTINE DIAGONALIZE_ARPACK_CRS(ham_csr, ja_csr, ia_csr, nonzero, size, psi, ev, nnstate)
     USE indata
     USE hamiltonian
     IMPLICIT NONE
@@ -19,13 +19,12 @@ MODULE diagonalize
 
     COMPLEX*16, INTENT(OUT) :: psi(size, nnstate)
     REAL*8, INTENT(OUT):: ev(nnstate)
-    INTEGER, INTENT(IN) :: nnx, nny, norbitals, nnstate
+    INTEGER, INTENT(IN) :: nnstate
     !REAL*8, INTENT(INOUT):: potential(-nnx:nnx, -nny:nny)
     !COMPLEX*16, INTENT(IN) :: ham(:, :)
     INTEGER*4, INTENT(IN) :: size
     INTEGER*4, ALLOCATABLE :: state_index(:)
-    INTEGER :: i, j, flag
-    INTEGER :: nn !, size, iorb, is, ix, iy
+    INTEGER :: i, j
     !COMPLEX*16, ALLOCATABLE :: ham(:, :)
 
     !For ARPACK ZNAUPD
@@ -57,7 +56,6 @@ MODULE diagonalize
     INTEGER*4, ALLOCATABLE:: eigen_index(:)
     COMPLEX*16, ALLOCATABLE :: Eigenvectors_normalised(:, :)
     REAL*8 :: probability_norm
-    REAL*8 :: min_nonzero
 
 !Declaration of ARPACK values
     rvec = .TRUE.
@@ -160,7 +158,7 @@ MODULE diagonalize
 
 
 
-  SUBROUTINE DIAGONALIZE_ARPACK(ham, size, psi, ev, nnx, nny, norbitals, nnstate)
+  SUBROUTINE DIAGONALIZE_ARPACK(ham, size, psi, ev, nnstate)
     USE indata
     USE hamiltonian
     IMPLICIT NONE
@@ -168,7 +166,7 @@ MODULE diagonalize
     !COMPLEX*16, INTENT(OUT):: psi(nstate, -nnx:nnx, -nny:nny, norbitals / 2, 2)
     COMPLEX*16, INTENT(OUT) :: psi(size, nnstate)
     REAL*8, INTENT(OUT):: ev(nnstate)
-    INTEGER, INTENT(IN) :: nnx, nny, norbitals, nnstate
+    INTEGER, INTENT(IN) :: nnstate
     !REAL*8, INTENT(INOUT):: potential(-nnx:nnx, -nny:nny)
     COMPLEX*16, INTENT(IN) :: ham(:, :)
     INTEGER*4, INTENT(IN) :: size
@@ -212,7 +210,6 @@ MODULE diagonalize
     INTEGER*4, ALLOCATABLE:: eigen_index(:)
     COMPLEX*16, ALLOCATABLE :: Eigenvectors_normalised(:, :)
     REAL*8 :: probability_norm
-    REAL*8 :: min_nonzero
 
     !size = (2 * nnx + 1) * (2 * nny + 1) * norbitals
     !ALLOCATE (ham(size, size))
