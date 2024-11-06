@@ -28,7 +28,7 @@ class RunnerConfig:
         ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
         #SBATCH --ntasks-per-node=1
         ## Memory allocated per core (default is 5GB)
-        #SBATCH --mem-per-cpu=3800MB
+        #SBATCH --mem-per-cpu=7000MB
         ## Max task execution time (format is HH:MM:SS)
         #SBATCH --time=168:00:00
         ## Name of grant to which resource usage will be charged
@@ -46,14 +46,14 @@ class RunnerConfig:
         parser = f90nml.Parser()
         params_nml = parser.reads(
             f"&calculation_parameters \
-                Nx=30, \
-                Ny=30, \
+                Nx=60, \
+                Ny=60, \
                 dx=.39, \
                 norbs=6, \
                 nstate_1=50, \
-                nstate_2 = 50, \
+                nstate_2 = 20, \
                 k_electrons = 2, \
-                dt = 1e-4, \
+                dt = 1e-5, \
                 t_max = 5./ \
               &physical_parameters \
                 th=0.04, \
@@ -65,11 +65,12 @@ class RunnerConfig:
                 g=3.0, \
                 eps_r = 100.0/ \
               &external_parameters \
-                omega = 37.378e-3, \
+                omega = 18.689e-3, \
                 Bx=0.0, \
                 By=0.0, \
                 Bz=0.0, \
-                omega_ac = 1.727e-3, \
+                domega_ac = 1e-4, \
+                omega_ac_max = 30e-3, \
                 f_ac = 1e6/"
         )
         return params_nml

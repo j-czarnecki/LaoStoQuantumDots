@@ -6,9 +6,13 @@ def main():
     #plotter.LoadSingleElectronPsi()
     plotter.LoadSingleElectronEnergies()
     plotter.LoadSingleElectronExpectations()
+    plotter.LoadMultiElectronEnergies()
+    plotter.LoadMultiElectronExpectations()
     plotter.SortData()
     #plotter.PlotSingleElectronPsi()
     plotter.PlotSingleElectronEnergies('s_z')
+    plotter.PlotMultiElectronEnergies('s_z')
+    plotter.PlotTimeMaxCoeffs()
     return
 
 

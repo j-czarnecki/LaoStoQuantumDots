@@ -16,7 +16,7 @@ class DataReader:
         self.psi1: list = []
         self.psi2: list = []
         self.energies1: list = []
-        self.energies1: list = []
+        self.energies2: list = []
         self.expectations1: list = []
         self.expectations2: list = []
 
@@ -40,14 +40,14 @@ class DataReader:
         #self.psi1 = [self.psi1[i] for i in sortedIndeces]
         #self.psi2 = [self.psi2[i] for i in sortedIndeces]
         self.energies1 = [self.energies1[i] for i in sortedIndeces]
-        #self.energies2 = [self.energies2[i] for i in sortedIndeces]
+        self.energies2 = [self.energies2[i] for i in sortedIndeces]
         self.expectations1 = [self.expectations1[i] for i in sortedIndeces]
-        #self.expectations2 = [self.expectations2[i] for i in sortedIndeces]
+        self.expectations2 = [self.expectations2[i] for i in sortedIndeces]
         self.params = sorted(self.params)
 
     def LoadSingleElectronPsi(self):
         for dir in self.directories:
-            print(dir)
+            #print(dir)
             for n in range(1, 51): #TODO: This 50 should be deduced from .nml file!
                 psiPath = os.path.join(self.runsPath, dir, 'OutputData', f'Psi_1_n{n}.dat')
                 if os.path.exists(psiPath):
@@ -64,9 +64,8 @@ class DataReader:
 
     def LoadSingleElectronEnergies(self):
         for dir in self.directories:
-            print(dir)
+            #print(dir)
             energiesPath = os.path.join(self.runsPath, dir, 'OutputData', f'Energies1.dat')
-            expectationsPath = os.path.join(self.runsPath, dir, 'OutputData', f'Expectations_1.dat')
             if os.path.exists(energiesPath):
                 energies = pd.read_fwf(energiesPath, skiprows = 1, infer_nrows = 100, names = ['state', 'E'])
                 self.energies1.append(list(energies['E']))
@@ -76,7 +75,7 @@ class DataReader:
         return
     def LoadSingleElectronExpectations(self):
         for dir in self.directories:
-            print(dir)
+            #print(dir)
             expectationsPath = os.path.join(self.runsPath, dir, 'OutputData', f'Expectations_1.dat')
             if os.path.exists(expectationsPath):
                 expectations = pd.read_fwf(expectationsPath, skiprows = 1, infer_nrows = 100, names = ['state', 's_x', 's_y', 's_z', 'd_xy', 'd_xz', 'd_yz'])
@@ -86,3 +85,52 @@ class DataReader:
                 continue
         return
 
+    def LoadMultiElectronEnergies(self):
+        for dir in self.directories:
+            #print(dir)
+            energiesPath = os.path.join(self.runsPath, dir, 'OutputData', f'Energies2.dat')
+            if os.path.exists(energiesPath):
+                energies = pd.read_fwf(energiesPath, skiprows = 1, infer_nrows = 100, names = ['state', 'E'])
+                self.energies2.append(list(energies['E']))
+            else:
+                print("File does not exists, skipping: ", energiesPath)
+                continue
+        return
+
+    def LoadMultiElectronExpectations(self):
+        for dir in self.directories:
+            print(dir)
+            expectationsPath = os.path.join(self.runsPath, dir, 'OutputData', f'Expectations_2.dat')
+            if os.path.exists(expectationsPath):
+                expectations = pd.read_fwf(expectationsPath, skiprows = 1, infer_nrows = 100, names = ['state', 'x', 's_x', 's_y', 's_z'])
+                self.expectations2.append(expectations)
+            else:
+                print("File does not exists, skipping: ", expectationsPath)
+                continue
+        return
+
+    def LoadTimeDependence(self, dir):
+        header = ['t']
+        for i in range(1, 21):
+            header.append(f'c_{i}')
+
+        timeDependencePath = os.path.join(self.runsPath, dir, 'OutputData', f'Time_dependent.dat')
+        if os.path.exists(timeDependencePath):
+            timeDependence = pd.read_fwf(timeDependencePath, skiprows = 0, infer_nrows = 100, names = header)
+            return timeDependence
+        else:
+            print("File does not exists, skipping: ", timeDependencePath)
+            return
+
+    def LoadMaxCoeffs(self, dir):
+        header = ['omega_ac']
+        for i in range(1, 21):
+            header.append(f'c_{i}')
+
+        cMaxPath = os.path.join(self.runsPath, dir, 'OutputData', f'C_max_time.dat')
+        if os.path.exists(cMaxPath):
+            cMax = pd.read_fwf(cMaxPath, skiprows = 1, infer_nrows = 100, names = header)
+            return cMax
+        else:
+            print("File does not exists, skipping: ", cMaxPath)
+            return

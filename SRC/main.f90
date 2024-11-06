@@ -44,11 +44,13 @@ PROGRAM MAIN
                                          !\Psi(t) = \sum_{m} [c_m(t) * exp(-i*E_n*t / \hbar) |m> ].
                                          ! Where m is a multi-body eigenstate.
                                          ! first index denotes time, second is the number of state. Time is stored such that t(1) > t(2) > ... > t(n)
+  COMPLEX*16, ALLOCATABLE :: C_max_time(:)
   COMPLEX*16, ALLOCATABLE :: A_crank_nicolson(:,:)
   COMPLEX*16, ALLOCATABLE :: B_crank_nicolson(:,:)
   INTEGER*4, ALLOCATABLE :: IPIV(:)
   INTEGER*4 :: INFO
-  INTEGER*4 :: it
+  INTEGER*4 :: it, iomega
+  REAL*8 :: omega_ac
   INTEGER :: ix, iy
   INTEGER*4 :: i,n, m
   REAL*8 :: x, y
@@ -134,6 +136,7 @@ PROGRAM MAIN
   ALLOCATE (Changed_indeces(ham_2_size, ham_2_size, 2, 2))
   ALLOCATE (Nxm_elems(nstate_2, nstate_2))
   ALLOCATE (C_time(nstate_2))
+  ALLOCATE (C_max_time(nstate_2))
   ALLOCATE (A_crank_nicolson(nstate_2, nstate_2))
   ALLOCATE (B_crank_nicolson(nstate_2, 1))
   ALLOCATE (IPIV(nstate_2))
@@ -212,42 +215,57 @@ PROGRAM MAIN
 
   !First calculate all <n|X|m> matrix elements
   !Only upper triangle is needed, since <n|X|m> = CONJG(<m|X|n>)
+  OPEN(10, FILE = './OutputData/Nxm.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
   DO n = 1, nstate_2
     DO m = 1, nstate_2
       Nxm_elems(n,m) = many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,&
         & ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, m, Nx, dx, norbs)
+      WRITE(10,*) n, m, REAL(Nxm_elems(n,m)), AIMAG(Nxm_elems(n,m))
     END DO
   END DO
-
+  CLOSE(10)
 
   WRITE(66,*) "Running Crank-Nicolson scheme..."
   FLUSH(66)
   !For such energy we have to trigger transition, this is only for a check.
-  omega_ac = Energies_2(2) - Energies_2(1)
+  !omega_ac = Energies_2(2) - Energies_2(1)
+
+  OPEN(10, FILE = './OutputData/C_max_time.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+  WRITE(10,*) '#omega_ac [meV] C_max_1 C_max_2 ...'
+  DO iomega = 1, N_omega_ac_steps
+    omega_ac = iomega*domega_ac
+    C_max_time = DCMPLX(0.0d0, 0.0d0)
+    C_time = DCMPLX(0.0d0, 0.0d0)
+    C_time(1) = DCMPLX(1.0d0, 0.0d0) !Initial condition, assuming full occupation of lowest energy state
+    !OPEN(10, FILE = './OutputData/Time_dependent.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+    DO it = 0, N_t_steps
+      A_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
+      B_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
+      ipiv = 0
+      DO n = 1, nstate_2
+        A_crank_nicolson(n,n) = 1.0d0
+        B_crank_nicolson(n,1) = C_time(n)
+
+        DO m = 1, nstate_2
+          A_crank_nicolson(n,m) = A_crank_nicolson(n,m) - dt/(2*imag) * energy_phase_offset(Energies_2(n), Energies_2(m), (it + 1)*dt) * v_ac(f_ac, omega_ac, (it + 1)*dt) * Nxm_elems(n,m)
+          B_crank_nicolson(n,1) = B_crank_nicolson(n,1) + dt/(2*imag) * C_time(m) * energy_phase_offset(Energies_2(n), Energies_2(m), it*dt) * v_ac(f_ac, omega_ac, it*dt) * Nxm_elems(n,m)
+        END DO
+      END DO
+
+      CALL ZGESV(nstate_2, 1, A_crank_nicolson, nstate_2, IPIV, B_crank_nicolson, nstate_2, INFO)
+      B_crank_nicolson = B_crank_nicolson !/ SUM(ABS(B_crank_nicolson(:,1))**2)
+      !IF (INFO /= 0) !PRINT*, "ERROR in ZGESV, INFO = ", INFO
+      !WRITE(10,*) it*dt / ns2au, (ABS(B_crank_nicolson(n,1))**2, n = 1, nstate_2)
+      C_time(:) = B_crank_nicolson(:,1)
 
 
-  C_time = DCMPLX(0.0d0, 0.0d0)
-  C_time(1) = DCMPLX(1.0d0, 0.0d0) !Initial condition, assuming full occupation of lowest energy state
-  OPEN(10, FILE = './OutputData/Time_dependent.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
-  DO it = 0, N_t_steps
-    A_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
-    B_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
-    ipiv = 0
-    DO n = 1, nstate_2
-      A_crank_nicolson(n,n) = 1.0d0
-      B_crank_nicolson(n,1) = C_time(n)
-
-      DO m = 1, nstate_2
-        A_crank_nicolson(n,m) = A_crank_nicolson(n,m) - dt/(2*imag) * energy_phase_offset(Energies_2(n), Energies_2(m), (it + 1)*dt) * v_ac(f_ac, omega_ac, (it + 1)*dt) * Nxm_elems(n,m)
-        B_crank_nicolson(n,1) = B_crank_nicolson(n,1) + dt/(2*imag) * C_time(m) * energy_phase_offset(Energies_2(n), Energies_2(m), it*dt) * v_ac(f_ac, omega_ac, it*dt) * Nxm_elems(n,m)
+      !Check for maximal value of C_time
+      DO n = 1, nstate_2
+        IF (ABS(C_time(n))**2 > ABS(C_max_time(n))**2) C_max_time(n) = C_time(n)
       END DO
     END DO
 
-    CALL ZGESV(nstate_2, 1, A_crank_nicolson, nstate_2, IPIV, B_crank_nicolson, nstate_2, INFO)
-    B_crank_nicolson = B_crank_nicolson / SUM(ABS(B_crank_nicolson(:,1))**2)
-    !IF (INFO /= 0) !PRINT*, "ERROR in ZGESV, INFO = ", INFO
-    WRITE(10,*) it*dt / ns2au, (ABS(B_crank_nicolson(n,1))**2, n = 1, nstate_2)
-    C_time(:) = B_crank_nicolson(:,1)
+    WRITE(10,*) omega_ac / eV2au * 1e3, (ABS(C_max_time(n))**2, n = 1, nstate_2)
   END DO
   CLOSE(10)
   !#################################################################
@@ -272,6 +290,7 @@ PROGRAM MAIN
   DEALLOCATE (Combination_current)
   DEALLOCATE (Nxm_elems)
   DEALLOCATE (C_time)
+  DEALLOCATE (C_max_time)
   DEALLOCATE (A_crank_nicolson)
   DEALLOCATE (B_crank_nicolson)
   DEALLOCATE (IPIV)

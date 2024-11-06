@@ -14,7 +14,6 @@ MODULE indata
   INTEGER :: k_electrons    !number of electrons
   REAL*8 :: dt              !Time step [ns]
   REAL*8 :: t_max           !Time span [ns]
-  INTEGER*4 :: N_t_steps    !Number of time steps
 
   !physical paramters for LAO/STO
   REAL*8 :: tl
@@ -31,12 +30,14 @@ MODULE indata
   REAL*8 :: Bx
   REAL*8 :: By
   REAL*8 :: Bz
-  REAL*8 :: omega_ac
+  REAL*8 :: domega_ac
+  REAL*8 :: omega_ac_max
   REAL*8 :: f_ac
 
   !Derived parameters
   REAL*8 :: a !lattice constant
-
+  INTEGER*4 :: N_t_steps    !Number of time steps
+  INTEGER*4 :: N_omega_ac_steps !number of steps of omega_ac
   NAMELIST /calculation_parameters/             &
        &  Nx,                                   &
        &  Ny,                                   &
@@ -64,7 +65,8 @@ MODULE indata
   &  Bx,                                  &
   &  By,                                  &
   &  Bz,                                  &
-  &  omega_ac,                            &
+  &  domega_ac,                           &
+  &  omega_ac_max,                        &
   &  f_ac
 
 CONTAINS
@@ -141,8 +143,12 @@ CONTAINS
     Bx = Bx * T2au
     By = By * T2au
     Bz = Bz * T2au
-    omega_ac = omega_ac * eV2au
+    domega_ac = domega_ac * eV2au
+    omega_ac_max = omega_ac_max * eV2au
     f_ac = f_ac * F2au
+
+    N_omega_ac_steps = INT(omega_ac_max / domega_ac)
+
 
   END SUBROUTINE INDATA_GET
 
