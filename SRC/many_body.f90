@@ -1,6 +1,7 @@
 MODULE many_body
   USE combinatory
   USE utility
+  USE omp_lib
   IMPLICIT NONE
   CONTAINS
 
@@ -165,7 +166,7 @@ MODULE many_body
                   ELSE IF (oi == oj .AND.oi == ok .AND. oi == ol) THEN
                     matrix_element = matrix_element + epsilon(1) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + k_so)*Psi_4(r2 + l_so)
                   END IF
-                  
+
                 END DO
               END DO
             END DO
@@ -194,9 +195,10 @@ MODULE many_body
 
     V_tilde_upper = (0.0d0, 0.0d0)
     !Loops over state
-    !!$omp parallel do private(j, r2, s2, o2, so2, r1, x1, y1, x2, y2, r12, s1, o1, so1)
+    !$omp parallel private (so1, so2, x1, y1, x2, y2, r12)
+    !$omp do
     DO i = 1, nstate_1
-      WRITE(66,*) "V_tilde i = ", i
+      WRITE(66,*) "V_tilde i = ", i, "by thread", omp_get_thread_num()
       FLUSH(66)
       DO j = i, nstate_1
         !Loop over position r_2 of second electron
@@ -205,7 +207,7 @@ MODULE many_body
           y2 = get_y_from_psi_index(r2,norbs, Nx, Ny, dx)
 
           DO s2 = 0, 1
-            DO o2 = 0, norbs/2 - 1 
+            DO o2 = 0, norbs/2 - 1
               so2 = s2 + 2*o2
               !Loop over position r_1 of first electron
               DO r1 = 1, ham_1_size, norbs
@@ -229,8 +231,9 @@ MODULE many_body
           END DO
         END DO
       END DO
-    END DO  
-    !!$omp end parallel do
+    END DO
+    !$omp end do
+    !$omp end parallel
   END SUBROUTINE CALCULATE_V_TILDE
 
   SUBROUTINE CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, n_states_1, n_states_2, k_electrons)

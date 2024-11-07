@@ -28,7 +28,7 @@ class RunnerConfig:
         ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
         #SBATCH --ntasks-per-node=1
         ## Memory allocated per core (default is 5GB)
-        #SBATCH --mem-per-cpu=7000MB
+        #SBATCH --mem-per-cpu=3800MB
         ## Max task execution time (format is HH:MM:SS)
         #SBATCH --time=168:00:00
         ## Name of grant to which resource usage will be charged
@@ -46,8 +46,8 @@ class RunnerConfig:
         parser = f90nml.Parser()
         params_nml = parser.reads(
             f"&calculation_parameters \
-                Nx=60, \
-                Ny=60, \
+                Nx=80, \
+                Ny=80, \
                 dx=.39, \
                 norbs=6, \
                 nstate_1=50, \

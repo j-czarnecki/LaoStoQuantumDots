@@ -3,7 +3,7 @@ USE constants
 IMPLICIT NONE
 CONTAINS
 
-PURE REAL*8 FUNCTION v_ac(f_ac, omega_ac, t)
+PURE RECURSIVE REAL*8 FUNCTION v_ac(f_ac, omega_ac, t)
   IMPLICIT NONE
   REAL*8, INTENT(IN) :: f_ac, t, omega_ac
   v_ac = -f_ac*SIN(omega_ac*t)
@@ -15,7 +15,7 @@ PURE COMPLEX*16 FUNCTION energy_phase_offset(En, Em, t)
   energy_phase_offset = EXP(imag*t*(En - Em))
 END FUNCTION energy_phase_offset
 
-PURE COMPLEX*16 FUNCTION sigma_x_expected_value(Psi1, Psi2, psi_size)
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_x_expected_value(Psi1, Psi2, psi_size)
   !! Calculates expectation value of sigma_x Pauli matrix.
   !! Assumes that order of psi is (up, down, up, down, ...)
   IMPLICIT NONE
@@ -29,7 +29,7 @@ PURE COMPLEX*16 FUNCTION sigma_x_expected_value(Psi1, Psi2, psi_size)
   RETURN
 END FUNCTION sigma_x_expected_value
 
-PURE COMPLEX*16 FUNCTION sigma_y_expected_value(Psi1, Psi2, psi_size)
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_y_expected_value(Psi1, Psi2, psi_size)
   !! Calculates expectation value of sigma_x Pauli matrix.
   !! Assumes that order of psi is (up, down, up, down, ...)
   IMPLICIT NONE
@@ -43,7 +43,7 @@ PURE COMPLEX*16 FUNCTION sigma_y_expected_value(Psi1, Psi2, psi_size)
   RETURN
 END FUNCTION sigma_y_expected_value
 
-PURE COMPLEX*16 FUNCTION sigma_z_expected_value(Psi1, Psi2, psi_size)
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_z_expected_value(Psi1, Psi2, psi_size)
   !! Calculates expectation value of sigma_z Pauli matrix.
   !! Assumes that order of psi is (up, down, up, down, ...)
   IMPLICIT NONE
@@ -57,7 +57,7 @@ PURE COMPLEX*16 FUNCTION sigma_z_expected_value(Psi1, Psi2, psi_size)
   RETURN
 END FUNCTION sigma_z_expected_value
 
-PURE REAL*8 FUNCTION d_xy_share(Psi, psi_size, norbs)
+PURE RECURSIVE REAL*8 FUNCTION d_xy_share(Psi, psi_size, norbs)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: psi_size, norbs
   COMPLEX*16, INTENT(IN) :: Psi(psi_size)
@@ -71,7 +71,7 @@ PURE REAL*8 FUNCTION d_xy_share(Psi, psi_size, norbs)
 END FUNCTION d_xy_share
 
 
-PURE REAL*8 FUNCTION d_xz_share(Psi, psi_size, norbs)
+PURE RECURSIVE REAL*8 FUNCTION d_xz_share(Psi, psi_size, norbs)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: psi_size, norbs
   COMPLEX*16, INTENT(IN) :: Psi(psi_size)
@@ -85,7 +85,7 @@ PURE REAL*8 FUNCTION d_xz_share(Psi, psi_size, norbs)
   RETURN
 END FUNCTION d_xz_share
 
-PURE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
+PURE RECURSIVE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: psi_size, norbs
   COMPLEX*16, INTENT(IN) :: Psi(psi_size)
@@ -99,7 +99,7 @@ PURE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
   RETURN
 END FUNCTION d_yz_share
 
-COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, ham_1_size)
+RECURSIVE COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, ham_1_size)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
   INTEGER*4, INTENT(IN) :: ham_1_size
@@ -113,33 +113,33 @@ COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, 
   RETURN
 END FUNCTION single_electron_x_expected_value
 
-PURE REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
+PURE RECURSIVE REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: i, norbs, Nx, Ny
   REAL*8, INTENT(IN) :: dx
   get_y_from_psi_index = ((i/norbs)/(2*Nx + 1) - Ny) * dx
 END FUNCTION get_y_from_psi_index
 
-PURE REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, dx)
+PURE RECURSIVE REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, dx)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: i, norbs, Nx
   REAL*8, INTENT(IN) :: dx
   get_x_from_psi_index = (MOD(i/norbs, 2*Nx + 1) - Nx) * dx
 END FUNCTION get_x_from_psi_index
 
-INTEGER*4 FUNCTION get_upper_hermitian_index(i,j, size)
+PURE RECURSIVE INTEGER*4 FUNCTION get_upper_hermitian_index(i,j, size)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: i, j, size
   IF (j < i) THEN
     get_upper_hermitian_index = -1
-    PRINT*, "ERROR: j < i in get_upper_hermitian_index"
+    !PRINT*, "ERROR: j < i in get_upper_hermitian_index"
     RETURN
   END IF
     get_upper_hermitian_index = ((i - 1) * (2*size - i)) / 2 + j !Mind the order!!!
     RETURN
 END FUNCTION get_upper_hermitian_index
 
-SUBROUTINE GET_SLICE_FROM_HERMITIAN_MATRIX(Slice, Matrix, slice_size, original_dim, matrix_size,  i, j)
+RECURSIVE SUBROUTINE GET_SLICE_FROM_HERMITIAN_MATRIX(Slice, Matrix, slice_size, original_dim, matrix_size,  i, j)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: slice_size, original_dim, matrix_size, i, j
   COMPLEX*16, INTENT(IN) :: Matrix(matrix_size, slice_size)

@@ -9,7 +9,7 @@ PROGRAM MAIN
   USE constants
   USE utility
 
-  !USE omp_lib
+  USE omp_lib
 
   IMPLICIT NONE
 
@@ -91,11 +91,19 @@ PROGRAM MAIN
   WRITE(66,*) "F=", f_ac, f_ac/F2au
   FLUSH(66)
 
-  ! max_num_threads = omp_get_max_threads()
-  ! WRITE (66,*) "Max num threads", max_num_threads
-  ! CALL omp_set_num_threads(max_num_threads)
+  max_num_threads = omp_get_max_threads()
+  WRITE (66,*) "Max num threads", max_num_threads
+  CALL omp_set_num_threads(max_num_threads)
 
 
+  !This is to test if parallelization works
+  !$omp parallel
+  WRITE(66,*) "Thread", omp_get_thread_num()
+  !$omp critical
+  used_threads = omp_get_num_threads()
+  !$omp end critical
+  !$omp end parallel
+  WRITE(66,*) "Used threads", used_threads
 
   ham_1_size = (2*Nx + 1)*(2*Ny + 1)*norbs
   nonzero_ham_1 = (2*Nx - 1)*2*Ny*N_INTERIOR_ELEMENTS + (2*Ny)*N_RIGHT_FACET_ELEMENTS +&
@@ -197,6 +205,7 @@ PROGRAM MAIN
   & Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
 
   Energies_2(:) = 0.0d0
+  WRITE(66,*) "Diagonalizing many-body hamiltonian..."
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, nstate_2)
 
   ! CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces,&
@@ -232,6 +241,8 @@ PROGRAM MAIN
 
   OPEN(10, FILE = './OutputData/C_max_time.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
   WRITE(10,*) '#omega_ac [meV] C_max_1 C_max_2 ...'
+  !$omp parallel private(omega_ac, C_time, C_max_time, A_crank_nicolson, B_crank_nicolson, ipiv, INFO)
+  !$omp do
   DO iomega = 1, N_omega_ac_steps
     omega_ac = iomega*domega_ac
     C_max_time = DCMPLX(0.0d0, 0.0d0)
@@ -266,7 +277,10 @@ PROGRAM MAIN
     END DO
 
     WRITE(10,*) omega_ac / eV2au * 1e3, (ABS(C_max_time(n))**2, n = 1, nstate_2)
+    FLUSH(10)
   END DO
+  !$omp end do
+  !$omp end parallel
   CLOSE(10)
   !#################################################################
 
