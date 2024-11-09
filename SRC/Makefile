@@ -30,8 +30,8 @@ LIBS_MKL = -I${MKLROOT}/include \
           -lgomp -lpthread -lm -ldl
 
 
-F90FLAGS = -Ofast  -m64 -ffree-line-length-none $(LIB_OMP)
-F77FLAGS = -Ofast  -m64 -ffree-line-length-none $(LIB_OMP)
+F90FLAGS = -Ofast -cpp -m64 -ffree-line-length-none $(LIB_OMP)
+F77FLAGS = -Ofast -cpp -m64 -ffree-line-length-none $(LIB_OMP)
 
 #################################################################
 #      objects files
@@ -45,7 +45,8 @@ OBJS =  main.o \
 				combinatory.o \
 				many_body.o \
 				writers.o \
-				utility.o
+				utility.o \
+				logger.o
 
 ASMS =  main.s \
 			  constants.s \
@@ -55,7 +56,8 @@ ASMS =  main.s \
 				combinatory.s \
 				many_body.s \
 				writers.s \
-				utility.s
+				utility.s \
+				logger.s
 #################################################################
 #      rules
 #################################################################
@@ -78,13 +80,21 @@ all: $(TARGET)
 #echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
 #To include suppressions run as
 #TSAN_OPTIONS="suppressions=thread_suppressions.txt:history_size=7" bin/lao_sto_qd.x
-debug: F90FLAGS = -O0 -fsanitize=thread -m64 -ffree-line-length-none -Wall -g $(LIB_OMP)
-debug: F77FLAGS = -O0 -fsanitize=thread -m64 -ffree-line-length-none -Wall -g $(LIB_OMP)
+debug: F90FLAGS = -O0 -cpp -m64 -ffree-line-length-none -Wall -g $(LIB_OMP) -DDEBUG
+debug: F77FLAGS = -O0 -cpp -m64 -ffree-line-length-none -Wall -g $(LIB_OMP) -DDEBUG
 debug: $(TARGET)
 
-profile: F90FLAGS = -Ofast  -m64 -ffree-line-length-none -Wall -pg -fopt-info $(LIB_OMP)
-profile: F77FLAGS = -Ofast  -m64 -ffree-line-length-none -Wall -pg -fopt-info $(LIB_OMP)
+profile: F90FLAGS = -Ofast -cpp -m64 -ffree-line-length-none -Wall -pg -fopt-info $(LIB_OMP)
+profile: F77FLAGS = -Ofast -cpp -m64 -ffree-line-length-none -Wall -pg -fopt-info $(LIB_OMP)
 profile: $(TARGET)
+
+tsan: F90FLAGS = -O0 -cpp -m64 -ffree-line-length-none -Wall -g $(LIB_OMP) -DDEBUG -fsanitize=thread
+tsan: F77FLAGS = -O0 -cpp -m64 -ffree-line-length-none -Wall -g $(LIB_OMP) -DDEBUG -fsanitize=thread
+tsan: $(TARGET)
+
+asan: F90FLAGS = -O0 -cpp -m64 -ffree-line-length-none -Wall -g $(LIB_OMP) -DDEBUG -fsanitize=address
+asan: F77FLAGS = -O0 -cpp -m64 -ffree-line-length-none -Wall -g $(LIB_OMP) -DDEBUG -fsanitize=address
+asan: $(TARGET)
 
 assembly: $(ASMS)
 
@@ -102,19 +112,23 @@ main.o: indata.o \
 				many_body.o \
 				writers.o \
 				utility.o \
-				constants.o
+				constants.o \
+				logger.o
 
 combinatory.o:
 
 indata.o: constants.o
 
-hamiltonian.o: indata.o
+hamiltonian.o: indata.o \
+							 logger.o
 
 diagonalize.o: indata.o \
-							 hamiltonian.o
+							 hamiltonian.o \
+							 logger.o
 
 many_body.o: combinatory.o \
-						 utility.o
+						 utility.o \
+						 logger.o
 
 writers.o: indata.o \
 					 constants.o \
@@ -123,11 +137,8 @@ writers.o: indata.o \
 
 utility.o:
 
+logger.o:
+
 constants.mod: #Has to be .mod, or else module is not found
-
-
-
-
-
 
 	

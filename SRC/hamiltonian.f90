@@ -1,6 +1,8 @@
+#include "macros_def.f90"
 MODULE hamiltonian
   USE indata
   USE constants
+  USE logger
   IMPLICIT NONE
 
 CONTAINS
@@ -27,6 +29,9 @@ CONTAINS
     COMPLEX*16 :: orb
     REAL*8 :: y
     INTEGER*4 :: i,j,n, n_row, n_col
+
+    WRITE(log_string, *) 'Creating one-electron Hamiltonian'
+    LOG_INFO(log_string)
 
     H_0 = dcmplx(0.0d0, 0.0d0)
     H_so = dcmplx(0.0d0, 0.0d0)

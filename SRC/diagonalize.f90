@@ -1,13 +1,13 @@
+#include "macros_def.f90"
 MODULE diagonalize
   USE indata
   USE hamiltonian
+  USE logger
   IMPLICIT NONE
   SAVE
   CONTAINS
 
   SUBROUTINE DIAGONALIZE_ARPACK_CRS(ham_csr, ja_csr, ia_csr, nonzero, size, psi, ev, nnstate)
-    USE indata
-    USE hamiltonian
     IMPLICIT NONE
 
     !COMPLEX*16, INTENT(OUT):: psi(nstate, -nnx:nnx, -nny:nny, norbitals / 2, 2)
@@ -56,6 +56,9 @@ MODULE diagonalize
     INTEGER*4, ALLOCATABLE:: eigen_index(:)
     COMPLEX*16, ALLOCATABLE :: Eigenvectors_normalised(:, :)
     REAL*8 :: probability_norm
+
+    WRITE(log_string, *) 'Diagonalizing Hamiltonian'
+    LOG_INFO(log_string)
 
 !Declaration of ARPACK values
     rvec = .TRUE.

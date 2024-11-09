@@ -1,12 +1,14 @@
+#include "macros_def.f90"
 MODULE many_body
   USE combinatory
   USE utility
+  USe logger
   USE omp_lib
   IMPLICIT NONE
   CONTAINS
 
   SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
-    & Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
+    & N_ham_2_elems_in_prev_rows, Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
     IMPLICIT NONE
     INTEGER*4, INTENT(IN) :: ham_2_size, norbs, Nx, Ny, k_electrons, nonzero_ham_2
     REAL*8, INTENT(IN) :: dx, eps_r
@@ -16,6 +18,7 @@ MODULE many_body
     INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
     INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
     INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: N_ham_2_elems_in_prev_rows(ham_2_size)
     COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1)
     REAL*8, INTENT(IN) :: Energies_1(nstate_1)
     INTEGER*4, INTENT(IN) :: ham_1_size, nstate_1
@@ -30,6 +33,9 @@ MODULE many_body
     COMPLEX*16 :: interaction_element
 
 
+    WRITE(log_string,*) "Creating many-body Hamiltonian"
+    LOG_INFO(log_string)
+
     v_tilde_elems = nstate_1*(nstate_1 + 1)/2 !Number of elements in upper triangle of hermitian matrix V_tilde
     ALLOCATE(V_tilde_upper(v_tilde_elems, ham_1_size))
     ALLOCATE(V_tilde_slice(ham_1_size))
@@ -38,11 +44,14 @@ MODULE many_body
     Hamiltonian_2_crs = DCMPLX(0.0d0, 0.0d0)
     column_2_crs = 0
     row_2_crs = 0
-    nn = 1
+
+    !$omp parallel private(nn, interaction_element, V_tilde_slice, log_string)
+    !$omp do schedule(dynamic, 1)
     DO i = 1, ham_2_size
-      !PRINT*, "i = ", i
-      WRITE(66,*) "nn / nonzero ", nn, nonzero_ham_2
-      FLUSH(66)
+      WRITE(log_string,*) "Ham_2 i = ", i
+      LOG_INFO(log_string)
+
+      nn = N_ham_2_elems_in_prev_rows(i)
       row_2_crs(i) = nn
       DO j = i, ham_2_size
         !!PRINT*, i, j
@@ -115,8 +124,11 @@ MODULE many_body
         END IF
       END DO
     END DO
+    !$omp end do
+    !$omp end parallel
+
     !PRINT*, "Nonzero elements traversed in ham 2", nn
-    row_2_crs(ham_2_size + 1) = nn
+    row_2_crs(ham_2_size + 1) = nonzero_ham_2 + 1 !Sanity check already done in INIT_PREV_ELEMS()
 
     DEALLOCATE(V_tilde_upper)
     DEALLOCATE(V_tilde_slice)
@@ -177,7 +189,6 @@ MODULE many_body
 
     END DO
     matrix_element = matrix_element/eps_r
-    !WRITE(66,*) 'Matrix element', matrix_element
   END SUBROUTINE CALCULATE_INTERACTION_ELEMENTS
 
   SUBROUTINE CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, v_tilde_elems, norbs, Nx, Ny, dx)
@@ -195,11 +206,12 @@ MODULE many_body
 
     V_tilde_upper = (0.0d0, 0.0d0)
     !Loops over state
-    !$omp parallel private (so1, so2, x1, y1, x2, y2, r12)
+    !$omp parallel private (so1, so2, x1, y1, x2, y2, r12, log_string)
     !$omp do
     DO i = 1, nstate_1
-      WRITE(66,*) "V_tilde i = ", i, "by thread", omp_get_thread_num()
-      FLUSH(66)
+      WRITE(log_string,*) "V_tilde i = ", i
+      LOG_INFO(log_string)
+
       DO j = i, nstate_1
         !Loop over position r_2 of second electron
         DO r2 = 1, ham_1_size, norbs
@@ -268,7 +280,7 @@ MODULE many_body
 
   END SUBROUTINE CALCULATE_PARTICLE_DENSITY
 
-  COMPLEX*16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
     !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
     !! X = \sum_i^{k_electrons} x_i.
     IMPLICIT NONE
@@ -302,7 +314,7 @@ MODULE many_body
   END FUNCTION many_body_x_expected_value
 
 
-  COMPLEX*16 FUNCTION many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
     !! Calculates matrix element of <n|s_x|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
     !! S_x = \sum_i^{k_electrons} s_x_i.
     IMPLICIT NONE
@@ -333,7 +345,7 @@ MODULE many_body
 
   END FUNCTION many_body_sigma_x_expected_value
 
-  COMPLEX*16 FUNCTION many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
     !! Calculates matrix element of <n|s_y|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
     !! S_y = \sum_i^{k_electrons} s_y_i.
     IMPLICIT NONE
@@ -364,7 +376,7 @@ MODULE many_body
 
   END FUNCTION many_body_sigma_y_expected_value
 
-  COMPLEX*16 FUNCTION many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
     !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
     !! S_z = \sum_i^{k_electrons} s_z_i.
     IMPLICIT NONE

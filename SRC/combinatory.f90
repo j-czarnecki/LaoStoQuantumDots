@@ -1,4 +1,6 @@
+#include "macros_def.f90"
 MODULE combinatory
+  USE logger
   IMPLICIT NONE
   CONTAINS
 
@@ -114,5 +116,29 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
 
 
 END SUBROUTINE GET_CHANGED_INDECES
+
+SUBROUTINE INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_size, nonzero_ham_2)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(OUT) :: N_ham_2_elems_in_prev_rows(ham_2_size)
+  INTEGER*4, INTENT(IN) :: ham_2_size, nonzero_ham_2
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4 :: i, j, n
+
+  n = 1
+  DO i = 1, ham_2_size
+    N_ham_2_elems_in_prev_rows(i) = n
+    DO j = i, ham_2_size
+      IF (N_changed_indeces(i,j) < 3) n = n + 1
+    END DO
+  END DO
+
+  !Sanity check whether we calculated number of nonzero elems corectly
+  IF (n - 1 < nonzero_ham_2) THEN
+    WRITE(log_string,*) 'n - 1 = ', n - 1, ' < nonzero_ham_2 = ', nonzero_ham_2
+    LOG_ABNORMAL(log_string)
+  ELSE IF (n - 1 > nonzero_ham_2) THEN
+    STOP 'ERROR IN INIT_PREV_ELEMS: n > nonzero_ham_2. Bad hamiltonian initialization'
+  END IF
+END SUBROUTINE
 
 END MODULE combinatory

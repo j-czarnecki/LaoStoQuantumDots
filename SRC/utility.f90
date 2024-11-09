@@ -99,7 +99,7 @@ PURE RECURSIVE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
   RETURN
 END FUNCTION d_yz_share
 
-RECURSIVE COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, ham_1_size)
+PURE RECURSIVE COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, ham_1_size)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
   INTEGER*4, INTENT(IN) :: ham_1_size
