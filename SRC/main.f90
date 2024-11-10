@@ -115,8 +115,8 @@ PROGRAM MAIN
                 & (2*Nx)*N_TOP_FACET_ELEMENTS + (2*Ny)*N_LEFT_FACET_ELEMENTS + N_RIGHT_TOP_CORNER_ELEMENTS
   !Size of two-electron hamiltonian is equal to number of combinations of one-electron wavefunctions
   !That we put into Slater determinants.
-  !Logarithms needed to avoid overflow. Even with logarithm this could overflow easily, so care should be taken.
-  ham_2_size = INT(EXP(LOG_GAMMA(nstate_1 + 1.0d0) - LOG_GAMMA(k_electrons + 1.0d0) - LOG_GAMMA(nstate_1 - k_electrons + 1.0d0)))
+  !Logarithms needed to avoid overflow, NINT() round to closes integer. Even with logarithm this could overflow easily, so care should be taken.
+  ham_2_size = NINT(EXP(LOG_GAMMA(nstate_1 + 1.0d0) - LOG_GAMMA(k_electrons + 1.0d0) - LOG_GAMMA(nstate_1 - k_electrons + 1.0d0)))
   !Number of diagonal elements is equal to number of k_electrons-element combinations from nstates
   !Number of elements with one changed index: k*(n-k)
   !Number of elements with two changed index: (k    2) * (n-k   2) <- Newton symbols
@@ -128,6 +128,9 @@ PROGRAM MAIN
   nonzero_ham_2 = ham_2_size*(k_electrons*(nstate_1 - k_electrons)&
   & + ((k_electrons - 1)*k_electrons*(nstate_1 - k_electrons - 1)*(nstate_1 - k_electrons))/4)/2&
   & + ham_2_size
+  WRITE(log_string,*) 'ham_1_size = ', ham_1_size, 'nonzero_ham_1 = ', nonzero_ham_1, 'ham_2_size = ', ham_2_size, 'nonzero_ham_2 = ', nonzero_ham_2
+  LOG_INFO(log_string)
+
   slater_norm = SQRT(GAMMA(k_electrons + 1.0d0))
   ! PRINT*, "Number of combinations: ", ham_2_size
   ! PRINT*, "Size of one-body hamiltonian: ", ham_1_size
