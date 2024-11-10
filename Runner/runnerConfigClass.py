@@ -26,7 +26,7 @@ class RunnerConfig:
         ## Number of allocated nodes
         #SBATCH -N 1
         ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
-        #SBATCH --ntasks-per-node=1
+        #SBATCH --ntasks-per-node=10
         ## Memory allocated per core (default is 5GB)
         #SBATCH --mem-per-cpu=3800MB
         ## Max task execution time (format is HH:MM:SS)
