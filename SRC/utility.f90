@@ -139,6 +139,16 @@ PURE RECURSIVE INTEGER*4 FUNCTION get_upper_hermitian_index(i,j, size)
     RETURN
 END FUNCTION get_upper_hermitian_index
 
+PURE INTEGER*4 FUNCTION factorial(n)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: n
+  INTEGER*4 :: i
+  factorial = 1
+  DO i = 1, n
+    factorial = factorial * i
+  END DO
+END FUNCTION
+
 RECURSIVE SUBROUTINE GET_SLICE_FROM_HERMITIAN_MATRIX(Slice, Matrix, slice_size, original_dim, matrix_size,  i, j)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: slice_size, original_dim, matrix_size, i, j

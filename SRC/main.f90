@@ -115,16 +115,19 @@ PROGRAM MAIN
                 & (2*Nx)*N_TOP_FACET_ELEMENTS + (2*Ny)*N_LEFT_FACET_ELEMENTS + N_RIGHT_TOP_CORNER_ELEMENTS
   !Size of two-electron hamiltonian is equal to number of combinations of one-electron wavefunctions
   !That we put into Slater determinants.
-  ham_2_size = INT(GAMMA(nstate_1 + 1.0d0)/(GAMMA(k_electrons + 1.0d0) * GAMMA(nstate_1 - k_electrons + 1.0d0)))
+  !Logarithms needed to avoid overflow. Even with logarithm this could overflow easily, so care should be taken.
+  ham_2_size = INT(EXP(LOG_GAMMA(nstate_1 + 1.0d0) - LOG_GAMMA(k_electrons + 1.0d0) - LOG_GAMMA(nstate_1 - k_electrons + 1.0d0)))
   !Number of diagonal elements is equal to number of k_electrons-element combinations from nstates
   !Number of elements with one changed index: k*(n-k)
   !Number of elements with two changed index: (k    2) * (n-k   2) <- Newton symbols
   !First lets take off-diagonal terms - swapped one or two indeces. I only store upper triangle, therefore will only have half of them.
   !After all add ham_2_size which is the number of diagonal elements
+  ! nonzero_ham_2 = ham_2_size*(k_electrons*(nstate_1 - k_electrons)&
+  ! & + INT(GAMMA(k_electrons + 1.0d0)*GAMMA(nstate_1 - k_electrons + 1.0d0) / (4*GAMMA(k_electrons - 1.0d0)*GAMMA(nstate_1 - k_electrons - 1.0d0))))/2&
+  ! & + ham_2_size
   nonzero_ham_2 = ham_2_size*(k_electrons*(nstate_1 - k_electrons)&
-  & + INT(GAMMA(k_electrons + 1.0d0)*GAMMA(nstate_1 - k_electrons + 1.0d0) / (4*GAMMA(k_electrons - 1.0d0)*GAMMA(nstate_1 - k_electrons - 1.0d0))))/2&
+  & + ((k_electrons - 1)*k_electrons*(nstate_1 - k_electrons - 1)*(nstate_1 - k_electrons))/4)/2&
   & + ham_2_size
-
   slater_norm = SQRT(GAMMA(k_electrons + 1.0d0))
   ! PRINT*, "Number of combinations: ", ham_2_size
   ! PRINT*, "Size of one-body hamiltonian: ", ham_1_size

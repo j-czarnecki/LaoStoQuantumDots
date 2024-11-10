@@ -132,11 +132,16 @@ SUBROUTINE INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_
     END DO
   END DO
 
+  WRITE(log_string,*) 'n - 1 = ', n - 1, ' nonzero_ham_2 = ', nonzero_ham_2
+  LOG_INFO(log_string)
+
   !Sanity check whether we calculated number of nonzero elems corectly
   IF (n - 1 < nonzero_ham_2) THEN
     WRITE(log_string,*) 'n - 1 = ', n - 1, ' < nonzero_ham_2 = ', nonzero_ham_2
     LOG_ABNORMAL(log_string)
   ELSE IF (n - 1 > nonzero_ham_2) THEN
+    WRITE(log_string,*) 'n - 1 = ', n - 1, ' > nonzero_ham_2 = ', nonzero_ham_2
+    LOG_ERROR(log_string)
     STOP 'ERROR IN INIT_PREV_ELEMS: n > nonzero_ham_2. Bad hamiltonian initialization'
   END IF
 END SUBROUTINE
