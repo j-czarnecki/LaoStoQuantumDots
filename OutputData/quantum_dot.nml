@@ -1,10 +1,10 @@
 &calculation_parameters
-	Nx=10,
-	Ny=10,
+	Nx=20,
+	Ny=20,
 	dx=.39,
 	norbs=6,
-	nstate_1 = 6,
-	nstate_2 = 2,
+	nstate_1 = 8,
+	nstate_2 = 4,
 	k_electrons = 2,
 	dt = 1e-4,
 	t_max = 5./

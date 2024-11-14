@@ -29,6 +29,12 @@ PROGRAM MAIN
                                            !is given by \Psi_2 = \sum_{i=1}^{n} [c_i \varphi_i(r_1, r_2, ..., r_n)]
   REAL*8, ALLOCATABLE :: Particle_density(:,:)
   REAL*8, ALLOCATABLE :: Energies_1(:) !Single electron energies
+  COMPLEX*16, ALLOCATABLE :: Nxm_single_elems(:,:) ! <n|x|m> elements for single electron wavefunctions
+  COMPLEX*16, ALLOCATABLE :: C_single_max_time(:)
+  COMPLEX*16, ALLOCATABLE :: C_single_time(:)
+  COMPLEX*16, ALLOCATABLE :: A_single_crank_nicolson(:,:)
+  COMPLEX*16, ALLOCATABLE :: B_single_crank_nicolson(:,:)
+  INTEGER*4, ALLOCATABLE :: IPIV_single(:)
   REAL*8, ALLOCATABLE :: Energies_2(:) !Many-body energies in the same order as multi-body wavefunctions in \Psi_2
   INTEGER*4, ALLOCATABLE :: Combination_current(:)
   INTEGER*4,  ALLOCATABLE :: Combinations(:,:)
@@ -145,6 +151,12 @@ PROGRAM MAIN
   ALLOCATE (Particle_density(ham_1_size, nstate_2))
   ALLOCATE (Psi_1(ham_1_size, nstate_1))
   ALLOCATE (Energies_1(nstate_1))
+  ALLOCATE (Nxm_single_elems(nstate_1, nstate_1))
+  ALLOCATE (C_single_time(nstate_1))
+  ALLOCATE (C_single_max_time(nstate_1))
+  ALLOCATE (A_single_crank_nicolson(nstate_1, nstate_1))
+  ALLOCATE (B_single_crank_nicolson(nstate_1, 1))
+  ALLOCATE (IPIV_SINGLE(nstate_1))
   ALLOCATE (C_slater(ham_2_size, nstate_2))
   ALLOCATE (Energies_2(nstate_2))
   ALLOCATE (Hamiltonian_2_crs(nonzero_ham_2))
@@ -182,6 +194,74 @@ PROGRAM MAIN
 
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, nstate_1)
   !###############################################################
+  !#################### TIME_DEPENDENT CALCULATION FOR SINGLE ELECTRON PROBLEM ####################
+  !Time dependent Schrodinger equation is solved using Crank-Nicholson scheme
+  WRITE(log_string,*) "Calculating <n|x|m> elements for single electron"
+  LOG_INFO(log_string)
+  !First calculate all <n|X|m> matrix elements
+  !Only upper triangle is needed, since <n|X|m> = CONJG(<m|X|n>)
+  OPEN(11, FILE = './OutputData/Nxm_single_electrons.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+  !$omp parallel
+  !$omp do
+  DO n = 1, nstate_1
+    DO m = 1, nstate_1
+      Nxm_single_elems(n,m) = single_electron_x_expected_value(Psi_1(:, n), Psi_1(:, m), norbs, Nx, dx, ham_1_size)
+      WRITE(11,*) n, m, REAL(Nxm_single_elems(n,m)), AIMAG(Nxm_single_elems(n,m))
+    END DO
+  END DO
+  !$omp end do
+  !$omp end parallel
+  CLOSE(11)
+
+  WRITE(log_string,*) "Running Crank-Nicolson scheme for single electron"
+  LOG_INFO(log_string)
+  !For such energy we have to trigger transition, this is only for a check.
+  !omega_ac = Energies_2(2) - Energies_2(1)
+
+  OPEN(11, FILE = './OutputData/C_single_max_time.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+  WRITE(11,*) '#omega_ac [meV] C_max_1 C_max_2 ...'
+  !$omp parallel private(omega_ac, C_single_time, C_single_max_time, A_single_crank_nicolson, B_single_crank_nicolson, IPIV_SINGLE, INFO)
+  !$omp do
+  DO iomega = 1, N_omega_ac_steps
+    omega_ac = iomega*domega_ac
+    C_single_max_time = DCMPLX(0.0d0, 0.0d0)
+    C_single_time = DCMPLX(0.0d0, 0.0d0)
+    C_single_time(1) = DCMPLX(1.0d0, 0.0d0) !Initial condition, assuming full occupation of lowest energy state
+    !OPEN(10, FILE = './OutputData/Time_dependent.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+    DO it = 0, N_t_steps
+      A_single_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
+      B_single_crank_nicolson = DCMPLX(0.0d0, 0.0d0)
+      IPIV_SINGLE = 0
+      DO n = 1, nstate_1
+        A_single_crank_nicolson(n,n) = 1.0d0
+        B_single_crank_nicolson(n,1) = C_single_time(n)
+
+        DO m = 1, nstate_1
+          A_single_crank_nicolson(n,m) = A_single_crank_nicolson(n,m) - dt/(2*imag) * energy_phase_offset(Energies_1(n), Energies_1(m), (it + 1)*dt) * v_ac(f_ac, omega_ac, (it + 1)*dt) * Nxm_single_elems(n,m)
+          B_single_crank_nicolson(n,1) = B_single_crank_nicolson(n,1) + dt/(2*imag) * C_single_time(m) * energy_phase_offset(Energies_1(n), Energies_1(m), it*dt) * v_ac(f_ac, omega_ac, it*dt) * Nxm_single_elems(n,m)
+        END DO
+      END DO
+
+      CALL ZGESV(nstate_1, 1, A_single_crank_nicolson, nstate_1, IPIV_SINGLE, B_single_crank_nicolson, nstate_1, INFO)
+      !B_single_crank_nicolson = B_single_crank_nicolson !/ SUM(ABS(B_crank_nicolson(:,1))**2)
+      !IF (INFO /= 0) !PRINT*, "ERROR in ZGESV, INFO = ", INFO
+      !WRITE(10,*) it*dt / ns2au, (ABS(B_crank_nicolson(n,1))**2, n = 1, nstate_2)
+      C_single_time(:) = B_single_crank_nicolson(:,1)
+
+
+      !Check for maximal value of C_time
+      DO n = 1, nstate_1
+        IF (ABS(C_single_time(n))**2 > ABS(C_single_max_time(n))**2) C_single_max_time(n) = C_single_time(n)
+      END DO
+    END DO
+
+    WRITE(11,*) omega_ac / eV2au * 1e3, (ABS(C_single_max_time(n))**2, n = 1, nstate_1)
+    FLUSH(11)
+  END DO
+  !$omp end do
+  !$omp end parallel
+  CLOSE(11)
+  !#################################################################
 
   !Writing single-electron problem data to a file
   CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
@@ -208,18 +288,18 @@ PROGRAM MAIN
   Energies_2(:) = 0.0d0
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, nstate_2)
 
-  ! CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces,&
-  ! &Changed_indeces, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons)
+  CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces,&
+  & Changed_indeces, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons)
 
   !##########################################################
   !CALL WRITE_STATE_MAP(DCMPLX(Particle_density, 0.0d0), ham_1_size, nstate_2, norbs, Nx, Ny, dx, './OutputData/Density')
 
   CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
-  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, dx, './OutputData/Expectations_2.dat')
+  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
   CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
 
 
-  !#################### TIME_DEPENDENT CALCULATION #################
+  !#################### TIME_DEPENDENT CALCULATION FOR MANY BODY PROBLEM ####################
   !Time dependent Schrodinger equation is solved using Crank-Nicholson scheme
 
   !First calculate all <n|X|m> matrix elements
@@ -297,6 +377,12 @@ PROGRAM MAIN
   DEALLOCATE (Particle_density)
   DEALLOCATE (Psi_1)
   DEALLOCATE (Energies_1)
+  DEALLOCATE (Nxm_single_elems)
+  DEALLOCATE (C_single_time)
+  DEALLOCATE (C_single_max_time)
+  DEALLOCATE (A_single_crank_nicolson)
+  DEALLOCATE (B_single_crank_nicolson)
+  DEALLOCATE (IPIV_single)
   DEALLOCATE (C_slater)
   DEALLOCATE (Energies_2)
   DEALLOCATE (Hamiltonian_2_crs)

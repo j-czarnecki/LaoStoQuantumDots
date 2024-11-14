@@ -99,6 +99,29 @@ PURE RECURSIVE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
   RETURN
 END FUNCTION d_yz_share
 
+PURE RECURSIVE COMPLEX*16 FUNCTION single_electron_parity(Psi_1, Psi_2, psi_size, norbs, Nx, Ny)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs, Nx, Ny
+  COMPLEX*16, INTENT(IN) :: Psi_1(psi_size), Psi_2(psi_size)
+  INTEGER*4 :: i, offset
+  single_electron_parity = DCMPLX(0.0d0, 0.0d0)
+  DO i = 1, psi_size, norbs
+    offset = 0
+    single_electron_parity = single_electron_parity  + CONJG(Psi_1(i + offset))*Psi_2(get_opposite_r_index(Nx, Ny, norbs, i + offset))
+    offset = 1
+    single_electron_parity = single_electron_parity  - CONJG(Psi_1(i + offset))*Psi_2(get_opposite_r_index(Nx, Ny, norbs, i + offset))
+    offset = 2
+    single_electron_parity = single_electron_parity  - CONJG(Psi_1(i + offset))*Psi_2(get_opposite_r_index(Nx, Ny, norbs, i + offset))
+    offset = 3
+    single_electron_parity = single_electron_parity  + CONJG(Psi_1(i + offset))*Psi_2(get_opposite_r_index(Nx, Ny, norbs, i + offset))
+    offset = 4
+    single_electron_parity = single_electron_parity  - CONJG(Psi_1(i + offset))*Psi_2(get_opposite_r_index(Nx, Ny, norbs, i + offset))
+    offset = 5
+    single_electron_parity = single_electron_parity  + CONJG(Psi_1(i + offset))*Psi_2(get_opposite_r_index(Nx, Ny, norbs, i + offset))
+  END DO
+  RETURN
+END FUNCTION
+
 PURE RECURSIVE COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, norbs, Nx, dx, ham_1_size)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
@@ -113,19 +136,48 @@ PURE RECURSIVE COMPLEX*16 FUNCTION single_electron_x_expected_value(Psi1, Psi2, 
   RETURN
 END FUNCTION single_electron_x_expected_value
 
+PURE RECURSIVE COMPLEX*16 FUNCTION single_electron_y_expected_value(Psi1, Psi2, norbs, Nx, Ny, dx, ham_1_size)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi1(ham_1_size), Psi2(ham_1_size)
+  INTEGER*4, INTENT(IN) :: ham_1_size
+  INTEGER*4, INTENT(IN) :: norbs, Nx, Ny
+  REAL*8, INTENT(IN) :: dx
+  INTEGER*4 :: i
+  single_electron_y_expected_value = (0.0d0, 0.0d0)
+  DO i = 1, ham_1_size
+    single_electron_y_expected_value = single_electron_y_expected_value + CONJG(Psi1(i))*Psi2(i)*get_y_from_psi_index(i, norbs, Nx, Ny, dx)
+  END DO
+  RETURN
+END FUNCTION single_electron_y_expected_value
+
 PURE RECURSIVE REAL*8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: i, norbs, Nx, Ny
   REAL*8, INTENT(IN) :: dx
-  get_y_from_psi_index = ((i/norbs)/(2*Nx + 1) - Ny) * dx
+  get_y_from_psi_index = (((i - 1)/norbs)/(2*Nx + 1) - Ny) * dx !-1 Due to indexing from 1
 END FUNCTION get_y_from_psi_index
 
 PURE RECURSIVE REAL*8 FUNCTION get_x_from_psi_index(i, norbs, Nx, dx)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: i, norbs, Nx
   REAL*8, INTENT(IN) :: dx
-  get_x_from_psi_index = (MOD(i/norbs, 2*Nx + 1) - Nx) * dx
+  get_x_from_psi_index = (MOD((i - 1)/norbs, 2*Nx + 1) - Nx) * dx !-1 Due to indexing from 1
 END FUNCTION get_x_from_psi_index
+
+PURE RECURSIVE INTEGER*4 FUNCTION get_opposite_r_index(Nx, Ny, nstates, current_index)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: Nx, Ny, nstates, current_index
+  INTEGER*4 :: so_index !Spin-orbital index from current index
+  INTEGER*4 :: current_nx, current_ny, current_nx_opposite, current_ny_opposite
+  so_index = MOD(current_index - 1, nstates)
+  current_nx = MOD((current_index - 1)/nstates, 2*Nx + 1) - Nx
+  current_ny = (((current_index - 1)/nstates)/(2*Nx + 1) - Ny)
+
+  current_nx_opposite = -current_nx
+  current_ny_opposite = -current_ny
+  get_opposite_r_index = 1 + (current_nx_opposite + Nx)*nstates + (current_ny_opposite + Ny) * (2*Nx + 1) * nstates + so_index
+  RETURN
+END FUNCTION
 
 PURE RECURSIVE INTEGER*4 FUNCTION get_upper_hermitian_index(i,j, size)
   IMPLICIT NONE

@@ -72,15 +72,18 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbit
   CHARACTER(LEN=200) :: format_string
 
   !Writing expectations for a given state
-  format_string = '(I10, 6E20.8)'
+  format_string = '(I10, 9E20.8)'
   OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
-  WRITE(9,*) "#No. state [-]  <s_x>   <s_y>   <s_z>   <d_xy>   <d_xz>   <d_yz>"
+  WRITE(9,*) "#No. state [-]  <s_x>   <s_y>   <s_z>   <d_xy>   <d_xz>   <d_yz>   <parity>   <x>"
   DO n = 1, nstates
     WRITE(9, format_string) n,&
       & REAL(sigma_x_expected_value(Psi_1(:,n), Psi_1(:,n), ham_1_size)),&
       & REAL(sigma_y_expected_value(Psi_1(:,n), Psi_1(:,n), ham_1_size)),&
       & REAL(sigma_z_expected_value(Psi_1(:,n), Psi_1(:,n), ham_1_size)), &
-      & d_xy_share(Psi_1(:,n), ham_1_size, norbitals), d_xz_share(Psi_1(:,n), ham_1_size, norbitals), d_yz_share(Psi_1(:,n), ham_1_size, norbitals)
+      & d_xy_share(Psi_1(:,n), ham_1_size, norbitals), d_xz_share(Psi_1(:,n), ham_1_size, norbitals), d_yz_share(Psi_1(:,n), ham_1_size, norbitals), &
+      & REAL(single_electron_parity(Psi_1(:,n),Psi_1(:,n), ham_1_size, norbitals, Nx, Ny)), &
+      & REAL(single_electron_x_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, dx, ham_1_size)), &
+      & REAL(single_electron_y_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, Ny, dx, ham_1_size))
   END DO
   CLOSE(9)
 
@@ -112,15 +115,15 @@ SUBROUTINE WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstates, filename)
 END SUBROUTINE WRITE_SLATER_COEFFICIENTS
 
 
-SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, Nx, dx, filename)
+SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, filename)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1)
   COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstate_2)
   INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
   INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
   INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
-  INTEGER*4, INTENT(IN) :: nstate_1, nstate_2
-  INTEGER*4, INTENT(IN) :: Nx
+  INTEGER*4, INTENT(IN) :: nstate_1, nstate_2, norbs
+  INTEGER*4, INTENT(IN) :: Nx, Ny
   REAL*8, INTENT(IN) :: dx
   INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
   CHARACTER(LEN=*), INTENT(IN) :: filename
@@ -128,15 +131,16 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_ch
   CHARACTER(LEN=200) :: format_string
 
   !Writing expectations for a given state
-  format_string = '(I10, 4E20.8)'
+  format_string = '(I10, 5E20.8)'
   OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
-  WRITE(9,*) "#No. state [-]  <x>    <S_x>   <S_y>   <S_z>"
+  WRITE(9,*) "#No. state [-]  <x>    <S_x>   <S_y>   <S_z>   <parity>"
   DO n = 1, nstate_2
     WRITE(9, format_string) n,&
     & REAL(many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, dx, norbs)) / nm2au / k_electrons,&
     & REAL(many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
     & REAL(many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
-    & REAL(many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n))
+    & REAL(many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
+    & REAL(many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n))
   END DO
   CLOSE(9)
 

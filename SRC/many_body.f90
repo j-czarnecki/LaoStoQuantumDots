@@ -408,4 +408,25 @@ MODULE many_body
 
   END FUNCTION many_body_sigma_z_expected_value
 
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    !HAS TO BE CORRECTED BECAUSE MANY-BODY PARITY IS NOT A SUM OF OPERATORS!
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: current_combination_parity
+    many_body_parity_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      current_combination_parity = 1
+      DO k = 1, k_electrons
+        current_combination_parity = current_combination_parity * single_electron_parity(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(a, k)), ham_1_size, norbs, Nx, Ny)
+      END DO
+      many_body_parity_expected_value = many_body_parity_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * current_combination_parity
+    END DO
+
+  END FUNCTION
 END MODULE many_body

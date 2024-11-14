@@ -1,0 +1,52 @@
+ ==== START ====
+2024-11-14 23:34:28.100 TID = 0 INFO:  Calculation parameters: Nx =           20 Ny =           20 dx =   0.39000000000000001      norbs =            6 nstate_1 =            8 nstate_2 =            4 k_electrons =            2
+2024-11-14 23:34:28.100 TID = 0 INFO:  Physical parameters: th =    4.0000000000000001E-002 tl =   0.87500000000000000      td =    4.0000000000000001E-002 dso =    1.0000000000000000E-002 drso =    2.0000000000000000E-002 dE =    4.7000000000000007E-002 g =    3.0000000000000000
+2024-11-14 23:34:28.100 TID = 0 INFO:  External parameters: omega =    1.8689000000000001E-002 Bx =    0.0000000000000000      By =    0.0000000000000000      Bz =    10.000000000000000      domega_ac =    1.0000000000000000E-002 omega_ac_max =    5.0000000000000003E-002 F =    999999.99999999988
+2024-11-14 23:34:28.100 TID = 0 INFO:  Number of threads:            8
+2024-11-14 23:34:28.100 TID = 0 INFO:  ham_1_size =        10086 nonzero_ham_1 =        77539 ham_2_size =           28 nonzero_ham_2 =          406
+2024-11-14 23:34:28.100 TID = 0 INFO:  Creating one-electron Hamiltonian
+2024-11-14 23:34:28.101 TID = 0 INFO:  Diagonalizing Hamiltonian
+2024-11-14 23:34:30.987 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
+2024-11-14 23:34:30.996 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
+2024-11-14 23:34:31.549 TID = 0 INFO:  n - 1 =          406  nonzero_ham_2 =          406
+2024-11-14 23:34:31.549 TID = 0 INFO:  Creating many-body Hamiltonian
+2024-11-14 23:34:31.551 TID = 0 INFO:  V_tilde i =            1
+2024-11-14 23:34:31.551 TID = 6 INFO:  V_tilde i =            7
+2024-11-14 23:34:31.551 TID = 5 INFO:  V_tilde i =            6
+2024-11-14 23:34:31.551 TID = 7 INFO:  V_tilde i =            8
+2024-11-14 23:34:31.551 TID = 3 INFO:  V_tilde i =            4
+2024-11-14 23:34:31.551 TID = 4 INFO:  V_tilde i =            5
+2024-11-14 23:34:31.551 TID = 2 INFO:  V_tilde i =            3
+2024-11-14 23:34:31.551 TID = 1 INFO:  V_tilde i =            2
+2024-11-14 23:34:38.998 TID = 1 INFO:  Ham_2 i =            3
+2024-11-14 23:34:38.998 TID = 6 INFO:  Ham_2 i =            1
+2024-11-14 23:34:38.998 TID = 3 INFO:  Ham_2 i =            4
+2024-11-14 23:34:38.998 TID = 2 INFO:  Ham_2 i =            2
+2024-11-14 23:34:38.998 TID = 7 INFO:  Ham_2 i =            5
+2024-11-14 23:34:38.998 TID = 4 INFO:  Ham_2 i =            6
+2024-11-14 23:34:38.998 TID = 0 INFO:  Ham_2 i =            8
+2024-11-14 23:34:38.998 TID = 5 INFO:  Ham_2 i =            7
+2024-11-14 23:34:39.129 TID = 5 INFO:  Ham_2 i =            9
+2024-11-14 23:34:39.141 TID = 3 INFO:  Ham_2 i =           10
+2024-11-14 23:34:39.142 TID = 7 INFO:  Ham_2 i =           11
+2024-11-14 23:34:39.142 TID = 0 INFO:  Ham_2 i =           12
+2024-11-14 23:34:39.162 TID = 4 INFO:  Ham_2 i =           13
+2024-11-14 23:34:39.169 TID = 2 INFO:  Ham_2 i =           14
+2024-11-14 23:34:39.169 TID = 1 INFO:  Ham_2 i =           15
+2024-11-14 23:34:39.171 TID = 6 INFO:  Ham_2 i =           16
+2024-11-14 23:34:39.248 TID = 7 INFO:  Ham_2 i =           17
+2024-11-14 23:34:39.253 TID = 0 INFO:  Ham_2 i =           18
+2024-11-14 23:34:39.254 TID = 3 INFO:  Ham_2 i =           19
+2024-11-14 23:34:39.258 TID = 6 INFO:  Ham_2 i =           20
+2024-11-14 23:34:39.265 TID = 1 INFO:  Ham_2 i =           21
+2024-11-14 23:34:39.265 TID = 5 INFO:  Ham_2 i =           22
+2024-11-14 23:34:39.272 TID = 2 INFO:  Ham_2 i =           23
+2024-11-14 23:34:39.274 TID = 4 INFO:  Ham_2 i =           24
+2024-11-14 23:34:39.308 TID = 4 INFO:  Ham_2 i =           25
+2024-11-14 23:34:39.314 TID = 5 INFO:  Ham_2 i =           26
+2024-11-14 23:34:39.317 TID = 2 INFO:  Ham_2 i =           27
+2024-11-14 23:34:39.319 TID = 1 INFO:  Ham_2 i =           28
+2024-11-14 23:34:39.337 TID = 0 INFO:  Diagonalizing Hamiltonian
+2024-11-14 23:34:39.598 TID = 0 INFO:  Running Crank-Nicolson scheme
+ Time of simulation (seconds):    46.656993999999997     
+ ==== END ====
