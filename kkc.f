@@ -619,6 +619,12 @@ c    > it*1.0,(cdabs(ct(i))**2,i=1,m),info*1.0
 
       enddo
       enddo
+
+
+
+
+
+      !Julian: Beginning of two electron problem?
       allocate(codc(m,m,m,m))
       allocate(cro(in2))
       allocate(cpot(in2))
@@ -684,6 +690,8 @@ c     stop
       r12=sqrt((r(ir1,1)-r(ir2,1))**2+
      >    +(r(ir1,2)-r(ir2,2))**2)
 
+     !Julian: excluding electron-electron interactions when ???
+     !This distance is always larger than my distances, maybe thus the discrepancies?
       odl=1/eps/(r12+1/(wyklucz)*exp(-r12*10))
 c     odl=1
       cpot(ir2)=cpot(ir2)+odl*cro(ir1)
@@ -715,33 +723,33 @@ c     odl=1
       write(23,*) iw,jw,kw,lw
 871   continue
       do i=1,m
-      do j=1,m
-      write(23,*) i,j
-      do k=1,m
-      do l=1,m
-      do ir2=1,in2
-      do iorbi=1,3
-      do iorbj=1,3
-      do iorbk=1,3
-      do iorbl=1,3
-      do isp1=1,2
-      do isp2=1,2
-      codc(i,j,k,l)=codc(i,j,k,l)+
-     > dconjg(cpsi(ir2,iorbi,isp1,i))
-     >*dconjg(cpsi(ir2,iorbj,isp2,j))
-     >*cpsi(ir2,iorbk,isp1,k)
-     >*cpsi(ir2,iorbl,isp2,l)
-     >*ej(iorbi,iorbj,iorbk,iorbl)/eps
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
-      enddo
+            do j=1,m
+                  write(23,*) i,j
+                  do k=1,m
+                        do l=1,m
+                              do ir2=1,in2
+                                    do iorbi=1,3
+                                          do iorbj=1,3
+                                                do iorbk=1,3
+                                                      do iorbl=1,3
+                                                            do isp1=1,2
+                                                                  do isp2=1,2
+                                                            codc(i,j,k,l)=codc(i,j,k,l)+
+                                                                  > dconjg(cpsi(ir2,iorbi,isp1,i))
+                                                                  >*dconjg(cpsi(ir2,iorbj,isp2,j))
+                                                                  >*cpsi(ir2,iorbk,isp1,k)
+                                                                  >*cpsi(ir2,iorbl,isp2,l)
+                                                                  >*ej(iorbi,iorbj,iorbk,iorbl)/eps
+                                                                  enddo
+                                                            enddo
+                                                      enddo
+                                                enddo
+                                          enddo
+                                    enddo
+                              enddo
+                        enddo
+                  enddo
+            enddo
       enddo
       do  i=1,m
       do  j=1,m
@@ -830,6 +838,7 @@ c     !!WRITE(*,*) i,j,ccod
       !!WRITE(*,*) numerod,ncc_max,jnzz,nstt,' w2e'
       if(allocated(cih)) deallocate(cih)
       if(.not.allocated(cih)) allocate(cih(numerod,nstt))
+      !Julian: diagonalizing two-electron hamiltonian!
       call w2e(num,cnzz,nzz,milion,numerod,jnzz,enesx,nstt,cih)
       dcont2e=0
       do i=1,nstt

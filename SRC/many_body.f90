@@ -158,32 +158,29 @@ MODULE many_body
       END DO
 
       !Calculating onsite integrals
-      DO si = 0, 1
-        DO sj = 0, 1
-
-          DO oi = 0, norbs/2 - 1
-            DO oj = 0, norbs/2 - 1
-              DO ok = 0, norbs/2 - 1
-                DO ol = 0, norbs/2 - 1
-                  i_so = si + 2*oi
-                  j_so = sj + 2*oj
-                  k_so = si + 2*ok
-                  l_so = sj + 2*ol
-
-                  !Those ifs can be unrolled
-                  IF (oi == ok .AND. oj == ol .AND. oi /= oj) THEN
-                    matrix_element = matrix_element + epsilon(2) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + k_so)*Psi_4(r2 + l_so)
-                  ELSE IF (oi == ol .AND. oj == ok .AND. oi /= oj) THEN
-                    matrix_element = matrix_element + epsilon(3) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + k_so)*Psi_4(r2 + l_so)
-                  ELSE IF (oi == oj .AND.oi == ok .AND. oi == ol) THEN
-                    matrix_element = matrix_element + epsilon(1) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + k_so)*Psi_4(r2 + l_so)
-                  END IF
-
-                END DO
+      !Calculating all the same orbitals
+      DO oi = 0, norbs/2 - 1
+        DO si = 0, 1
+          DO sj = 0, 1
+            i_so = si + 2*oi
+            j_so = sj + 2*oi
+            matrix_element = matrix_element + epsilon(1) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + i_so)*Psi_4(r2 + j_so)
+          END DO
+        END DO
+      END DO
+      !Calculating two different orbitals
+      DO oi = 0, norbs/2 - 1
+        DO oj = 0, norbs/2 - 1
+          IF (oi /= oj) THEN
+            DO si = 0, 1
+              DO sj = 0, 1
+                i_so = si + 2*oi
+                j_so = sj + 2*oj
+                matrix_element = matrix_element + epsilon(2) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + i_so)*Psi_4(r2 + j_so)
+                matrix_element = matrix_element + epsilon(3) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + j_so)*Psi_4(r2 + i_so)
               END DO
             END DO
-          END DO
-
+          END IF
         END DO
       END DO
 
@@ -416,7 +413,6 @@ MODULE many_body
     INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
     INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
     INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    !HAS TO BE CORRECTED BECAUSE MANY-BODY PARITY IS NOT A SUM OF OPERATORS!
     INTEGER*4 :: a, k
     COMPLEX*16 :: current_combination_parity
     many_body_parity_expected_value = DCMPLX(0.0d0, 0.0d0)

@@ -184,11 +184,10 @@ PURE RECURSIVE INTEGER*4 FUNCTION get_upper_hermitian_index(i,j, size)
   INTEGER*4, INTENT(IN) :: i, j, size
   IF (j < i) THEN
     get_upper_hermitian_index = -1
-    !PRINT*, "ERROR: j < i in get_upper_hermitian_index"
     RETURN
   END IF
-    get_upper_hermitian_index = ((i - 1) * (2*size - i)) / 2 + j !Mind the order!!!
-    RETURN
+  get_upper_hermitian_index = ((i - 1) * (2*size - i)) / 2 + j !Mind the order!!!
+  RETURN
 END FUNCTION get_upper_hermitian_index
 
 PURE INTEGER*4 FUNCTION factorial(n)
