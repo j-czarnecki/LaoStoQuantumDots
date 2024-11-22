@@ -130,6 +130,21 @@ class DataReader:
         cMaxPath = os.path.join(self.runsPath, dir, 'OutputData', f'C_max_time.dat')
         if os.path.exists(cMaxPath):
             cMax = pd.read_fwf(cMaxPath, skiprows = 1, infer_nrows = 100, names = header)
+            cMax.sort_values('omega_ac', inplace = True)
+            return cMax
+        else:
+            print("File does not exists, skipping: ", cMaxPath)
+            return
+
+    def LoadSingleMaxCoeffs(self, dir):
+        header = ['omega_ac']
+        for i in range(1, 51):
+            header.append(f'c_{i}')
+
+        cMaxPath = os.path.join(self.runsPath, dir, 'OutputData', f'C_single_max_time.dat')
+        if os.path.exists(cMaxPath):
+            cMax = pd.read_fwf(cMaxPath, skiprows = 1, infer_nrows = 100, names = header)
+            cMax.sort_values('omega_ac', inplace = True)
             return cMax
         else:
             print("File does not exists, skipping: ", cMaxPath)

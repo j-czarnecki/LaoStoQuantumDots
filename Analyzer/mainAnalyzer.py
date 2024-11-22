@@ -1,7 +1,7 @@
 from plotterClass import *
 def main():
 
-    plotter = Plotter(runsPath = "/net/ascratch/people/plgjczarnecki/LAO-STO-QD",
+    plotter = Plotter(runsPath = "/net/ascratch/people/plgjczarnecki/LAO-STO-QD-comparison",
                             matchPattern = "RUN_.*", physicalParams = ("bz", ))
     #plotter.LoadSingleElectronPsi()
     plotter.LoadSingleElectronEnergies()
@@ -12,7 +12,8 @@ def main():
     #plotter.PlotSingleElectronPsi()
     plotter.PlotSingleElectronEnergies('s_z')
     plotter.PlotMultiElectronEnergies('s_z')
-    plotter.PlotTimeMaxCoeffs()
+    #plotter.PlotTimeMaxCoeffs()
+    plotter.PlotTimeSingleMaxCoeffs()
     return
 
 

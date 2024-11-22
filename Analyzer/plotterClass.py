@@ -152,19 +152,38 @@ class Plotter(DataReader):
         plt.savefig('../Plots/TimeDependence.png', dpi = 300)
 
     def PlotTimeMaxCoeffs(self):
-        df = self.LoadMaxCoeffs('RUN_Bz_10.0')
+        df = self.LoadMaxCoeffs('RUN_Bz_12')
         print(df.iloc[0])
         print(np.sum(df.iloc[0]))
         # Choose a seaborn palette
-        palette = sns.color_palette("hsv", 4)  # has to specify number of lines
+        palette = sns.color_palette("hsv", 9)  # has to specify number of lines
 
         # Set the color cycle
         plt.rcParams["axes.prop_cycle"] = plt.cycler(color=palette)
 
-        for i in range(2, 6):
+        for i in range(2, 9):
             plt.plot(df['omega_ac'], df[f'c_{i}'], label = fr'$|c_{i}|^2$')
         plt.title(r'$B_z = 10.0$ (T)')
         plt.legend(loc = 'upper right')
         plt.xlabel(r'$\hbar \omega_{AC}$ (meV)')
         plt.ylabel(r'$max(|c_n|^2(t))$')
         plt.savefig('../Plots/CMax.png', dpi = 300)
+
+    def PlotTimeSingleMaxCoeffs(self):
+        df = self.LoadSingleMaxCoeffs('RUN_Bz_10')
+        print(df.iloc[0])
+        print(np.sum(df.iloc[0]))
+        # Choose a seaborn palette
+        palette = sns.color_palette("hsv", 9)  # has to specify number of lines
+
+        # Set the color cycle
+        plt.rcParams["axes.prop_cycle"] = plt.cycler(color=palette)
+
+        for i in range(2, 9):
+            plt.plot(df['omega_ac'], df[f'c_{i}'], label = fr'$|c_{i}|^2$')
+        plt.title(r'$B_z = 10.0$ (T)')
+        plt.legend(loc = 'upper right')
+        plt.xlabel(r'$\hbar \omega_{AC}$ (meV)')
+        plt.ylabel(r'$max(|c_n|^2(t))$')
+        plt.savefig('../Plots/CMax_single.png', dpi = 300)
+

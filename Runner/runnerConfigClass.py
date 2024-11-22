@@ -51,7 +51,7 @@ class RunnerConfig:
                 dx=.39, \
                 norbs=6, \
                 nstate_1=50, \
-                nstate_2 = 20, \
+                nstate_2 = 25, \
                 k_electrons = 2, \
                 dt = 1e-5, \
                 t_max = 5./ \
@@ -69,7 +69,7 @@ class RunnerConfig:
                 Bx=0.0, \
                 By=0.0, \
                 Bz=0.0, \
-                domega_ac = 1e-4, \
+                domega_ac = 1e-5, \
                 omega_ac_max = 30e-3, \
                 f_ac = 1e6/"
         )
