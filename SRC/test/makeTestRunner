@@ -1,0 +1,28 @@
+
+# makefile to compile TestRunner.f90
+#
+# funit generated this file on 2024-11-24 15:35:18 +0100.
+
+OBJ=combinatory_fun.o utility_fun.o combinatory.o utility.o logger.o constants.o TestRunner.o
+LDFLAGS= -lstdc++
+
+all:testrunner
+
+testrunner: $(OBJ)
+	gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD  -o TestRunner $(OBJ) $(LDFLAGS)
+
+TestRunner.o: TestRunner.f90 combinatory_fun.o utility_fun.o 
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c TestRunner.f90)
+combinatory_fun.o: combinatory_fun.f90 combinatory.o utility.o 
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c combinatory_fun.f90)
+combinatory.o: combinatory.f90 logger.o macros_def.f90
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c combinatory.f90)
+logger.o: logger.f90  
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c logger.f90)
+utility.o: utility.f90 constants.o 
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c utility.f90)
+constants.o: constants.f90  
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c constants.f90)
+utility_fun.o: utility_fun.f90 utility.o 
+	(cd .; gfortran  -Ofast -cpp -m64 -ffree-line-length-none -fopenmp -JMOD -I. -c utility_fun.f90)
+  
