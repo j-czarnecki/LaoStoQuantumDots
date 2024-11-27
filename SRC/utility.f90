@@ -99,6 +99,82 @@ PURE RECURSIVE REAL*8 FUNCTION d_yz_share(Psi, psi_size, norbs)
   RETURN
 END FUNCTION d_yz_share
 
+PURE RECURSIVE COMPLEX*16 FUNCTION d_xy_up_share(Psi, psi_size, norbs)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size)
+  INTEGER*4 :: i
+  d_xy_up_share = 0.0d0
+  DO i = 1, psi_size, norbs
+    d_xy_up_share = d_xy_up_share + REAL(CONJG(Psi(i))*Psi(i)) !Spin up
+  END DO
+  RETURN
+END FUNCTION d_xy_up_share
+
+PURE RECURSIVE COMPLEX*16 FUNCTION d_xy_down_share(Psi, psi_size, norbs)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size)
+  INTEGER*4 :: i
+  d_xy_down_share = 0.0d0
+  DO i = 1, psi_size, norbs
+    d_xy_down_share = d_xy_down_share + REAL(CONJG(Psi(i + 1))*Psi(i + 1)) !Spin down
+  END DO
+  RETURN
+END FUNCTION d_xy_down_share
+
+PURE RECURSIVE COMPLEX*16 FUNCTION d_xz_up_share(Psi, psi_size, norbs)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size)
+  INTEGER*4 :: i, offset
+  offset = 2
+  d_xz_up_share = 0.0d0
+  DO i = 1, psi_size, norbs
+    d_xz_up_share = d_xz_up_share + REAL(CONJG(Psi(i + offset))*Psi(i + offset)) !Spin up
+  END DO
+  RETURN
+END FUNCTION d_xz_up_share
+
+PURE RECURSIVE COMPLEX*16 FUNCTION d_xz_down_share(Psi, psi_size, norbs)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size)
+  INTEGER*4 :: i, offset
+  offset = 2
+  d_xz_down_share = 0.0d0
+  DO i = 1, psi_size, norbs
+    d_xz_down_share = d_xz_down_share + REAL(CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset)) !Spin down
+  END DO
+  RETURN
+END FUNCTION d_xz_down_share
+
+PURE RECURSIVE COMPLEX*16 FUNCTION d_yz_up_share(Psi, psi_size, norbs)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size)
+  INTEGER*4 :: i, offset
+  offset = 4
+  d_yz_up_share = 0.0d0
+  DO i = 1, psi_size, norbs
+    d_yz_up_share = d_yz_up_share + REAL(CONJG(Psi(i + offset))*Psi(i + offset)) !Spin up
+  END DO
+  RETURN
+END FUNCTION d_yz_up_share
+
+PURE RECURSIVE COMPLEX*16 FUNCTION d_yz_down_share(Psi, psi_size, norbs)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, norbs
+  COMPLEX*16, INTENT(IN) :: Psi(psi_size)
+  INTEGER*4 :: i, offset
+  offset = 4
+  d_yz_down_share = 0.0d0
+  DO i = 1, psi_size, norbs
+    d_yz_down_share = d_yz_down_share + REAL(CONJG(Psi(i + 1 + offset))*Psi(i + 1 + offset)) !Spin down
+  END DO
+  RETURN
+END FUNCTION d_yz_down_share
+
 PURE RECURSIVE COMPLEX*16 FUNCTION single_electron_parity(Psi_1, Psi_2, psi_size, norbs, Nx, Ny)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: psi_size, norbs, Nx, Ny

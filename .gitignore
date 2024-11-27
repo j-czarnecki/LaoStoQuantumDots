@@ -4,3 +4,4 @@
 *.i90
 *.png
 *.mod
+SRC/test/*.f90

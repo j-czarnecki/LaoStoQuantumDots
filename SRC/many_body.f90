@@ -425,4 +425,124 @@ MODULE many_body
     END DO
 
   END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xy_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: share
+    many_body_d_xy_up_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      share = 0
+      DO k = 1, k_electrons
+        share = share + d_xy_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
+      END DO
+      many_body_d_xy_up_expected_value = many_body_d_xy_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+    END DO
+  END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xy_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: share
+    many_body_d_xy_down_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      share = 0
+      DO k = 1, k_electrons
+        share = share + d_xy_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
+      END DO
+      many_body_d_xy_down_expected_value = many_body_d_xy_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+    END DO
+  END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: share
+    many_body_d_xz_up_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      share = 0
+      DO k = 1, k_electrons
+        share = share + d_xz_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
+      END DO
+      many_body_d_xz_up_expected_value = many_body_d_xz_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+    END DO
+  END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: share
+    many_body_d_xz_down_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      share = 0
+      DO k = 1, k_electrons
+        share = share + d_xz_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
+      END DO
+      many_body_d_xz_down_expected_value = many_body_d_xz_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+    END DO
+  END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_yz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: share
+    many_body_d_yz_up_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      share = 0
+      DO k = 1, k_electrons
+        share = share + d_yz_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
+      END DO
+      many_body_d_yz_up_expected_value = many_body_d_yz_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+    END DO
+  END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_yz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+    IMPLICIT NONE
+    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: a, k
+    COMPLEX*16 :: share
+    many_body_d_yz_down_expected_value = DCMPLX(0.0d0, 0.0d0)
+    DO a = 1, ham_2_size
+      share = 0
+      DO k = 1, k_electrons
+        share = share + d_yz_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
+      END DO
+      many_body_d_yz_down_expected_value = many_body_d_yz_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+    END DO
+  END FUNCTION
 END MODULE many_body

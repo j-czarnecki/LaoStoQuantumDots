@@ -72,15 +72,17 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbit
   CHARACTER(LEN=200) :: format_string
 
   !Writing expectations for a given state
-  format_string = '(I10, 9E20.8)'
+  format_string = '(I10, 12E20.8)'
   OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
-  WRITE(9,*) "#No. state [-]  <s_x>   <s_y>   <s_z>   <d_xy>   <d_xz>   <d_yz>   <parity>   <x>"
+  WRITE(9,*) "#No. state [-]  <s_x>   <s_y>   <s_z>   <d_xy_up>   <d_xy_down>   <d_xz_up>   <d_xz_down>   <d_yz_up>   <d_yz_down>   <parity>   <x>   <y>"
   DO n = 1, nstates
     WRITE(9, format_string) n,&
       & REAL(sigma_x_expected_value(Psi_1(:,n), Psi_1(:,n), ham_1_size)),&
       & REAL(sigma_y_expected_value(Psi_1(:,n), Psi_1(:,n), ham_1_size)),&
       & REAL(sigma_z_expected_value(Psi_1(:,n), Psi_1(:,n), ham_1_size)), &
-      & d_xy_share(Psi_1(:,n), ham_1_size, norbitals), d_xz_share(Psi_1(:,n), ham_1_size, norbitals), d_yz_share(Psi_1(:,n), ham_1_size, norbitals), &
+      & REAL(d_xy_up_share(Psi_1(:,n), ham_1_size, norbitals)), REAL(d_xy_down_share(Psi_1(:,n),ham_1_size, norbitals)),&
+      & REAL(d_xz_up_share(Psi_1(:,n), ham_1_size, norbitals)), REAL(d_xz_down_share(Psi_1(:,n), ham_1_size, norbitals)),&
+      & REAL(d_yz_up_share(Psi_1(:,n), ham_1_size, norbitals)), REAL(d_yz_down_share(Psi_1(:,n), ham_1_size, norbitals)),&
       & REAL(single_electron_parity(Psi_1(:,n),Psi_1(:,n), ham_1_size, norbitals, Nx, Ny)), &
       & REAL(single_electron_x_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, dx, ham_1_size)), &
       & REAL(single_electron_y_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, Ny, dx, ham_1_size))
@@ -131,15 +133,21 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_ch
   CHARACTER(LEN=200) :: format_string
 
   !Writing expectations for a given state
-  format_string = '(I10, 5E20.8)'
+  format_string = '(I10, 11E20.8)'
   OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
-  WRITE(9,*) "#No. state [-]  <x>    <S_x>   <S_y>   <S_z>   <parity>"
+  WRITE(9,*) "#No. state [-]  <x>    <S_x>   <S_y>   <S_z>    <d_xy_up>   <d_xy_down>   <d_xz_up>   <d_xz_down>   <d_yz_up>   <d_yz_down>   <parity>"
   DO n = 1, nstate_2
     WRITE(9, format_string) n,&
     & REAL(many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, dx, norbs)) / nm2au / k_electrons,&
     & REAL(many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
     & REAL(many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
     & REAL(many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)),&
+    & REAL(many_body_d_xy_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
+    & REAL(many_body_d_xy_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
+    & REAL(many_body_d_xz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
+    & REAL(many_body_d_xz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
+    & REAL(many_body_d_yz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
+    & REAL(many_body_d_yz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
     & REAL(many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n))
   END DO
   CLOSE(9)

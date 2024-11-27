@@ -107,6 +107,7 @@ clean:
 	rm -f $(SRC_DIR)/test/*.f90
 	rm -rf $(SRC_DIR)/test/$(MOD_DIR)
 	rm -rf $(SRC_DIR)/test/*.o
+	rm -f *.mod
 	@export CC="$(CC)" && export CXX="$(CXX)" && cd $(SRC_DIR)/test &&	funit --clean && cd ../../
 #Dependencies
 $(OBJ_DIR)/main.o: $(OBJ_DIR)/indata.o \
