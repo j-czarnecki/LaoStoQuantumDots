@@ -184,12 +184,12 @@ class DataReader:
 
     def LoadMaxCoeffs(self, dir):
         header = ["omega_ac"]
-        for i in range(1, 21):
+        for i in range(1, 26):
             header.append(f"c_{i}")
 
         cMaxPath = os.path.join(self.runsPath, dir, "OutputData", f"C_max_time.dat")
         if os.path.exists(cMaxPath):
-            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
+            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=1000, names=header)
             cMax.sort_values("omega_ac", inplace=True)
             return cMax
         else:
@@ -207,6 +207,30 @@ class DataReader:
         if os.path.exists(cMaxPath):
             cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
             cMax.sort_values("omega_ac", inplace=True)
+            return cMax
+        else:
+            print("File does not exists, skipping: ", cMaxPath)
+            return
+
+    def LoadNxmElems(self, dir):
+        header = ["n", "m", "re", "im"]
+        cMaxPath = os.path.join(self.runsPath, dir, "OutputData", f"Nxm.dat")
+        if os.path.exists(cMaxPath):
+            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
+            cMax.sort_values(["n", "m"], inplace=True)
+            return cMax
+        else:
+            print("File does not exists, skipping: ", cMaxPath)
+            return
+
+    def LoadSingleNxmElems(self, dir):
+        header = ["n", "m", "re", "im"]
+        cMaxPath = os.path.join(
+            self.runsPath, dir, "OutputData", f"Nxm_single_electrons.dat"
+        )
+        if os.path.exists(cMaxPath):
+            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
+            cMax.sort_values(["n", "m"], inplace=True)
             return cMax
         else:
             print("File does not exists, skipping: ", cMaxPath)
