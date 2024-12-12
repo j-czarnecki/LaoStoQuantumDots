@@ -45,6 +45,7 @@ MODULE many_body
     column_2_crs = 0
     row_2_crs = 0
 
+    OPEN(10, FILE = './OutputData/Coulomb_integrals.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
     !$omp parallel private(nn, interaction_element, V_tilde_slice, log_string)
     !$omp do schedule(dynamic, 1)
     DO i = 1, ham_2_size
@@ -70,6 +71,7 @@ MODULE many_body
                                                 & Psi_1(:, Changed_indeces(i,j, 2, 2)), Psi_1(:, Changed_indeces(i,j, 1, 2)),&
                                                 & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
           Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) - interaction_element
+          WRITE(10,*) i, j, REAL(Hamiltonian_2_crs(nn)), AIMAG(Hamiltonian_2_crs(nn))
           column_2_crs(nn) = j
           nn = nn + 1
 
@@ -89,14 +91,11 @@ MODULE many_body
                                                   & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
             Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) - interaction_element
           END DO
+          WRITE(10,*) i, j, REAL(Hamiltonian_2_crs(nn)), AIMAG(Hamiltonian_2_crs(nn))
           column_2_crs(nn) = j
           nn = nn + 1
         !Diagonal elements
         ELSE IF (N_changed_indeces(i,j) == 0) THEN
-          DO k = 1, k_electrons
-            Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) + Energies_1(Combinations(i,k))
-          END DO
-
           !Interaction elements
           DO k = 1, k_electrons - 1
             DO l = k + 1, k_electrons !Check whether sum could be reduced to sum_{k, l>k}. Then I will get rid of 0.5*
@@ -117,6 +116,12 @@ MODULE many_body
               END IF
             END DO
           END DO
+          WRITE(10,*) i, j, REAL(Hamiltonian_2_crs(nn)), AIMAG(Hamiltonian_2_crs(nn))
+
+          DO k = 1, k_electrons
+            Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) + Energies_1(Combinations(i,k))
+          END DO
+
           column_2_crs(nn) = j
           nn = nn + 1
         ELSE IF (N_changed_indeces(i,j) /= 3) THEN
@@ -126,9 +131,24 @@ MODULE many_body
     END DO
     !$omp end do
     !$omp end parallel
-
+    CLOSE(10)
     !PRINT*, "Nonzero elements traversed in ham 2", nn
     row_2_crs(ham_2_size + 1) = nonzero_ham_2 + 1 !Sanity check already done in INIT_PREV_ELEMS()
+
+    !!!!!!!! ONLY FOR TESTING !!!!!!!!!!!!
+    OPEN(unit = 1, FILE= './OutputData/V_integrals.dat', FORM = "FORMATTED", ACTION = "WRITE")
+    WRITE(1,*) '#No. state    V_{iiii}'
+    DO i = 1, nstate_1
+      WRITE(log_string,*) "V_{iiii} integral for i = ", i
+      LOG_INFO(log_string)
+
+      CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper,  ham_1_size, nstate_1, v_tilde_elems, i, i)
+      CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, i), Psi_1(:, i),&
+                                            & Psi_1(:, i), Psi_1(:, i),&
+                                            & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+      WRITE(1,*) i, interaction_element
+    END DO
+    CLOSE(1)
 
     DEALLOCATE(V_tilde_upper)
     DEALLOCATE(V_tilde_slice)
@@ -143,7 +163,7 @@ MODULE many_body
     COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size), Psi_2(ham_1_size), Psi_3(ham_1_size), Psi_4(ham_1_size)
     COMPLEX*16, INTENT(IN) :: V_tilde(ham_1_size)
 
-    INTEGER*4 :: r2, o2, oi, oj, ok, ol, i_so, j_so, k_so, l_so, si, sj, s2, so2
+    INTEGER*4 :: r2, o2, oi, oj, ok, ol, i_so, j_so, k_so, l_so, si, sj, s2, so2, i_so_2, j_so_2
     REAL*8, PARAMETER :: epsilon(3) = [0.336, 0.306, 0.015] !eps(i,i,i,i), eps(i,j,i,j), eps(i,j,j,i)
 
     matrix_element = DCMPLX(0.0d0, 0.0d0)
@@ -177,7 +197,13 @@ MODULE many_body
                 i_so = si + 2*oi
                 j_so = sj + 2*oj
                 matrix_element = matrix_element + epsilon(2) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + i_so)*Psi_4(r2 + j_so)
-                matrix_element = matrix_element + epsilon(3) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so))*Psi_3(r2 + j_so)*Psi_4(r2 + i_so)
+
+                !To avoid interaction elements < psi_1 || psi_3 > with different spins
+                i_so = si + 2*oi
+                j_so = si + 2*oj
+                i_so_2 = sj + 2*oi
+                j_so_2 = sj + 2*oj
+                matrix_element = matrix_element + epsilon(3) * CONJG(Psi_1(r2 + i_so)*Psi_2(r2 + j_so_2))*Psi_3(r2 + j_so)*Psi_4(r2 + i_so_2)
               END DO
             END DO
           END IF
@@ -200,6 +226,9 @@ MODULE many_body
     REAL*8, INTENT(IN) :: dx
     INTEGER*4 :: r1, r2, i, j, s1, s2, o1, o2, so1, so2
     REAL*8 :: r12, x1, y1, x2, y2
+    CHARACTER(LEN=500) :: filename
+    CHARACTER(LEN=1000) :: filename_state
+    INTEGER*4 :: nn, ix, iy, iorb, ii, is
 
     V_tilde_upper = (0.0d0, 0.0d0)
     !Loops over state
@@ -224,6 +253,7 @@ MODULE many_body
                 y1 = get_y_from_psi_index(r1,norbs, Nx, Ny, dx)
 
                 r12 = SQRT((x1 - x2)**2 + (y1 - y2)**2)
+                !r12 = 1.0d0 !JULIAN: CHANGED FOR TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 IF (r1 /= r2) THEN
                   DO s1 = 0, 1
                     DO o1 = 0, norbs/2 - 1
@@ -243,6 +273,38 @@ MODULE many_body
     END DO
     !$omp end do
     !$omp end parallel
+
+    OPEN(10, FILE = './OutputData/V_tilde_integrated.dat', ACTION = 'WRITE', FORM = 'FORMATTED')
+    filename = './OutputData/V_tilde_position_dependent'
+    DO i = 1, nstate_1
+      DO j = i, nstate_1
+        WRITE(10,*) i, j, SUM(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), :))
+
+        WRITE(filename_state, '(A, A, I0, A, I0, A)') TRIM(filename), '_i', i, '_j', j, '.dat'
+        OPEN (1, FILE=filename_state)
+        WRITE(1,*) '#x[nm] y[nm] Re(V_tilde(orb1, s = +)) Im(V_tilde(orb1, s = +)) Re(V_tilde(orb1, s = -)) ...'
+
+        nn = 1
+        DO iy = -Ny, Ny
+        DO ix = -Nx, Nx
+          WRITE(1,'(2E20.8)', ADVANCE='NO') ix*dx/nm2au, iy*dx/nm2au
+
+          DO iorb = 1, norbs / 2
+            DO ii = 1, 2
+              WRITE(1, '(2E20.8)', ADVANCE='NO') REAL(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), nn)), AIMAG(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), nn))
+              nn = nn + 1
+            END DO
+          END DO
+          WRITE(1,*)
+        END DO
+        END DO
+
+        CLOSE(1)
+
+      END DO
+    END DO
+    CLOSE(10)
+
   END SUBROUTINE CALCULATE_V_TILDE
 
   SUBROUTINE CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, n_states_1, n_states_2, k_electrons)

@@ -22,11 +22,11 @@ class RunnerConfig:
             """\
         #!/bin/bash -l
         ## Job name
-        #SBATCH -J LAO-STO-QD
+        #SBATCH -J LAO-STO-QD-testing-2e
         ## Number of allocated nodes
         #SBATCH -N 1
         ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
-        #SBATCH --ntasks-per-node=10
+        #SBATCH --ntasks-per-node=22
         ## Memory allocated per core (default is 5GB)
         #SBATCH --mem-per-cpu=3800MB
         ## Max task execution time (format is HH:MM:SS)
@@ -50,10 +50,10 @@ class RunnerConfig:
                 Ny=80, \
                 dx=.39, \
                 norbs=6, \
-                nstate_1=50, \
-                nstate_2 = 25, \
+                nstate_1=22, \
+                nstate_2 = 20, \
                 k_electrons = 2, \
-                dt = 1e-5, \
+                dt = 5e-6, \
                 t_max = 5./ \
               &physical_parameters \
                 th=0.04, \
@@ -69,7 +69,7 @@ class RunnerConfig:
                 Bx=0.0, \
                 By=0.0, \
                 Bz=0.0, \
-                domega_ac = 1e-5, \
+                domega_ac = 2e-6, \
                 omega_ac_max = 30e-3, \
                 f_ac = 1e6/"
         )

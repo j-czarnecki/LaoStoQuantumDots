@@ -1,6 +1,7 @@
-
+#include "macros_def.f90"
 MODULE indata
   USE constants
+  USE logger
   IMPLICIT NONE
   SAVE
 
@@ -151,5 +152,37 @@ CONTAINS
 
 
   END SUBROUTINE INDATA_GET
+
+
+  SUBROUTINE READ_SINGLE_ELECTRON_WAVEFUNCTIONS(path, Psi, psi_size, nstates, norbs)
+    IMPLICIT NONE
+    CHARACTER(len=*), INTENT(IN) :: path
+    INTEGER*4, INTENT(IN) :: psi_size, nstates, norbs
+    COMPLEX*16, INTENT(OUT) :: Psi(psi_size, nstates)
+    CHARACTER(LEN=200) :: filename_state
+    INTEGER*4 :: n, i, j, m
+    REAL*8 :: x, y
+    REAL*8, ALLOCATABLE :: Line_as_array(:)
+
+    ALLOCATE(Line_as_array(norbs*2)) ! *2 due to separation of real and imaginary part
+
+    DO n = 1, nstates
+      WRITE(log_string,*) "Reading Psi_1_n", n
+      LOG_INFO(log_string)
+
+      WRITE(filename_state, '(2A, I0, A)') path, '/OutputData/Psi_1_n', n, '.dat'
+      OPEN(10, FILE = filename_state, ACTION = 'READ', FORM = 'FORMATTED')
+      READ(10, '(A)') !Skip first line, since it is a comment
+      DO i = 1, psi_size, norbs
+        READ(10,'(14E20.8)') x, y, Line_as_array
+        DO j = 0, norbs*2 - 1, 2 !Shifted to 0, because that offset with respect to current subvector position
+          Psi(i + j, n) = DCMPLX(Line_as_array(j + 1), Line_as_array(j + 2))
+        END DO
+      END DO
+      CLOSE(10)
+    END DO
+
+    DEALLOCATE(Line_as_array)
+  END SUBROUTINE READ_SINGLE_ELECTRON_WAVEFUNCTIONS
 
 END MODULE indata

@@ -18,7 +18,7 @@ class Runner(RunnerConfig):
         Runs jobs on ARES
         """
         if isAres:
-            pathToAppend = f"/net/ascratch/people/plgjczarnecki/LAO-STO-QD-dense-B/RUN"
+            pathToAppend = f"/net/ascratch/people/plgjczarnecki/LAO-STO-QD-edsr-2e/RUN"
         else:
             pathToAppend = f"RUN"
 

@@ -1,4 +1,5 @@
 TARGET = ./bin/lao_sto_qd.x
+POSTPROCESSING_TARGET = ./bin/post.x
 SRC_DIR = SRC
 OBJ_DIR = OBJ
 MOD_DIR = MOD
@@ -19,7 +20,7 @@ LNK = $(F90)
 LFLAGS = $(F90FLAGS)
 
 ## LLIBS are libraries to use at link time
-LIBS = -L ./lib -larpack
+LIBS = -L ${SRC_DIR}/lib -larpack
 LIB_OMP = -fopenmp
 
 LIBS_MKL = -I${MKLROOT}/include \
@@ -49,6 +50,17 @@ OBJS =  $(OBJ_DIR)/main.o \
 				$(OBJ_DIR)/utility.o \
 				$(OBJ_DIR)/logger.o
 
+POST_OBJS = $(OBJ_DIR)/main_postprocessing.o \
+						$(OBJ_DIR)/constants.o \
+						$(OBJ_DIR)/indata.o \
+						$(OBJ_DIR)/hamiltonian.o \
+						$(OBJ_DIR)/diagonalize.o \
+						$(OBJ_DIR)/combinatory.o \
+						$(OBJ_DIR)/many_body.o \
+						$(OBJ_DIR)/writers.o \
+						$(OBJ_DIR)/utility.o \
+						$(OBJ_DIR)/logger.o
+
 ASMS =  $(OBJ_DIR)/main.s \
         $(OBJ_DIR)/constants.s \
         $(OBJ_DIR)/indata.s \
@@ -65,6 +77,9 @@ ASMS =  $(OBJ_DIR)/main.s \
 
 $(TARGET) : $(OBJS)
 	$(LNK) -o $(TARGET) $(LFLAGS) $^ $(LIBS) $(LIBS_MKL)
+
+$(POSTPROCESSING_TARGET) : $(POST_OBJS)
+	$(LNK) -o $(POSTPROCESSING_TARGET) $(LFLAGS) $^ $(LIBS) $(LIBS_MKL)
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.f90
 	mkdir -p $(OBJ_DIR) $(MOD_DIR)
@@ -100,6 +115,8 @@ test:
 	@export FC="$(F90)" && export CC="$(CC)" && export CXX="$(CXX)" && export FSFLAG=-I && export FCFLAGS="$(F90FLAGS)" && cd $(SRC_DIR)/test &&	funit
 	cd ../../
 
+post: $(POSTPROCESSING_TARGET)
+
 clean:
 	rm -rf $(MOD_DIR)
 	rm -rf $(OBJ_DIR)
@@ -108,6 +125,7 @@ clean:
 	rm -rf $(SRC_DIR)/test/$(MOD_DIR)
 	rm -rf $(SRC_DIR)/test/*.o
 	rm -f *.mod
+	rm -rf $(SRC_DIR)/*.i90
 	@export CC="$(CC)" && export CXX="$(CXX)" && cd $(SRC_DIR)/test &&	funit --clean && cd ../../
 #Dependencies
 $(OBJ_DIR)/main.o: $(OBJ_DIR)/indata.o \
@@ -123,7 +141,8 @@ $(OBJ_DIR)/main.o: $(OBJ_DIR)/indata.o \
 $(OBJ_DIR)/main.o:
 $(OBJ_DIR)/combinatory.o:
 
-$(OBJ_DIR)/indata.o: $(OBJ_DIR)/constants.o
+$(OBJ_DIR)/indata.o: $(OBJ_DIR)/constants.o \
+										 $(OBJ_DIR)/logger.o
 
 $(OBJ_DIR)/hamiltonian.o: $(OBJ_DIR)/indata.o \
 													$(OBJ_DIR)/logger.o
@@ -146,4 +165,14 @@ $(OBJ_DIR)/utility.o:
 $(OBJ_DIR)/logger.o:
 
 $(OBJ_DIR)/constants.o:
+
+$(OBJ_DIR)/main_postprocessing.o: $(OBJ_DIR)/indata.o \
+																	$(OBJ_DIR)/hamiltonian.o \
+																	$(OBJ_DIR)/diagonalize.o \
+																	$(OBJ_DIR)/combinatory.o \
+																	$(OBJ_DIR)/many_body.o \
+																	$(OBJ_DIR)/writers.o \
+																	$(OBJ_DIR)/utility.o \
+																	$(OBJ_DIR)/constants.o \
+																	$(OBJ_DIR)/logger.o
 

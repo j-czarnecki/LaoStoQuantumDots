@@ -157,7 +157,18 @@ class DataReader:
                     expectationsPath,
                     skiprows=1,
                     infer_nrows=100,
-                    names=["state", "x", "s_x", "s_y", "s_z", "parity"],
+                    names=["state",
+                           "x",
+                           "s_x",
+                           "s_y",
+                           "s_z",
+                           "d_xy_up",
+                           "d_xy_down",
+                           "d_xz_up",
+                           "d_xz_down",
+                           "d_yz_up",
+                           "d_yz_down",
+                            "parity"],
                 )
                 self.expectations2.append(expectations)
             else:
@@ -205,7 +216,7 @@ class DataReader:
             self.runsPath, dir, "OutputData", f"C_single_max_time.dat"
         )
         if os.path.exists(cMaxPath):
-            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
+            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=1000, names=header)
             cMax.sort_values("omega_ac", inplace=True)
             return cMax
         else:
@@ -216,7 +227,7 @@ class DataReader:
         header = ["n", "m", "re", "im"]
         cMaxPath = os.path.join(self.runsPath, dir, "OutputData", f"Nxm.dat")
         if os.path.exists(cMaxPath):
-            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
+            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=1000, names=header)
             cMax.sort_values(["n", "m"], inplace=True)
             return cMax
         else:
@@ -229,7 +240,7 @@ class DataReader:
             self.runsPath, dir, "OutputData", f"Nxm_single_electrons.dat"
         )
         if os.path.exists(cMaxPath):
-            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=100, names=header)
+            cMax = pd.read_fwf(cMaxPath, skiprows=1, infer_nrows=1000, names=header)
             cMax.sort_values(["n", "m"], inplace=True)
             return cMax
         else:

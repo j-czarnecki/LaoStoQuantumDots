@@ -36,7 +36,7 @@ class Plotter(DataReader):
 
         # Set rcParams for tighter layout
         plt.rcParams["figure.autolayout"] = True
-        plt.rcParams["figure.constrained_layout.use"] = True
+        plt.rcParams["figure.constrained_layout.use"] = False
         plt.rcParams["axes.linewidth"] = 1.2
 
         # Set rcParams to show ticks on both left and right sides
@@ -69,7 +69,7 @@ class Plotter(DataReader):
 
         Bz, *_ = zip(*self.params)
         color = [df[colorParam].tolist() for df in self.expectations1]
-        for state in range(0, 50):
+        for state in range(0, 22):
             energy = [sublist[state] for sublist in self.energies1]
             colorState = [sublist[state] for sublist in color]
 
@@ -91,12 +91,12 @@ class Plotter(DataReader):
             ax.add_collection(lc)
 
         ax.autoscale()
-        plt.colorbar(lc, ax=ax, label=r"$\langle S_z \rangle$")
+        plt.colorbar(lc, ax=ax, label=r"$\langle s_z \rangle$")
         plt.xlabel(r"$B_z$ (T)")
         plt.ylabel(r"$E$ (meV)")
         plt.locator_params(nbins=3, axis="x")
         plt.locator_params(nbins=10, axis="y")
-        fig.tight_layout(pad=3.0)
+        fig.tight_layout(pad=10.0)
         plt.savefig("../Plots/Energies1.png", dpi=300)
         plt.close()
 
@@ -109,7 +109,7 @@ class Plotter(DataReader):
 
         Bz, *_ = zip(*self.params)
         color = [df[colorParam].tolist() for df in self.expectations2]
-        for state in range(0, 20):
+        for state in range(0, 15):
             energy = [sublist[state] for sublist in self.energies2]
             colorState = [sublist[state] for sublist in color]
 
@@ -125,18 +125,18 @@ class Plotter(DataReader):
 
             # Create LineCollection with color mapping
             lc = LineCollection(
-                segments, array=interp_color, cmap=spins_cmap, norm=plt.Normalize(-2, 2)
+                segments, array=interp_color, cmap=spins_cmap, norm=plt.Normalize(-1, 1)
             )
             lc.set_linewidth(2)
             ax.add_collection(lc)
 
         ax.autoscale()
-        plt.colorbar(lc, ax=ax, label=r"$\langle S_z \rangle$")
+        plt.colorbar(lc, ax=ax, label=r"$\langle P \rangle$")
         plt.xlabel(r"$B_z$ (T)")
         plt.ylabel(r"$E$ (meV)")
         plt.locator_params(nbins=3, axis="x")
         plt.locator_params(nbins=10, axis="y")
-        fig.tight_layout(pad=3.0)
+        fig.tight_layout(pad=10.0)
         plt.savefig("../Plots/Energies2.png", dpi=300)
         plt.close()
 
@@ -161,12 +161,12 @@ class Plotter(DataReader):
     def PlotTimeMaxCoeffs(self):
         df = self.LoadMaxCoeffs("RUN_Bz_12.0")
         # Choose a seaborn palette
-        palette = sns.color_palette("hsv", 9)  # has to specify number of lines
+        palette = sns.color_palette("hsv", 8)  # has to specify number of lines
 
         # Set the color cycle
         plt.rcParams["axes.prop_cycle"] = plt.cycler(color=palette)
 
-        for i in range(2, 9):
+        for i in range(2, 10):
             plt.plot(df["omega_ac"], df[f"c_{i}"], label=rf"$|c_{i}|^2$")
         plt.title(r"$B_z = 12.0$ (T)")
         plt.legend(loc="upper right")
@@ -176,16 +176,16 @@ class Plotter(DataReader):
         plt.close()
 
     def PlotTimeSingleMaxCoeffs(self):
-        df = self.LoadSingleMaxCoeffs("RUN_Bz_10.0")
+        df = self.LoadSingleMaxCoeffs("RUN_Bz_12.0")
         # Choose a seaborn palette
-        palette = sns.color_palette("hsv", 9)  # has to specify number of lines
+        palette = sns.color_palette("hsv", 8)  # has to specify number of lines
 
         # Set the color cycle
         plt.rcParams["axes.prop_cycle"] = plt.cycler(color=palette)
 
-        for i in range(2, 9):
+        for i in range(2, 10):
             plt.plot(df["omega_ac"], df[f"c_{i}"], label=rf"$|c_{i}|^2$")
-        plt.title(r"$B_z = 10.0$ (T)")
+        plt.title(r"$B_z = 12.0$ (T)")
         plt.legend(loc="upper right")
         plt.xlabel(r"$\hbar \omega_{AC}$ (meV)")
         plt.ylabel(r"$max(|c_n|^2(t))$")
@@ -201,7 +201,7 @@ class Plotter(DataReader):
         print(df.head(20))
 
     def PrintSingleNxmElems(self):
-        df = self.LoadSingleNxmElems("RUN_Bz_10.0")
+        df = self.LoadSingleNxmElems("RUN_Bz_12.0")
         eV2au = 0.03674932587122423
         F = 1e6 * 1.0 / (5.14220652 * 1e11)
         df["abs_value"] = np.sqrt(df["re"] ** 2 + df["im"] ** 2) * F / eV2au * 1e3

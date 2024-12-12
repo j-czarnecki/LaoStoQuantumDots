@@ -254,6 +254,12 @@ PROGRAM MAIN
   CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
 
 
+  IF (nstate_2 .eq. 0) THEN
+    WRITE(log_string,*) "Program terminated after single electron calculation due to nstate_2 == 0"
+    LOG_INFO(log_string)
+    STOP
+  END IF
+
   !#################### TWO-ELECTRON PROBLEM #####################
   !Many problem is solved using Galerkin method, where basis
   !is chosen as combinnation of Slater determinants.
