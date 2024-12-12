@@ -64,7 +64,7 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
       n_changed = 0
 
       !Check how many indeces are changed between combinations specifying row and column
-      !For each element of row-combination check heter it exists in column-combination.
+      !For each element of row-combination check whether it exists in column-combination.
       !If not, increment N_changed_indexes by 1 and write index without match to Changed_indeces(i,j,n_chnanged,1)
       DO k = 1, k_electrons
         same_index = .FALSE.
@@ -84,8 +84,8 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
       N_changed_indeces(i,j) = INT(MIN(n_changed, 3), kind = 1)
 
       n_changed = 0
-      !For each element of column-combination check wheter it exists in row-combination.
-      !TODO: Consider whther it could be done in a more efficient way
+      !For each element of column-combination check whether it exists in row-combination.
+      !TODO: Consider whether it could be done in a more efficient way
       DO k = 1, k_electrons
         same_index = .FALSE.
         DO l = 1, k_electrons
@@ -145,5 +145,32 @@ SUBROUTINE INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_
     STOP 'ERROR IN INIT_PREV_ELEMS: n > nonzero_ham_2. Bad hamiltonian initialization'
   END IF
 END SUBROUTINE
+
+PURE RECURSIVE INTEGER*4 FUNCTION get_parity_phase(Combination_1, Combination_2, n_changed_indeces, changed_index_from_1, changed_index_to_1, changed_index_from_2, changed_index_to_2, k_electrons)
+  !! This function returns +/- one depending on number of transpositions needed to align two different combinations of single electron wavefunctions
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: Combination_1(k_electrons) !! Base (row) combination based on which we define changed indeces
+  INTEGER*4, INTENT(IN) :: Combination_2(k_electrons) !! Changed (column) combination based on which we to what indeces we have changed
+  INTEGER*1, INTENT(IN) :: n_changed_indeces
+  INTEGER*4, INTENT(IN) :: changed_index_from_1, changed_index_to_1 !! First index that has been changed from XXX to YYY.
+  INTEGER*4, INTENT(IN) :: changed_index_from_2, changed_index_to_2 !! First index that has been changed from XXX to YYY. Only used if n_changed_indeces == 2.
+  INTEGER*4, INTENT(IN) :: k_electrons !! Number of electrons. Needed to iterate over Combinations
+
+  INTEGER*4 :: parity
+  parity = 0
+
+  IF (n_changed_indeces == 1) THEN
+    parity = parity + ABS(FINDLOC(Combination_1(:), changed_index_from_1, k_electrons) - FINDLOC(Combination_2(:), changed_index_to_1, k_electrons))
+  ELSE IF (n_changed_indeces == 2) THEN
+    parity = parity + ABS(FINDLOC(Combination_1(:), changed_index_from_1, k_electrons) - FINDLOC(Combination_2(:), changed_index_to_1, k_electrons))
+    parity = parity + ABS(FINDLOC(Combination_1(:), changed_index_from_2, k_electrons) - FINDLOC(Combination_2(:), changed_index_to_2, k_electrons))
+  ELSE
+    !This should not happen
+    get_parity_phase = 0
+    RETURN
+  END IF
+  get_parity_phase = (-1)**parity
+  RETURN
+END FUNCTION
 
 END MODULE combinatory

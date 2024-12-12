@@ -31,6 +31,7 @@ MODULE many_body
     INTEGER*4 :: v_tilde_elems
     INTEGER*4 :: i, j, k, l, nn
     COMPLEX*16 :: interaction_element
+    INTEGER*4 :: phase
 
 
     WRITE(log_string,*) "Creating many-body Hamiltonian"
@@ -58,19 +59,22 @@ MODULE many_body
         !!PRINT*, i, j
         !If statements' order determined by frequency of given elements
         IF (N_changed_indeces(i,j) == 2) THEN
+          phase = get_parity_phase(Combinations(i,:), Combinations(j,:), N_changed_indeces(i,j), Changed_indeces(i,j,1,1),&
+                                  &Changed_indeces(i,j,1,2), Changed_indeces(i,j,2,1), Changed_indeces(i,j,2,2), k_electrons)
+
           !Interaction elements
           CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i,j,1,1),  Changed_indeces(i,j, 1, 2))
           CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)),&
                                                 & Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:, Changed_indeces(i,j, 2, 2)),&
                                                 & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
-          Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) + interaction_element
+          Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) + interaction_element*phase
 
 
           CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper,  ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i,j,1,1),  Changed_indeces(i,j, 2, 2))
           CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Changed_indeces(i,j,2,1)),&
                                                 & Psi_1(:, Changed_indeces(i,j, 2, 2)), Psi_1(:, Changed_indeces(i,j, 1, 2)),&
                                                 & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
-          Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) - interaction_element
+          Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) - interaction_element*phase
           WRITE(10,*) i, j, REAL(Hamiltonian_2_crs(nn)), AIMAG(Hamiltonian_2_crs(nn))
           column_2_crs(nn) = j
           nn = nn + 1
@@ -79,17 +83,20 @@ MODULE many_body
           !Interaction elements
           DO k = 1, k_electrons
             ! !PRINT*, Combinations(i, k)
+            phase = get_parity_phase(Combinations(i,:), Combinations(j,:), N_changed_indeces(i,j), Changed_indeces(i,j,1,1),&
+                                    &Changed_indeces(i,j,1,2), Changed_indeces(i,j,2,1), Changed_indeces(i,j,2,2), k_electrons)
+
             CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i,j,1,1),  Changed_indeces(i,j, 1, 2))
             CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)),&
                                                   & Psi_1(:, Changed_indeces(i,j, 1, 2)), Psi_1(:,  Combinations(i,k)),&
                                                   & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
-            Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) + interaction_element
+            Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) + interaction_element*phase
 
             CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i,j,1,1),  Combinations(i,k))
             CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i,j,1,1)), Psi_1(:, Combinations(i,k)),&
                                                   & Psi_1(:, Combinations(i,k)), Psi_1(:,  Changed_indeces(i,j, 1, 2)),&
                                                   & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
-            Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) - interaction_element
+            Hamiltonian_2_crs(nn) = Hamiltonian_2_crs(nn) - interaction_element*phase
           END DO
           WRITE(10,*) i, j, REAL(Hamiltonian_2_crs(nn)), AIMAG(Hamiltonian_2_crs(nn))
           column_2_crs(nn) = j
@@ -339,7 +346,7 @@ MODULE many_body
 
   END SUBROUTINE CALCULATE_PARTICLE_DENSITY
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
     !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
     !! X = \sum_i^{k_electrons} x_i.
     IMPLICIT NONE
@@ -353,6 +360,7 @@ MODULE many_body
     INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
     INTEGER*4, INTENT(IN) :: Nx, norbs
     REAL*8, INTENT(IN) :: dx
+    INTEGER*4 :: phase
     INTEGER*4 :: a, b, k
 
     many_body_x_expected_value = (0.0d0, 0.0d0)
@@ -364,7 +372,10 @@ MODULE many_body
               & single_electron_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), norbs, Nx, dx, ham_1_size)
           END DO
         ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          many_body_x_expected_value = many_body_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+          many_body_x_expected_value = many_body_x_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
             & single_electron_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), norbs, Nx, dx, ham_1_size)
         END IF
       END DO
@@ -385,6 +396,7 @@ MODULE many_body
     INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
     INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
     INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: phase
     INTEGER*4 :: a, b, k
 
     many_body_sigma_x_expected_value = DCMPLX(0.0d0, 0.0d0)
@@ -396,7 +408,10 @@ MODULE many_body
               & sigma_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
           END DO
         ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+          many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
             & sigma_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
         END IF
       END DO
@@ -416,6 +431,7 @@ MODULE many_body
     INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
     INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
     INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: phase
     INTEGER*4 :: a, b, k
 
     many_body_sigma_y_expected_value = DCMPLX(0.0d0, 0.0d0)
@@ -427,7 +443,10 @@ MODULE many_body
               & sigma_y_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
           END DO
         ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+          many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
             & sigma_y_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
         END IF
       END DO
@@ -447,6 +466,7 @@ MODULE many_body
     INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
     INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
     INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+    INTEGER*4 :: phase
 
     INTEGER*4 :: a, b, k
 
@@ -459,7 +479,10 @@ MODULE many_body
               & sigma_z_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
           END DO
         ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+          many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
             & sigma_z_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
         END IF
       END DO
