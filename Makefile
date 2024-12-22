@@ -127,6 +127,9 @@ clean:
 	rm -f *.mod
 	rm -rf $(SRC_DIR)/*.i90
 	@export CC="$(CC)" && export CXX="$(CXX)" && cd $(SRC_DIR)/test &&	funit --clean && cd ../../
+
+
+
 #Dependencies
 $(OBJ_DIR)/main.o: $(OBJ_DIR)/indata.o \
 									 $(OBJ_DIR)/hamiltonian.o \
