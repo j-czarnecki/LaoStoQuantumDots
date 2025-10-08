@@ -8,53 +8,61 @@ if os.path.exists("/net/home/pwojcik/.local/lib/python2.7/site-packages"):
 import time
 from runnerConfigClass import *
 
+SCRATCH_PATH = os.getenv('SCRATCH')
+HOME_PATH = os.getenv('HOME')
 
 class Runner(RunnerConfig):
     def __init__(self):
         RunnerConfig.__init__(self)
 
-    def run_slurm_param_value(self, paramValuePairs, isAres: bool = False):
+    def run_slurm_param_value(self, paramValuePairs, runsDir:str, machine: str = "default"):
         """
         Runs jobs on ARES
         """
-        if isAres:
-            pathToAppend = f"/net/ascratch/people/plgjczarnecki/LAO-STO-QD-edsr-2e/RUN"
-        else:
-            pathToAppend = f"RUN"
+        newRunPath = self.__createRunDirStructure(runsDir, paramValuePairs)
+        runnerCwd = os.getcwd()
+        os.chdir(newRunPath)
 
-        for pair in paramValuePairs:
-            if pair[0] != "calculation_parameters":
-                pathToAppend = pathToAppend + f"_{pair[1]}_{pair[2]}"
+        # Creating input.nml in given directory
+        self.__createAndWriteInputNml(paramValuePairs)
 
-        runner_cwd = os.getcwd()
-        if isAres:
-            path = pathToAppend
-        else:
-            path = os.path.join(runner_cwd, pathToAppend)
-
-        output_dir = f"OutputData"
-        if not os.path.exists(path):
-            os.mkdir(path)
-            os.mkdir(os.path.join(path, output_dir))
-        os.chdir(path)
-
-        nml = self.LAO_STO_QD_default_nml()  # creating default namelist
-        for pair in paramValuePairs:
-            nml[pair[0]][pair[1]] = pair[2]  # editing all key-value pairs
-
-        with open("./OutputData/quantum_dot.nml", "w") as nml_file:
-            f90nml.write(nml, nml_file, sort=False)
         # setting up slurm script
-        with open("job.sh", "w") as job_file:
-            if isAres:
-                print(self.job_header_ares, file=job_file)
-            else:
-                print(self.job_header, file=job_file)
-
-            print("cd " + path, file=job_file)
-            print(os.path.join(runner_cwd, "..", "bin", "lao_sto_qd.x"), file=job_file)
+        with open("job.sh", "w") as jobFile:
+            print(self.jobHeader[machine], file=jobFile)
+            print("cd " + newRunPath, file=jobFile)
+            print(os.path.join(runnerCwd, "..", "bin", "lao_sto_qd.x"), file=jobFile)
 
         # queue slurm job
         simulate = subprocess.run(["sbatch", "job.sh"])
-        os.chdir(runner_cwd)
-        return path  # for sequential runner
+        os.chdir(runnerCwd)
+        return newRunPath  # for sequential runner
+
+    def __createRunDirStructure(self, runsDir: str, paramValuePairs: list[tuple[str, str, float | list[float]]]) -> str:
+        pathToAppend = os.path.join(SCRATCH_PATH, runsDir)
+        os.makedirs(pathToAppend, exist_ok=True)
+        pathToAppend = os.path.join(pathToAppend, "RUN")
+
+        for pair in paramValuePairs:
+            if pair[0] != "self_consistency" and not isinstance(pair[2], list):
+                pathToAppend = pathToAppend + f"_{pair[1]}_{pair[2]}"
+
+        path = pathToAppend
+
+        outputDir = f"OutputData"
+        if not os.path.exists(path):
+            os.mkdir(path)
+            os.mkdir(os.path.join(path, outputDir))
+
+        return path
+
+    def __createAndWriteInputNml(self, paramValuePairs: list) -> None:
+        # Getting namelist with parameters
+        nml = self.LAO_STO_QD_default_nml()
+
+        for pair in paramValuePairs:
+            nml[pair[0]][pair[1]] = pair[2]  # editing all key-value pairs
+
+        with open(os.path.join("OutputData", "quantum_dot.nml"), "w") as nmlFile:
+            f90nml.write(nml, nmlFile, sort=False)
+
+

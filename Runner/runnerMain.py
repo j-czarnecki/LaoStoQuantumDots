@@ -16,9 +16,9 @@ def main():
     # for Bz in Bz_table:
     #     runner.run_slurm_param_value([Bz], isAres=True)
 
-    runner.run_slurm_param_value([(nml_name, param_name, 1.0)], isAres=True)
-    runner.run_slurm_param_value([(nml_name, param_name, 10.0)], isAres=True)
-    runner.run_slurm_param_value([(nml_name, param_name, 12.0)], isAres=True)
+    runner.run_slurm_param_value([(nml_name, param_name, 1.0)], runsDir="STO_QD/STO_QD_test", machine="default")
+    runner.run_slurm_param_value([(nml_name, param_name, 10.0)], runsDir="STO_QD/STO_QD_test", machine="default")
+    runner.run_slurm_param_value([(nml_name, param_name, 12.0)], runsDir="STO_QD/STO_QD_test", machine="default")
 
 
 

@@ -117,6 +117,9 @@ test:
 
 post: $(POSTPROCESSING_TARGET)
 
+run_slurm:
+	cd Runner && python3 runnerMain.py && cd ..
+
 clean:
 	rm -rf $(MOD_DIR)
 	rm -rf $(OBJ_DIR)

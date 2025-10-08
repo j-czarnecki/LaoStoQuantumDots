@@ -6,41 +6,71 @@ class RunnerConfig:
     def __init__(self):
 
         # Using dedent to remove indentation and align every row with the first column of file
-        self.job_header = textwrap.dedent(
-            """\
-        #!/bin/bash
-        #SBATCH --job-name=LAO_STO_QD              # Job name
-        #SBATCH --partition tera-cpu       # we specify to run the process on gpu nodes
-        #SBATCH --ntasks-per-node=1        # Maximum number of tasks on each node
-        #SBATCH --time=72:00:00            # Wall time limit (days-hrs:min:sec)
-        #SBATCH --mem-per-cpu=3800MB         # Memory (i.e. RAM) per processor
-        #SBATCH --output=\"output.out\"    # Path to the standard output and error files relative to the working directory
-        """
-        )
-
-        self.job_header_ares = textwrap.dedent(
-            """\
-        #!/bin/bash -l
-        ## Job name
-        #SBATCH -J LAO-STO-QD-testing-2e
-        ## Number of allocated nodes
-        #SBATCH -N 1
-        ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
-        #SBATCH --ntasks-per-node=22
-        ## Memory allocated per core (default is 5GB)
-        #SBATCH --mem-per-cpu=3800MB
-        ## Max task execution time (format is HH:MM:SS)
-        #SBATCH --time=168:00:00
-        ## Name of grant to which resource usage will be charged
-        #SBATCH -A plglaosto111-cpu
-        ## Name of partition
-        #SBATCH -p plgrid-long
-        ## Name of file to which standard output will be redirected
-        #SBATCH --output="output.out"
-        ## Name of file to which the standard error stream will be redirected
-        #SBATCH --error="error.err"
-        """
-        )
+        self.jobHeader = {
+            "default": textwrap.dedent(
+                """\
+                #!/bin/bash
+                ##### Amount of cores per task
+                #SBATCH --cpus-per-task=1
+                ##### Partition name
+                #SBATCH -p cpu
+                ##### Name of job in queuing system
+                #SBATCH --job-name=DOS
+                #SBATCH --output=\"output.out\"    # Path to the standard output and error files relative to the working directory
+                """
+                ),
+            "ares": textwrap.dedent(
+                """\
+                #!/bin/bash -l
+                ## Job name
+                #SBATCH -J v_tuning_NNN
+                ## Number of allocated nodes
+                #SBATCH -N 1
+                ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
+                #SBATCH --ntasks-per-node=48
+                ## Memory allocated per core (default is 5GB), comment if mem for whole job should be taken
+                ##SBATCH --mem-per-cpu=3800MB
+                ## Memory allocated for whole job, comment if mem-per-cpu should be taken
+                #SBATCH --mem=16GB
+                ## Max task execution time (format is HH:MM:SS)
+                #SBATCH --time=72:00:00
+                ## Name of grant to which resource usage will be charged
+                #SBATCH -A plgktosto111-cpu
+                ## Name of partition
+                #SBATCH -p plgrid
+                ## Name of file to which standard output will be redirected
+                #SBATCH --output="output.out"
+                ## Name of file to which the standard error stream will be redirected
+                #SBATCH --error="error.err"
+                """
+                ),
+            "helios": textwrap.dedent(
+                """\
+                #!/bin/bash -l
+                ## Job name
+                #SBATCH -J v_tuning_NNN
+                ## Number of allocated nodes
+                #SBATCH -N 1
+                ## Number of tasks per node (by default this corresponds to the number of cores allocated per node)
+                #SBATCH --ntasks-per-node=48
+                ## Memory allocated per core (default is 5GB), comment if mem for whole job should be taken
+                ##SBATCH --mem-per-cpu=3800MB
+                ## Memory allocated for whole job, comment if mem-per-cpu should be taken
+                #SBATCH --mem=16GB
+                ## Max task execution time (format is HH:MM:SS)
+                #SBATCH --time=72:00:00
+                ## Name of grant to which resource usage will be charged
+                #SBATCH -A plgktosto111-cpu
+                ## Name of partition
+                #SBATCH -p plgrid
+                ## Name of file to which standard output will be redirected
+                #SBATCH --output="output.out"
+                ## Name of file to which the standard error stream will be redirected
+                #SBATCH --error="error.err"
+                module load GCC/13.2.0 OpenMPI/5.0.3 FlexiBLAS/3.3.1 ScaLAPACK/2.2.0-fb gimkl/2023b
+                """
+                ),
+        }
 
     def LAO_STO_QD_default_nml(self):
         parser = f90nml.Parser()
