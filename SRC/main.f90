@@ -84,10 +84,13 @@ CHARACTER(LEN=100) :: filename
 LOGICAL :: isSO
 
 !OMP specific
-INTEGER*4 :: max_num_threads, used_threads
-max_num_threads = 0
-used_threads = 0
+INTEGER*4 :: max_num_threads
+
 CALL INIT_LOGGER()
+
+max_num_threads = omp_get_max_threads()
+WRITE (log_string, *) 'Number of threads: ', max_num_threads
+LOG_INFO(log_string)
 
 !read a file
 CALL INDATA_GET("./OutputData/quantum_dot.nml")
@@ -120,20 +123,6 @@ WRITE (log_string, *) 'External parameters: ',&
   & 'V_b = ', Vb / eV2au,&
   & 'V_0 = ', V0 / eV2au
 LOG_INFO(log_string)
-
-max_num_threads = 1 !omp_get_max_threads()
-CALL omp_set_num_threads(max_num_threads)
-WRITE (log_string, *) 'Number of threads: ', max_num_threads
-LOG_INFO(log_string)
-
-! !This is to test if parallelization works
-! !$omp parallel
-! WRITE(66,*) "Thread", omp_get_thread_num()
-! !$omp critical
-! used_threads = omp_get_num_threads()
-! !$omp end critical
-! !$omp end parallel
-! WRITE(66,*) "Used threads", used_threads
 
 ham_1_size = get_ham_1_size(Nx, Ny, norbs)
 nonzero_ham_1 = get_nonzero_ham_1(Nx, Ny)

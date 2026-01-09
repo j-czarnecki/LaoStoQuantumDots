@@ -1,6 +1,6 @@
 &calculation_parameters
-	Nx=4,
-	Ny=2,
+	Nx=20,
+	Ny=40,
 	dx=.39,
 	norbs=6,
 	nstate_1 = 12,

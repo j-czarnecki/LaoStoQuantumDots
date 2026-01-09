@@ -33,7 +33,7 @@ LIBS_MKL = -I${MKLROOT}/include \
            -lgomp -lpthread -lm -ldl
 
 
-F90FLAGS = -Ofast -cpp -m64 -ffree-line-length-none $(LIB_OMP) -J$(MOD_DIR)
+F90FLAGS = -O3 -cpp -m64 -ffree-line-length-none $(LIB_OMP) -J$(MOD_DIR)
 
 # Common debug base flags
 F90_DEBUG_BASE = -O0 -cpp -m64 -ffree-line-length-none -g $(LIB_OMP) -J$(MOD_DIR) -DDEBUG
@@ -104,7 +104,7 @@ all: $(TARGET)
 debug: F90FLAGS = $(F90_DEBUG_FLAGS)
 debug: $(TARGET)
 
-profile: F90FLAGS = -Ofast -cpp -m64 -ffree-line-length-none -Wall -pg -fopt-info $(LIB_OMP)
+profile: F90FLAGS = -O3 -cpp -m64 -ffree-line-length-none -Wall -pg -fopt-info $(LIB_OMP)
 profile: $(TARGET)
 
 #To avoid Thread Sanitizer error about bad memory mapping

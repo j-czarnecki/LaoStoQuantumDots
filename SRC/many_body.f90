@@ -45,7 +45,7 @@ SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row
   row_2_crs = 0
 
   OPEN (10, FILE='./OutputData/Coulomb_integrals.dat', ACTION='WRITE', FORM='FORMATTED')
-  !$omp parallel private(nn, interaction_element, V_tilde_slice, log_string)
+  !$omp parallel private(nn, interaction_element, V_tilde_slice, phase, log_string)
   !$omp do schedule(dynamic, 1)
   DO i = 1, ham_2_size
     WRITE (log_string, *) "Ham_2 i = ", i
