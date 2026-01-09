@@ -1,8 +1,8 @@
 #include "macros_def.f90"
 MODULE combinatory
-  USE logger
-  IMPLICIT NONE
-  CONTAINS
+USE logger
+IMPLICIT NONE
+CONTAINS
 
 SUBROUTINE GET_COMBINATION(Combination, N, k)
   !! Returns set of indices that form a k-element combination from set {1, 2, ..., N}.
@@ -20,7 +20,7 @@ SUBROUTINE GET_COMBINATION(Combination, N, k)
 
   j = k
   i = 0
-  DO  WHILE (j .GT. 1 .AND. Combination(j) .GT. N - i)
+  DO WHILE (j .GT. 1 .AND. Combination(j) .GT. N - i)
     Combination(j - 1) = Combination(j - 1) + 1
     !TODO: This probably could be done only once to reduce some spare operations.
     DO m = j, k
@@ -56,7 +56,7 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
   INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
   INTEGER*4, INTENT(IN) :: ham_2_size, k_electrons
 
-  INTEGER*4 :: i,j,n_changed,k,l
+  INTEGER*4 :: i, j, n_changed, k, l
   LOGICAL :: same_index
 
   DO i = 1, ham_2_size
@@ -69,19 +69,19 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
       DO k = 1, k_electrons
         same_index = .FALSE.
         DO l = 1, k_electrons
-          IF(Combinations(i,k) == Combinations(j,l)) THEN
+          IF (Combinations(i, k) == Combinations(j, l)) THEN
             same_index = .TRUE.
             EXIT
           END IF
         END DO
-        IF(.NOT. same_index) THEN
+        IF (.NOT. same_index) THEN
           n_changed = n_changed + 1
           IF (n_changed < 3) THEN
-            Changed_indeces(i,j,n_changed,1) = Combinations(i,k)
+            Changed_indeces(i, j, n_changed, 1) = Combinations(i, k)
           END IF
         END IF
       END DO
-      N_changed_indeces(i,j) = INT(MIN(n_changed, 3), kind = 1)
+      N_changed_indeces(i, j) = INT(MIN(n_changed, 3), kind=1)
 
       n_changed = 0
       !For each element of column-combination check whether it exists in row-combination.
@@ -89,15 +89,15 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
       DO k = 1, k_electrons
         same_index = .FALSE.
         DO l = 1, k_electrons
-          IF(Combinations(j,k) == Combinations(i,l)) THEN
+          IF (Combinations(j, k) == Combinations(i, l)) THEN
             same_index = .TRUE.
             EXIT
           END IF
         END DO
-        IF(.NOT. same_index) THEN
+        IF (.NOT. same_index) THEN
           n_changed = n_changed + 1
           IF (n_changed < 3) THEN
-            Changed_indeces(i,j,n_changed,2) = Combinations(j,k)
+            Changed_indeces(i, j, n_changed, 2) = Combinations(j, k)
           END IF
         END IF
       END DO
@@ -114,7 +114,6 @@ SUBROUTINE GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces,
     !!!WRITE(*,*)
   END DO
 
-
 END SUBROUTINE GET_CHANGED_INDECES
 
 SUBROUTINE INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_size, nonzero_ham_2)
@@ -128,25 +127,25 @@ SUBROUTINE INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_
   DO i = 1, ham_2_size
     N_ham_2_elems_in_prev_rows(i) = n
     DO j = i, ham_2_size
-      IF (N_changed_indeces(i,j) < 3) n = n + 1
+      IF (N_changed_indeces(i, j) < 3) n = n + 1
     END DO
   END DO
 
-  WRITE(log_string,*) 'n - 1 = ', n - 1, ' nonzero_ham_2 = ', nonzero_ham_2
+  WRITE (log_string, *) 'n - 1 = ', n - 1, ' nonzero_ham_2 = ', nonzero_ham_2
   LOG_INFO(log_string)
 
   !Sanity check whether we calculated number of nonzero elems corectly
   IF (n - 1 < nonzero_ham_2) THEN
-    WRITE(log_string,*) 'n - 1 = ', n - 1, ' < nonzero_ham_2 = ', nonzero_ham_2
+    WRITE (log_string, *) 'n - 1 = ', n - 1, ' < nonzero_ham_2 = ', nonzero_ham_2
     LOG_ABNORMAL(log_string)
   ELSE IF (n - 1 > nonzero_ham_2) THEN
-    WRITE(log_string,*) 'n - 1 = ', n - 1, ' > nonzero_ham_2 = ', nonzero_ham_2
+    WRITE (log_string, *) 'n - 1 = ', n - 1, ' > nonzero_ham_2 = ', nonzero_ham_2
     LOG_ERROR(log_string)
     STOP 'ERROR IN INIT_PREV_ELEMS: n > nonzero_ham_2. Bad hamiltonian initialization'
   END IF
 END SUBROUTINE
 
-PURE RECURSIVE INTEGER*4 FUNCTION get_parity_phase(Combination_1, Combination_2, n_changed_indeces, changed_index_from_1, changed_index_to_1, changed_index_from_2, changed_index_to_2, k_electrons)
+PURE RECURSIVE INTEGER * 4 FUNCTION get_parity_phase(Combination_1, Combination_2, n_changed_indeces, changed_index_from_1, changed_index_to_1, changed_index_from_2, changed_index_to_2, k_electrons)
   !! This function returns +/- one depending on number of transpositions needed to align two different combinations of single electron wavefunctions
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: Combination_1(k_electrons) !! Base (row) combination based on which we define changed indeces
