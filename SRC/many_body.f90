@@ -347,287 +347,508 @@ MODULE many_body
   END SUBROUTINE CALCULATE_PARTICLE_DENSITY
 
 PURE RECURSIVE COMPLEX*16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
-    !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
-    !! X = \sum_i^{k_electrons} x_i.
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
-    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4, INTENT(IN) :: Nx, norbs
-    REAL*8, INTENT(IN) :: dx
-    INTEGER*4 :: phase
-    INTEGER*4 :: a, b, k
+  !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! X = \sum_i^{k_electrons} x_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4, INTENT(IN) :: Nx, norbs
+  REAL*8, INTENT(IN) :: dx
+  INTEGER*4 :: phase
+  INTEGER*4 :: a, b, k
 
-    many_body_x_expected_value = (0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      DO b = 1, ham_2_size !Probably I can sum over upper triangle
-        IF (N_changed_indeces(a,b) == 0) THEN
-          DO k = 1, k_electrons
-            many_body_x_expected_value = many_body_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
-              & single_electron_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), norbs, Nx, dx, ham_1_size)
-          END DO
-        ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
-                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+  many_body_x_expected_value = (0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_x_expected_value = many_body_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & single_electron_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), norbs, Nx, dx, ham_1_size)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
 
-          many_body_x_expected_value = many_body_x_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
-            & single_electron_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), norbs, Nx, dx, ham_1_size)
-        END IF
-      END DO
+        many_body_x_expected_value = many_body_x_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & single_electron_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), norbs, Nx, dx, ham_1_size)
+      END IF
     END DO
+  END DO
 
-  END FUNCTION many_body_x_expected_value
+END FUNCTION many_body_x_expected_value
 
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
-    !! Calculates matrix element of <n|s_x|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
-    !! S_x = \sum_i^{k_electrons} s_x_i.
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
-    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: phase
-    INTEGER*4 :: a, b, k
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  !! Calculates matrix element of <n|s_x|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_x = \sum_i^{k_electrons} s_x_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+  INTEGER*4 :: a, b, k
 
-    many_body_sigma_x_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      DO b = 1, ham_2_size !Probably I can sum over upper triangle
-        IF (N_changed_indeces(a,b) == 0) THEN
-          DO k = 1, k_electrons
-            many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
-              & sigma_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
-          END DO
-        ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
-                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+  many_body_sigma_x_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_x_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
 
-          many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
-            & sigma_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
-        END IF
-      END DO
+        many_body_sigma_x_expected_value = many_body_sigma_x_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_x_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
+      END IF
     END DO
+  END DO
 
-  END FUNCTION many_body_sigma_x_expected_value
+END FUNCTION many_body_sigma_x_expected_value
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
-    !! Calculates matrix element of <n|s_y|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
-    !! S_y = \sum_i^{k_electrons} s_y_i.
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
-    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: phase
-    INTEGER*4 :: a, b, k
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_y_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  !! Calculates matrix element of <n|s_y|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_y = \sum_i^{k_electrons} s_y_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+  INTEGER*4 :: a, b, k
 
-    many_body_sigma_y_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      DO b = 1, ham_2_size !Probably I can sum over upper triangle
-        IF (N_changed_indeces(a,b) == 0) THEN
-          DO k = 1, k_electrons
-            many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
-              & sigma_y_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
-          END DO
-        ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
-                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+  many_body_sigma_y_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_y_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
 
-          many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
-            & sigma_y_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
-        END IF
-      END DO
+        many_body_sigma_y_expected_value = many_body_sigma_y_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_y_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
+      END IF
     END DO
+  END DO
 
-  END FUNCTION many_body_sigma_y_expected_value
+END FUNCTION many_body_sigma_y_expected_value
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
-    !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
-    !! S_z = \sum_i^{k_electrons} s_z_i.
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
-    INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: phase
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_z_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
 
-    INTEGER*4 :: a, b, k
+  INTEGER*4 :: a, b, k
 
-    many_body_sigma_z_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      DO b = 1, ham_2_size !Probably I can sum over upper triangle
-        IF (N_changed_indeces(a,b) == 0) THEN
-          DO k = 1, k_electrons
-            many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
-              & sigma_z_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
-          END DO
-        ELSE IF (N_changed_indeces(a,b) == 1) THEN
-          phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
-                                  &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+  many_body_sigma_z_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_z_expected_value(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
 
-          many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
-            & sigma_z_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
-        END IF
-      END DO
+        many_body_sigma_z_expected_value = many_body_sigma_z_expected_value + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_z_expected_value(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size)
+      END IF
     END DO
+  END DO
 
-  END FUNCTION many_body_sigma_z_expected_value
+END FUNCTION many_body_sigma_z_expected_value
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: current_combination_parity
-    many_body_parity_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      current_combination_parity = 1
-      DO k = 1, k_electrons
-        current_combination_parity = current_combination_parity * single_electron_parity(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(a, k)), ham_1_size, norbs, Nx, Ny)
-      END DO
-      many_body_parity_expected_value = many_body_parity_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * current_combination_parity
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: current_combination_parity
+  many_body_parity_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    current_combination_parity = 1
+    DO k = 1, k_electrons
+      current_combination_parity = current_combination_parity * single_electron_parity(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(a, k)), ham_1_size, norbs, Nx, Ny)
     END DO
+    many_body_parity_expected_value = many_body_parity_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * current_combination_parity
+  END DO
 
-  END FUNCTION
+END FUNCTION
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xy_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: share
-    many_body_d_xy_up_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      share = 0
-      DO k = 1, k_electrons
-        share = share + d_xy_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
-      END DO
-      many_body_d_xy_up_expected_value = many_body_d_xy_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xy_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: share
+  many_body_d_xy_up_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    share = 0
+    DO k = 1, k_electrons
+      share = share + d_xy_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
     END DO
-  END FUNCTION
+    many_body_d_xy_up_expected_value = many_body_d_xy_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+  END DO
+END FUNCTION
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xy_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: share
-    many_body_d_xy_down_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      share = 0
-      DO k = 1, k_electrons
-        share = share + d_xy_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
-      END DO
-      many_body_d_xy_down_expected_value = many_body_d_xy_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xy_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: share
+  many_body_d_xy_down_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    share = 0
+    DO k = 1, k_electrons
+      share = share + d_xy_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
     END DO
-  END FUNCTION
+    many_body_d_xy_down_expected_value = many_body_d_xy_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+  END DO
+END FUNCTION
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: share
-    many_body_d_xz_up_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      share = 0
-      DO k = 1, k_electrons
-        share = share + d_xz_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
-      END DO
-      many_body_d_xz_up_expected_value = many_body_d_xz_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: share
+  many_body_d_xz_up_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    share = 0
+    DO k = 1, k_electrons
+      share = share + d_xz_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
     END DO
-  END FUNCTION
+    many_body_d_xz_up_expected_value = many_body_d_xz_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+  END DO
+END FUNCTION
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: share
-    many_body_d_xz_down_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      share = 0
-      DO k = 1, k_electrons
-        share = share + d_xz_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
-      END DO
-      many_body_d_xz_down_expected_value = many_body_d_xz_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_xz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: share
+  many_body_d_xz_down_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    share = 0
+    DO k = 1, k_electrons
+      share = share + d_xz_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
     END DO
-  END FUNCTION
+    many_body_d_xz_down_expected_value = many_body_d_xz_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+  END DO
+END FUNCTION
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_yz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: share
-    many_body_d_yz_up_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      share = 0
-      DO k = 1, k_electrons
-        share = share + d_yz_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
-      END DO
-      many_body_d_yz_up_expected_value = many_body_d_yz_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_yz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: share
+  many_body_d_yz_up_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    share = 0
+    DO k = 1, k_electrons
+      share = share + d_yz_up_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
     END DO
-  END FUNCTION
+    many_body_d_yz_up_expected_value = many_body_d_yz_up_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+  END DO
+END FUNCTION
 
-  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_yz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
-    IMPLICIT NONE
-    COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
-    COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
-    INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
-    INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
-    INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
-    INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
-    INTEGER*4 :: a, k
-    COMPLEX*16 :: share
-    many_body_d_yz_down_expected_value = DCMPLX(0.0d0, 0.0d0)
-    DO a = 1, ham_2_size
-      share = 0
-      DO k = 1, k_electrons
-        share = share + d_yz_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
-      END DO
-      many_body_d_yz_down_expected_value = many_body_d_yz_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_d_yz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, norbs, Nx,Ny, n, m)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons, Nx, Ny
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: a, k
+  COMPLEX*16 :: share
+  many_body_d_yz_down_expected_value = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    share = 0
+    DO k = 1, k_electrons
+      share = share + d_yz_down_share(Psi_1(:, Combinations(a, k)), ham_1_size, norbs)
     END DO
-  END FUNCTION
+    many_body_d_yz_down_expected_value = many_body_d_yz_down_expected_value + CONJG(C_slater(a,n))*C_slater(a,m) * share
+  END DO
+END FUNCTION
+
+  PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_x_expected_value_R(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, nx, ny, norbs)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, nx, ny, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+
+  INTEGER*4 :: a, b, k
+
+  many_body_sigma_x_expected_value_R = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_x_expected_value_R = many_body_sigma_x_expected_value_R + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_x_expected_value_R(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size, nx, ny, norbs)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+        many_body_sigma_x_expected_value_R = many_body_sigma_x_expected_value_R + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_x_expected_value_R(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size, nx, ny, norbs)
+      END IF
+    END DO
+  END DO
+
+END FUNCTION many_body_sigma_x_expected_value_R
+
+
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_x_expected_value_L(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, nx, ny, norbs)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, nx, ny, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+
+  INTEGER*4 :: a, b, k
+
+  many_body_sigma_x_expected_value_L = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_x_expected_value_L = many_body_sigma_x_expected_value_L + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_x_expected_value_L(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size, nx, ny, norbs)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+        many_body_sigma_x_expected_value_L = many_body_sigma_x_expected_value_L + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_x_expected_value_L(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size, nx, ny, norbs)
+      END IF
+    END DO
+  END DO
+
+END FUNCTION many_body_sigma_x_expected_value_L
+
+
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_y_expected_value_R(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, nx, ny, norbs)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, nx, ny, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+
+  INTEGER*4 :: a, b, k
+
+  many_body_sigma_y_expected_value_R = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_y_expected_value_R = many_body_sigma_y_expected_value_R + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_y_expected_value_R(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size, nx, ny, norbs)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+        many_body_sigma_y_expected_value_R = many_body_sigma_y_expected_value_R + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_y_expected_value_R(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size, nx, ny, norbs)
+      END IF
+    END DO
+  END DO
+
+END FUNCTION many_body_sigma_y_expected_value_R
+
+
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_y_expected_value_L(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, nx, ny, norbs)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, nx, ny, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+
+  INTEGER*4 :: a, b, k
+
+  many_body_sigma_y_expected_value_L = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_y_expected_value_L = many_body_sigma_y_expected_value_L + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_y_expected_value_L(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size, nx, ny, norbs)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+        many_body_sigma_y_expected_value_L = many_body_sigma_y_expected_value_L + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_y_expected_value_L(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size, nx, ny, norbs)
+      END IF
+    END DO
+  END DO
+
+END FUNCTION many_body_sigma_y_expected_value_L
+
+
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_z_expected_value_R(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, nx, ny, norbs)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, nx, ny, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+
+  INTEGER*4 :: a, b, k
+
+  many_body_sigma_z_expected_value_R = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_z_expected_value_R = many_body_sigma_z_expected_value_R + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_z_expected_value_R(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size, nx, ny, norbs)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+        many_body_sigma_z_expected_value_R = many_body_sigma_z_expected_value_R + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_z_expected_value_R(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size, nx, ny, norbs)
+      END IF
+    END DO
+  END DO
+
+END FUNCTION many_body_sigma_z_expected_value_R
+
+
+PURE RECURSIVE COMPLEX*16 FUNCTION many_body_sigma_z_expected_value_L(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, nx, ny, norbs)
+  !! Calculates matrix element of <n|s_z|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
+  !! S_z = \sum_i^{k_electrons} s_z_i.
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates_1)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstates_2)
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
+  INTEGER*4, INTENT(IN) :: nstates_1, nstates_2, nx, ny, norbs
+  INTEGER*4, INTENT(IN) :: n, m !Two many-body states which expected value should be calculated <n|x|m>
+  INTEGER*4 :: phase
+
+  INTEGER*4 :: a, b, k
+
+  many_body_sigma_z_expected_value_L = DCMPLX(0.0d0, 0.0d0)
+  DO a = 1, ham_2_size
+    DO b = 1, ham_2_size !Probably I can sum over upper triangle
+      IF (N_changed_indeces(a,b) == 0) THEN
+        DO k = 1, k_electrons
+          many_body_sigma_z_expected_value_L = many_body_sigma_z_expected_value_L + CONJG(C_slater(a,n))*C_slater(b,m)*&
+            & sigma_z_expected_value_L(Psi_1(:, Combinations(a, k)), Psi_1(:, Combinations(b, k)), ham_1_size, nx, ny, norbs)
+        END DO
+      ELSE IF (N_changed_indeces(a,b) == 1) THEN
+        phase = get_parity_phase(Combinations(a,:), Combinations(b,:), N_changed_indeces(a,b), Changed_indeces(a,b,1,1),&
+                                &Changed_indeces(a,b,1,2), Changed_indeces(a,b,2,1), Changed_indeces(a,b,2,2), k_electrons)
+
+        many_body_sigma_z_expected_value_L = many_body_sigma_z_expected_value_L + phase*CONJG(C_slater(a,n))*C_slater(b,m)*&
+          & sigma_z_expected_value_L(Psi_1(:, Changed_indeces(a,b,1,1)), Psi_1(:, Changed_indeces(a,b,1,2)), ham_1_size, nx, ny, norbs)
+      END IF
+    END DO
+  END DO
+
+END FUNCTION many_body_sigma_z_expected_value_L
 END MODULE many_body

@@ -25,6 +25,24 @@ SUBROUTINE WRITE_ENERGIES(Energies, nstates, filename)
 
 END SUBROUTINE WRITE_ENERGIES
 
+SUBROUTINE WRITE_POTENTIAL(potential, Nx, Ny, filename)
+  IMPLICIT NONE
+  REAL*8, INTENT(IN) :: potential(-Nx:Nx, -Ny:Ny)
+  INTEGER*4, INTENT(IN) :: Nx, Ny
+  INTEGER*4 :: iy, ix
+  CHARACTER(LEN=*), INTENT(IN) :: filename
+
+  OPEN(unit = 1, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
+  WRITE(1,*) '#x[nm] y[nm] potential[meV]'
+  DO iy = -Ny, Ny
+  DO ix = -Nx, Nx
+    WRITE(1,'(3E20.8)') ix*dx/nm2au, iy*dx/nm2au, potential(ix,iy)/eV2au
+  END DO
+  END DO
+  CLOSE(1)
+END SUBROUTINE
+
+
 
 !########### Single-electron writers
 SUBROUTINE WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi, psi_size, nstates, norbs, Nx, Ny, dx, filename)
@@ -72,7 +90,7 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbit
   CHARACTER(LEN=200) :: format_string
 
   !Writing expectations for a given state
-  format_string = '(I10, 12E20.8)'
+  format_string = '(I10, 14E20.8)'
   OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
   WRITE(9,*) "#No. state [-]  <s_x>   <s_y>   <s_z>   <d_xy_up>   <d_xy_down>   <d_xz_up>   <d_xz_down>   <d_yz_up>   <d_yz_down>   <parity>   <x>   <y>"
   DO n = 1, nstates
@@ -85,7 +103,9 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbit
       & REAL(d_yz_up_share(Psi_1(:,n), ham_1_size, norbitals)), REAL(d_yz_down_share(Psi_1(:,n), ham_1_size, norbitals)),&
       & REAL(single_electron_parity(Psi_1(:,n),Psi_1(:,n), ham_1_size, norbitals, Nx, Ny)), &
       & REAL(single_electron_x_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, dx, ham_1_size)), &
-      & REAL(single_electron_y_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, Ny, dx, ham_1_size))
+      & REAL(single_electron_y_expected_value(Psi_1(:,n), Psi_1(:,n), norbitals, Nx, Ny, dx, ham_1_size)), &
+      & REAL(sigma_z_expected_value_L(Psi_1(:,n), Psi_1(:,n), ham_1_size, Nx, Ny, 6)), &
+      & REAL(sigma_z_expected_value_R(Psi_1(:,n), Psi_1(:,n), ham_1_size, Nx, Ny, 6))
   END DO
   CLOSE(9)
 
@@ -133,7 +153,7 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_ch
   CHARACTER(LEN=200) :: format_string
 
   !Writing expectations for a given state
-  format_string = '(I10, 11E20.8)'
+  format_string = '(I10, 14E20.8)'
   OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
   WRITE(9,*) "#No. state [-]  <x>    <S_x>   <S_y>   <S_z>    <d_xy_up>   <d_xy_down>   <d_xz_up>   <d_xz_down>   <d_yz_up>   <d_yz_down>   <parity>"
   DO n = 1, nstate_2
@@ -148,13 +168,40 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_ch
     & REAL(many_body_d_xz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
     & REAL(many_body_d_yz_up_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
     & REAL(many_body_d_yz_down_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
-    & REAL(many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n))
+    & REAL(many_body_parity_expected_value(Psi_1, C_slater, Combinations, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, n, n)),&
+    & REAL(many_body_sigma_z_expected_value_L(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, Ny, norbs)),&
+    & REAL(many_body_sigma_z_expected_value_R(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces,ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, Ny, norbs))
   END DO
   CLOSE(9)
 
 END SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS
 
 !########### Time-dependent calculations writers
+
+SUBROUTINE WRITE_TIME_EVOLUTION(Spin_t, t_max_int, nmax, filename)
+  IMPLICIT NONE
+  COMPLEX*16, INTENT(IN) :: Spin_t(t_max_int, nmax) 
+  INTEGER*4, INTENT(IN) ::t_max_int, nmax
+  CHARACTER(LEN=*), INTENT(IN) :: filename
+  CHARACTER(LEN=200) :: format_string
+  INTEGER*4 :: ti, ni
+  REAL*8 :: t
+
+  format_string = '(3E20.8)'
+  OPEN(unit = 9, FILE= filename, FORM = "FORMATTED", ACTION = "WRITE")
+  WRITE(9,*) "#Time [ns] s_x(L) s_x(R) s_y(L) s_y(R) s_z(L) s_z(R)"
+  DO ti = 1, t_max_int
+    t = ti * dt
+    WRITE(9,'(E20.8)', ADVANCE="NO") t/ns2au
+    DO ni = 1, nmax
+      WRITE(9,'(E20.8)', ADVANCE="NO") REAL(Spin_t(ti, ni))
+    END DO
+    WRITE(9,*)   ! nowa linia
+  END DO
+
+  CLOSE(9)
+
+END SUBROUTINE WRITE_TIME_EVOLUTION
 
 
 

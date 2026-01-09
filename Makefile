@@ -48,7 +48,8 @@ OBJS =  $(OBJ_DIR)/main.o \
 				$(OBJ_DIR)/many_body.o \
 				$(OBJ_DIR)/writers.o \
 				$(OBJ_DIR)/utility.o \
-				$(OBJ_DIR)/logger.o
+				$(OBJ_DIR)/logger.o \
+				$(OBJ_DIR)/swap.o
 
 POST_OBJS = $(OBJ_DIR)/main_postprocessing.o \
 						$(OBJ_DIR)/constants.o \
@@ -59,7 +60,8 @@ POST_OBJS = $(OBJ_DIR)/main_postprocessing.o \
 						$(OBJ_DIR)/many_body.o \
 						$(OBJ_DIR)/writers.o \
 						$(OBJ_DIR)/utility.o \
-						$(OBJ_DIR)/logger.o
+						$(OBJ_DIR)/logger.o \
+						$(OBJ_DIR)/swap.o
 
 ASMS =  $(OBJ_DIR)/main.s \
         $(OBJ_DIR)/constants.s \
@@ -142,7 +144,9 @@ $(OBJ_DIR)/main.o: $(OBJ_DIR)/indata.o \
 									 $(OBJ_DIR)/writers.o \
 									 $(OBJ_DIR)/utility.o \
 									 $(OBJ_DIR)/constants.o \
-									 $(OBJ_DIR)/logger.o
+									 $(OBJ_DIR)/logger.o \
+									 $(OBJ_DIR)/swap.o
+
 
 $(OBJ_DIR)/main.o:
 $(OBJ_DIR)/combinatory.o:
@@ -171,6 +175,14 @@ $(OBJ_DIR)/utility.o:
 $(OBJ_DIR)/logger.o:
 
 $(OBJ_DIR)/constants.o:
+
+$(OBJ_DIR)/swap.o:      $(OBJ_DIR)/indata.o \
+    					$(OBJ_DIR)/constants.o \
+    					$(OBJ_DIR)/logger.o \
+    					$(OBJ_DIR)/utility.o \
+    					$(OBJ_DIR)/combinatory.o \
+    					$(OBJ_DIR)/many_body.o
+
 
 $(OBJ_DIR)/main_postprocessing.o: $(OBJ_DIR)/indata.o \
 																	$(OBJ_DIR)/hamiltonian.o \

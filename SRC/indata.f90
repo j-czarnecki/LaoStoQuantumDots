@@ -34,6 +34,8 @@ MODULE indata
   REAL*8 :: domega_ac
   REAL*8 :: omega_ac_max
   REAL*8 :: f_ac
+  REAL*8 :: Vb
+  REAL*8 :: V0
 
   !Derived parameters
   REAL*8 :: a !lattice constant
@@ -68,7 +70,9 @@ MODULE indata
   &  Bz,                                  &
   &  domega_ac,                           &
   &  omega_ac_max,                        &
-  &  f_ac
+  &  f_ac,                                &
+  &  Vb,                                  &
+  &  V0
 
 CONTAINS
 
@@ -147,6 +151,8 @@ CONTAINS
     domega_ac = domega_ac * eV2au
     omega_ac_max = omega_ac_max * eV2au
     f_ac = f_ac * F2au
+    Vb = Vb * eV2au
+    V0 = V0 * eV2au
 
     N_omega_ac_steps = INT(omega_ac_max / domega_ac)
 

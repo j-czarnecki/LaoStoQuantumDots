@@ -28,6 +28,113 @@ PURE RECURSIVE COMPLEX*16 FUNCTION sigma_x_expected_value(Psi1, Psi2, psi_size)
   END DO
   RETURN
 END FUNCTION sigma_x_expected_value
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_x_expected_value_L(Psi1, Psi2, psi_size, nx, ny, norbs)
+  !! Calculates expectation value of sigma_x Pauli matrix.
+  !! Assumes that order of psi is (up, down, up, down, ...)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, nx, ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size)
+  INTEGER*4 :: i,j,n
+  REAL*8 :: mask_L(psi_size)
+  mask_L(:) = 0.0
+  n = 0
+  DO j = -ny, ny
+    DO i = -nx, nx
+      IF (i < 0) THEN
+        mask_L(n*norbs+1:(n+1)*norbs) = 1.0
+      ELSE
+        mask_L(n*norbs+1:(n+1)*norbs) = 0.0
+      END IF
+      n = n + 1
+    END DO
+  END DO
+  sigma_x_expected_value_L = 0.0d0
+  DO i = 1, psi_size, 2
+    sigma_x_expected_value_L = sigma_x_expected_value_L + CONJG(Psi1(i))*Psi2(i + 1)*mask_L(i) + CONJG(Psi1(i + 1))*Psi2(i)*mask_L(i)
+  END DO
+  RETURN
+END FUNCTION sigma_x_expected_value_L
+
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_x_expected_value_R(Psi1, Psi2, psi_size, nx, ny, norbs)
+  !! Calculates expectation value of sigma_x Pauli matrix.
+  !! Assumes that order of psi is (up, down, up, down, ...)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, nx, ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size)
+  INTEGER*4 :: i,j,n
+  REAL*8 :: mask_R(psi_size)
+  mask_R(:) = 0.0
+  n = 0
+  DO j = -ny, ny
+    DO i = -nx, nx
+      IF (i < 0) THEN
+        mask_R(n*norbs+1:(n+1)*norbs) = 0.0
+      ELSE
+        mask_R(n*norbs+1:(n+1)*norbs) = 1.0
+      END IF
+      n = n + 1
+    END DO
+  END DO
+  sigma_x_expected_value_R = 0.0d0
+  DO i = 1, psi_size, 2
+    sigma_x_expected_value_R = sigma_x_expected_value_R + CONJG(Psi1(i))*Psi2(i + 1)*mask_R(i) + CONJG(Psi1(i + 1))*Psi2(i)*mask_R(i)
+  END DO
+  RETURN
+END FUNCTION sigma_x_expected_value_R
+
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_y_expected_value_L(Psi1, Psi2, psi_size, nx, ny, norbs)
+  !! Calculates expectation value of sigma_x Pauli matrix.
+  !! Assumes that order of psi is (up, down, up, down, ...)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, nx, ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size)
+  INTEGER*4 :: i,j,n
+  REAL*8 :: mask_L(psi_size)
+  mask_L(:) = 0.0
+  n = 0
+  DO j = -ny, ny
+    DO i = -nx, nx
+      IF (i < 0) THEN
+        mask_L(n*norbs+1:(n+1)*norbs) = 1.0
+      ELSE
+        mask_L(n*norbs+1:(n+1)*norbs) = 0.0
+      END IF
+      n = n + 1
+    END DO
+  END DO
+  sigma_y_expected_value_L = 0.0d0
+  DO i = 1, psi_size, 2
+    sigma_y_expected_value_L = sigma_y_expected_value_L - imag*CONJG(Psi1(i))*Psi2(i + 1)*mask_L(i) + imag*CONJG(Psi1(i + 1))*Psi2(i)*mask_L(i)
+  END DO
+  RETURN
+END FUNCTION sigma_y_expected_value_L
+
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_y_expected_value_R(Psi1, Psi2, psi_size, nx, ny, norbs)
+  !! Calculates expectation value of sigma_x Pauli matrix.
+  !! Assumes that order of psi is (up, down, up, down, ...)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, nx, ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size)
+  INTEGER*4 :: i,j,n
+  REAL*8 :: mask_R(psi_size)
+  mask_R(:) = 0.0
+  n = 0
+  DO j = -ny, ny
+    DO i = -nx, nx
+      IF (i < 0) THEN
+        mask_R(n*norbs+1:(n+1)*norbs) = 0.0
+      ELSE
+        mask_R(n*norbs+1:(n+1)*norbs) = 1.0
+      END IF
+      n = n + 1
+    END DO
+  END DO
+  sigma_y_expected_value_R = 0.0d0
+  DO i = 1, psi_size, 2
+    sigma_y_expected_value_R = sigma_y_expected_value_R - imag*CONJG(Psi1(i))*Psi2(i + 1)* mask_R(i) + imag*CONJG(Psi1(i + 1))*Psi2(i) * mask_R(i)
+  END DO
+  RETURN
+END FUNCTION sigma_y_expected_value_R
 
 PURE RECURSIVE COMPLEX*16 FUNCTION sigma_y_expected_value(Psi1, Psi2, psi_size)
   !! Calculates expectation value of sigma_x Pauli matrix.
@@ -56,6 +163,66 @@ PURE RECURSIVE COMPLEX*16 FUNCTION sigma_z_expected_value(Psi1, Psi2, psi_size)
   END DO
   RETURN
 END FUNCTION sigma_z_expected_value
+
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_z_expected_value_R(Psi1, Psi2, psi_size, nx, ny, norbs)
+  !! Calculates expectation value of sigma_z Pauli matrix.
+  !! Assumes that order of psi is (up, down, up, down, ...)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, nx, ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size)
+  INTEGER*4 :: i, j, n
+  REAL*8 :: mask_R(psi_size)
+  mask_R(:) = 0.0
+  n = 0
+  DO j = -ny, ny
+    DO i = -nx, nx
+      IF (i < 0) THEN
+        mask_R(n*norbs+1:(n+1)*norbs) = 0.0
+      ELSE
+        mask_R(n*norbs+1:(n+1)*norbs) = 1.0
+      END IF
+      n = n + 1
+    END DO
+  END DO
+
+  sigma_z_expected_value_R = 0.0d0
+  DO i = 1, psi_size
+    sigma_z_expected_value_R = sigma_z_expected_value_R + mask_R(i)*(-1)**(i+1)*CONJG(Psi1(i))*Psi2(i)
+  END DO
+  RETURN
+END FUNCTION sigma_z_expected_value_R
+
+
+PURE RECURSIVE COMPLEX*16 FUNCTION sigma_z_expected_value_L(Psi1, Psi2, psi_size, nx, ny, norbs)
+  !! Calculates expectation value of sigma_z Pauli matrix.
+  !! Assumes that order of psi is (up, down, up, down, ...)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size, nx, ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size)
+  INTEGER*4 :: i, j, n
+  REAL*8 :: mask_L(psi_size)
+  !INTEGER*4, ALLOCATABLE :: Ordering(:,:)
+  !ALLOCATE(Ordering(-nx:nx, -ny:ny))
+  mask_L(:) = 0.0
+  n = 0
+  DO j = -ny, ny
+    DO i = -nx, nx
+      !Ordering(i, j) = n
+      IF (i < 0) THEN
+        mask_L(n*norbs+1:(n+1)*norbs) = 1.0
+      ELSE
+        mask_L(n*norbs+1:(n+1)*norbs) = 0.0
+      END IF
+      n = n + 1
+    END DO
+  END DO
+
+  sigma_z_expected_value_L = 0.0d0
+  DO i = 1, psi_size
+    sigma_z_expected_value_L = sigma_z_expected_value_L + mask_L(i)*(-1)**(i+1)*CONJG(Psi1(i))*Psi2(i)
+  END DO
+  RETURN
+END FUNCTION sigma_z_expected_value_L
 
 PURE RECURSIVE REAL*8 FUNCTION d_xy_share(Psi, psi_size, norbs)
   IMPLICIT NONE
