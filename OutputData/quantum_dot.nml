@@ -1,20 +1,20 @@
 &calculation_parameters
-	Nx=10,
-	Ny=10,
+	Nx=4,
+	Ny=2,
 	dx=.39,
 	norbs=6,
-	nstate_1 = 8,
-	nstate_2 = 4,
-	k_electrons = 4,
-	dt = 1e-4,
-	t_max = 5./
+	nstate_1 = 12,
+	nstate_2 = 8,
+	k_electrons = 2,
+	dt = 1e-2,
+	t_max = 1.0/
 
 &physical_parameters
 	th=0.04,
 	tl=0.875,
-	td=0.04,
-	dso=0.01,
-	drso=0.02,
+	td=0.0,
+	dso=0.0,
+	drso=0.0,
 	dE=0.047,
 	g=3.0,
 	eps_r = 100.0/
@@ -23,8 +23,10 @@
 	omega = 18.689e-3,
 	Bx=0.0,
 	By=0.0,
-	Bz=10.0,
+	Bz=1e-4,
 	domega_ac = 10e-3,
 	omega_ac_max = 50e-3,
-	f_ac = 1e6/
+	f_ac = 1e6,
+	Vb = 50.0e-3,
+	V0 = 40.0e-3/
 
