@@ -28,6 +28,7 @@ PURE RECURSIVE COMPLEX * 16 FUNCTION sigma_x_expected_value(Psi1, Psi2, psi_size
   END DO
   RETURN
 END FUNCTION sigma_x_expected_value
+
 PURE RECURSIVE COMPLEX * 16 FUNCTION sigma_x_expected_value_L(Psi1, Psi2, psi_size, nx, ny, norbs)
   !! Calculates expectation value of sigma_x Pauli matrix.
   !! Assumes that order of psi is (up, down, up, down, ...)
