@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+indent-width = 2
+
+[tool.ruff.format]
+preview = true
+indent-style = "space"

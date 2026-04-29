@@ -3,12 +3,11 @@ import textwrap
 
 
 class RunnerConfig:
-    def __init__(self):
-
-        # Using dedent to remove indentation and align every row with the first column of file
-        self.jobHeader = {
-            "default": textwrap.dedent(
-                """\
+  def __init__(self):
+    # Using dedent to remove indentation and align every row with the first column of file
+    self.jobHeader = {
+      "default": textwrap.dedent(
+        """\
                 #!/bin/bash
                 ##### Amount of cores per task
                 #SBATCH --cpus-per-task=16
@@ -18,9 +17,9 @@ class RunnerConfig:
                 #SBATCH --job-name=DOS
                 #SBATCH --output=\"output.out\"    # Path to the standard output and error files relative to the working directory
                 """
-                ),
-            "ares": textwrap.dedent(
-                """\
+      ),
+      "ares": textwrap.dedent(
+        """\
                 #!/bin/bash -l
                 ## Job name
                 #SBATCH -J v_tuning_NNN
@@ -43,9 +42,9 @@ class RunnerConfig:
                 ## Name of file to which the standard error stream will be redirected
                 #SBATCH --error="error.err"
                 """
-                ),
-            "helios": textwrap.dedent(
-                """\
+      ),
+      "helios": textwrap.dedent(
+        """\
                 #!/bin/bash -l
                 ## Job name
                 #SBATCH -J v_tuning_NNN
@@ -69,13 +68,13 @@ class RunnerConfig:
                 #SBATCH --error="error.err"
                 module load GCC/13.2.0 OpenMPI/5.0.3 FlexiBLAS/3.3.1 ScaLAPACK/2.2.0-fb gimkl/2023b
                 """
-                ),
-        }
+      ),
+    }
 
-    def LAO_STO_QD_default_nml(self):
-        parser = f90nml.Parser()
-        params_nml = parser.reads(
-            f"&calculation_parameters \
+  def LAO_STO_QD_default_nml(self):
+    parser = f90nml.Parser()
+    params_nml = parser.reads(
+      f"&calculation_parameters \
                 Nx=80, \
                 Ny=80, \
                 dx=.39, \
@@ -106,5 +105,5 @@ class RunnerConfig:
                 max_sc_iter = 30, \
                 eps_potential = 1e-3, \
                 sc_alpha = 0.2/"
-        )
-        return params_nml
+    )
+    return params_nml
