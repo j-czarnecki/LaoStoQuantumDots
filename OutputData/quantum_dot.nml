@@ -1,10 +1,10 @@
 &calculation_parameters
-	Nx=20,
-	Ny=40,
+	Nx=60,
+	Ny=60,
 	dx=.39,
 	norbs=6,
-	nstate_1 = 12,
-	nstate_2 = 8,
+	nstate_1 = 10,
+	nstate_2 = 5,
 	k_electrons = 2,
 	dt = 1e-2,
 	t_max = 1.0/
@@ -20,7 +20,7 @@
 	eps_r = 100.0/
 
 &external_parameters
-	omega = 18.689e-3,
+	omega = 2.689e-3,
 	Bx=0.0,
 	By=0.0,
 	Bz=1e-4,
@@ -29,4 +29,10 @@
 	f_ac = 1e6,
 	Vb = 50.0e-3,
 	V0 = 40.0e-3/
+
+&self_consistency
+	max_sc_iter = 100,
+	eps_potential = 1e-3,
+	sc_alpha = 0.2/
+
 

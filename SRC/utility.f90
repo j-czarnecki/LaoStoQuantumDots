@@ -392,6 +392,20 @@ PURE RECURSIVE COMPLEX * 16 FUNCTION single_electron_y_expected_value(Psi1, Psi2
   RETURN
 END FUNCTION single_electron_y_expected_value
 
+PURE RECURSIVE INTEGER * 4 FUNCTION get_y_index_from_psi_index(i, norbs, Nx, Ny)
+  !! Get index for Y coordinate in range [-Ny, Ny]
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: i, norbs, Nx, Ny
+  get_y_index_from_psi_index = (((i - 1) / norbs) / (2 * Nx + 1) - Ny) !-1 Due to indexing from 1
+END FUNCTION get_y_index_from_psi_index
+
+PURE RECURSIVE INTEGER * 4 FUNCTION get_x_index_from_psi_index(i, norbs, Nx)
+  !! Get index for X coordinate in range [-Nx, Nx]
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: i, norbs, Nx
+  get_x_index_from_psi_index = (MOD((i - 1) / norbs, 2 * Nx + 1) - Nx) !-1 Due to indexing from 1
+END FUNCTION get_x_index_from_psi_index
+
 PURE RECURSIVE REAL * 8 FUNCTION get_y_from_psi_index(i, norbs, Nx, Ny, dx)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: i, norbs, Nx, Ny

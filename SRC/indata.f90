@@ -37,6 +37,11 @@ REAL*8 :: f_ac
 REAL*8 :: Vb
 REAL*8 :: V0
 
+!Self-constency
+INTEGER*4 :: max_sc_iter
+REAL*8 :: eps_potential
+REAL*8 :: sc_alpha
+
 !Derived parameters
 REAL*8 :: a !lattice constant
 INTEGER*4 :: N_t_steps    !Number of time steps
@@ -73,6 +78,11 @@ NAMELIST /external_parameters/          &
 &  f_ac,                                &
 &  Vb,                                  &
 &  V0
+
+NAMELIST /self_consistency/     &
+&  max_sc_iter,                 &
+&  eps_potential,               &
+&  sc_alpha
 
 CONTAINS
 
@@ -152,6 +162,9 @@ SUBROUTINE INDATA_GET(nmlfile)
   f_ac = f_ac * F2au
   Vb = Vb * eV2au
   V0 = V0 * eV2au
+
+  READ (33, NML=self_consistency)
+  IF (max_sc_iter < 0) STOP "max_sc_iter must be positive"
 
   N_omega_ac_steps = INT(omega_ac_max / domega_ac)
 

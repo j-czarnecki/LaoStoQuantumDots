@@ -11,7 +11,7 @@ class RunnerConfig:
                 """\
                 #!/bin/bash
                 ##### Amount of cores per task
-                #SBATCH --cpus-per-task=1
+                #SBATCH --cpus-per-task=16
                 ##### Partition name
                 #SBATCH -p cpu
                 ##### Name of job in queuing system
@@ -101,6 +101,10 @@ class RunnerConfig:
                 Bz=0.0, \
                 domega_ac = 2e-6, \
                 omega_ac_max = 30e-3, \
-                f_ac = 1e6/"
+                f_ac = 1e6/ \
+              &self_consistency \
+                max_sc_iter = 30, \
+                eps_potential = 1e-3, \
+                sc_alpha = 0.2/"
         )
         return params_nml

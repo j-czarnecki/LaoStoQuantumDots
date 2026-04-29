@@ -159,16 +159,25 @@ $(OBJ_DIR)/main.o: $(OBJ_DIR)/indata.o \
 									 $(OBJ_DIR)/constants.o \
 									 $(OBJ_DIR)/logger.o \
 									 $(OBJ_DIR)/swap.o \
-									 $(OBJ_DIR)/time_dependence.o
+									 $(OBJ_DIR)/time_dependence.o \
+									 $(OBJ_DIR)/potentials.o \
+									 $(OBJ_DIR)/broydenV2.o
 
 $(OBJ_DIR)/main.o:
 $(OBJ_DIR)/combinatory.o:
 
+$(OBJ_DIR)/broydenV2.o:
+
 $(OBJ_DIR)/time_dependence.o: $(OBJ_DIR)/logger.o \
 															$(OBJ_DIR)/utility.o \
 															$(OBJ_DIR)/many_body.o \
-															$(OBJ_DIR)/constants.o
+															$(OBJ_DIR)/constants.o \
+															$(OBJ_DIR)/indata.o
 
+$(OBJ_DIR)/potentials.o: $(OBJ_DIR)/logger.o \
+												 $(OBJ_DIR)/utility.o \
+												 $(OBJ_DIR)/constants.o \
+												 $(OBJ_DIR)/indata.o
 
 $(OBJ_DIR)/indata.o: $(OBJ_DIR)/constants.o \
 										 $(OBJ_DIR)/logger.o

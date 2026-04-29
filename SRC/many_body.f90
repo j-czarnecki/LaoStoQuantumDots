@@ -277,71 +277,390 @@ SUBROUTINE CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, v_tilde
   !$omp end do
   !$omp end parallel
 
-  OPEN (10, FILE='./OutputData/V_tilde_integrated.dat', ACTION='WRITE', FORM='FORMATTED')
-  filename = './OutputData/V_tilde_position_dependent'
-  DO i = 1, nstate_1
-    DO j = i, nstate_1
-      WRITE (10, *) i, j, SUM(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), :))
+  ! OPEN (10, FILE='./OutputData/V_tilde_integrated.dat', ACTION='WRITE', FORM='FORMATTED')
+  ! filename = './OutputData/V_tilde_position_dependent'
+  ! DO i = 1, nstate_1
+  !   DO j = i, nstate_1
+  !     WRITE (10, *) i, j, SUM(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), :))
 
-      WRITE (filename_state, '(A, A, I0, A, I0, A)') TRIM(filename), '_i', i, '_j', j, '.dat'
-      OPEN (1, FILE=filename_state)
-      WRITE (1, *) '#x[nm] y[nm] Re(V_tilde(orb1, s = +)) Im(V_tilde(orb1, s = +)) Re(V_tilde(orb1, s = -)) ...'
+  !     WRITE (filename_state, '(A, A, I0, A, I0, A)') TRIM(filename), '_i', i, '_j', j, '.dat'
+  !     OPEN (1, FILE=filename_state)
+  !     WRITE (1, *) '#x[nm] y[nm] Re(V_tilde(orb1, s = +)) Im(V_tilde(orb1, s = +)) Re(V_tilde(orb1, s = -)) ...'
 
-      nn = 1
-      DO iy = -Ny, Ny
-      DO ix = -Nx, Nx
-        WRITE (1, '(2E20.8)', ADVANCE='NO') ix * dx / nm2au, iy * dx / nm2au
+  !     nn = 1
+  !     DO iy = -Ny, Ny
+  !     DO ix = -Nx, Nx
+  !       WRITE (1, '(2E20.8)', ADVANCE='NO') ix * dx / nm2au, iy * dx / nm2au
 
-        DO iorb = 1, norbs / 2
-          DO ii = 1, 2
-            WRITE (1, '(2E20.8)', ADVANCE='NO') REAL(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), nn)), AIMAG(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), nn))
-            nn = nn + 1
-          END DO
-        END DO
-        WRITE (1, *)
-      END DO
-      END DO
+  !       DO iorb = 1, norbs / 2
+  !         DO ii = 1, 2
+  !           WRITE (1, '(2E20.8)', ADVANCE='NO') REAL(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), nn)), AIMAG(V_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), nn))
+  !           nn = nn + 1
+  !         END DO
+  !       END DO
+  !       WRITE (1, *)
+  !     END DO
+  !     END DO
 
-      CLOSE (1)
+  !     CLOSE (1)
 
-    END DO
-  END DO
-  CLOSE (10)
+  !   END DO
+  ! END DO
+  ! CLOSE (10)
 
 END SUBROUTINE CALCULATE_V_TILDE
 
-SUBROUTINE CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, n_states_1, n_states_2, k_electrons)
+SUBROUTINE CALCULATE_R_TILDE(Psi_1, ham_1_size, nstate_1, R_tilde_upper, r_tilde_elems, norbs, Nx, Ny, dx)
+    !! This subroutine integrates relative position |r_1 - r_2| over r_1, treating r_2 as a parameter.
+    !! \tilde{R}(r_2) = < i(r_1) | |r_1 - r_2| | j(r_1) >
+    !! It stores the results in 1-D array, since resulting matrix is hermitian.
   IMPLICIT NONE
-  REAL*8, INTENT(OUT) :: Particle_density(ham_1_size, n_states_2)
-  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, n_states_1), C_slater(ham_2_size, n_states_2)
-  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
-  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2)
-  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size
-  INTEGER*4, INTENT(IN) :: k_electrons, n_states_1, n_states_2
-  INTEGER*4 :: i, j, n, nstate
-  REAL*8 :: norm
+  COMPLEX*16, INTENT(OUT) :: R_tilde_upper(r_tilde_elems, ham_1_size)
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1)
+  INTEGER*4, INTENT(IN) :: ham_1_size, nstate_1, r_tilde_elems
+  INTEGER*4, INTENT(IN) :: norbs, Nx, Ny
+  REAL*8, INTENT(IN) :: dx
+  INTEGER*4 :: r1, r2, i, j, s1, s2, o1, o2, so1, so2
+  REAL*8 :: r12, x1, y1, x2, y2
+  CHARACTER(LEN=500) :: filename
+  CHARACTER(LEN=1000) :: filename_state
+  INTEGER*4 :: nn, ix, iy, iorb, ii, is
 
-  Particle_density = 0.0d0
-  norm = GAMMA(REAL(k_electrons)) !Since all sums are multiplied by (N - 1)!
+  R_tilde_upper = (0.0d0, 0.0d0)
+  !Loops over state
+  !$omp parallel private (so1, so2, x1, y1, x2, y2, r12, log_string)
+  !$omp do
+  DO i = 1, nstate_1
+    WRITE (log_string, *) "R_tilde i = ", i
+    LOG_INFO(log_string)
 
-  DO nstate = 1, n_states_2
-    DO i = 1, ham_2_size
-      DO n = 1, k_electrons
-        Particle_density(:, nstate) = Particle_density(:, nstate) + norm * REAL(CONJG(C_slater(i, nstate)) * C_slater(i, nstate) * CONJG(Psi_1(:, n)) * Psi_1(:, n))
+    DO j = i, nstate_1
+      !Loop over position r_2 of second electron
+      DO r2 = 1, ham_1_size, norbs
+        x2 = get_x_from_psi_index(r2, norbs, Nx, dx)
+        y2 = get_y_from_psi_index(r2, norbs, Nx, Ny, dx)
+
+        DO s2 = 0, 1
+          DO o2 = 0, norbs / 2 - 1
+            so2 = s2 + 2 * o2
+            !Loop over position r_1 of first electron
+            DO r1 = 1, ham_1_size, norbs
+              x1 = get_x_from_psi_index(r1, norbs, Nx, dx)
+              y1 = get_y_from_psi_index(r1, norbs, Nx, Ny, dx)
+
+              r12 = SQRT((x1 - x2)**2 + (y1 - y2)**2)
+              DO s1 = 0, 1
+                DO o1 = 0, norbs / 2 - 1
+                  so1 = s1 + 2 * o1
+                  R_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), r2 + so2) = R_tilde_upper(get_upper_hermitian_index(i, j, nstate_1), r2 + so2) + &
+                  & r12 * CONJG(Psi_1(r1 + so1, i)) * Psi_1(r1 + so1, j)
+                END DO
+              END DO
+            END DO
+          END DO
+        END DO
       END DO
     END DO
+  END DO
+  !$omp end do
+  !$omp end parallel
 
+END SUBROUTINE CALCULATE_R_TILDE
+
+SUBROUTINE CALCULATE_REALTIVE_DISTANCE_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, Nx, Ny, norbs
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1) ! Single-electron wavefunctions \Psi_n(x,y)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstate_2) ! Coefficient of given Slater determinant
+  ! (as ordered in many-body Hamiltonian)
+  ! for a given many-body state
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size) ! Number of single-particle wavefunction indices changed
+  ! between  i-th and j-th Slater determinant
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2) !Specifies which index has been changed to which for example 1 -> 2 and 3 -> 4.
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: k_electrons, nstate_1, nstate_2
+  REAL*8, INTENT(IN) :: dx
+
+  REAL*8 :: Relative_distance_expected(nstate_2) ! Expected value of relative distance between particles
+
+  COMPLEX*16, ALLOCATABLE :: R_tilde_upper(:, :) !This matrix contains matrix elements of potential
+  !\tilde{V}(r_2) = < i(r_1) | V(r_1, r_2) | j(r_1) >.
+  !Since this matrix is hermitian, only upper triangle is stored.
+  COMPLEX*16, ALLOCATABLE :: R_tilde_slice(:) !This is an element that should be passed to calculate interaction element
+  REAL*8 :: phase
+  INTEGER*4 :: r_tilde_elems
+
+  INTEGER*4 :: i, j, k, l, nstate
+
+  WRITE (log_string, *) "Calculating <r_{12}>"
+  LOG_INFO(log_string)
+
+  r_tilde_elems = (nstate_1 * (nstate_1 + 1)) / 2 !Number of elements in upper triangle of hermitian matrix V_tilde
+  ALLOCATE (R_tilde_upper(r_tilde_elems, ham_1_size))
+  ALLOCATE (R_tilde_slice(ham_1_size))
+  CALL CALCULATE_R_TILDE(Psi_1, ham_1_size, nstate_1, R_tilde_upper, r_tilde_elems, norbs, Nx, Ny, dx)
+
+  Relative_distance_expected = 0.0d0
+
+  DO nstate = 1, nstate_2
     DO i = 1, ham_2_size
-      DO j = i + 1, ham_2_size
-        IF (N_changed_indeces(i, j) == 1) THEN
-          Particle_density(:, nstate) = Particle_density(:, nstate) + REAL(norm * CONJG(C_slater(i, nstate)) * C_slater(j, nstate) * CONJG(C_slater(j, Changed_indeces(i, j, 1, 1))) * C_slater(j, Changed_indeces(i, j, 1, 2)))
+      DO j = 1, ham_2_size
+        IF (N_changed_indeces(i, j) == 2) THEN
+          phase = get_parity_phase(Combinations(i, :), Combinations(j, :), N_changed_indeces(i, j), Changed_indeces(i, j, 1, 1),&
+                        &Changed_indeces(i, j, 1, 2), Changed_indeces(i, j, 2, 1), Changed_indeces(i, j, 2, 2), k_electrons)
+          CALL GET_SLICE_FROM_HERMITIAN_MATRIX(R_tilde_slice, R_tilde_upper, ham_1_size, nstate_1, r_tilde_elems, Changed_indeces(i, j, 1, 1), Changed_indeces(i, j, 1, 2))
+          Relative_distance_expected(nstate) = Relative_distance_expected(nstate) + &
+            & phase * SUM(CONJG(Psi_1(:, Changed_indeces(i, j, 2, 1))) * Psi_1(:, Changed_indeces(i, j, 2, 2)) * R_tilde_slice) * &
+            & CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+          CALL GET_SLICE_FROM_HERMITIAN_MATRIX(R_tilde_slice, R_tilde_upper, ham_1_size, nstate_1, r_tilde_elems, Changed_indeces(i, j, 1, 1), Changed_indeces(i, j, 2, 2))
+          Relative_distance_expected(nstate) = Relative_distance_expected(nstate) - &
+            & phase * SUM(CONJG(Psi_1(:, Changed_indeces(i, j, 2, 1))) * Psi_1(:, Changed_indeces(i, j, 1, 2)) * R_tilde_slice) * &
+            & CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+        ELSE IF (N_Changed_indeces(i, j) == 1) THEN
+          DO k = 1, k_electrons
+            phase = get_parity_phase(Combinations(i, :), Combinations(j, :), N_changed_indeces(i, j), Changed_indeces(i, j, 1, 1),&
+                          &Changed_indeces(i, j, 1, 2), Changed_indeces(i, j, 2, 1), Changed_indeces(i, j, 2, 2), k_electrons)
+            CALL GET_SLICE_FROM_HERMITIAN_MATRIX(R_tilde_slice, R_tilde_upper, ham_1_size, nstate_1, r_tilde_elems, Changed_indeces(i, j, 1, 1), Changed_indeces(i, j, 1, 2))
+            Relative_distance_expected(nstate) = Relative_distance_expected(nstate) + &
+              & phase * SUM(CONJG(Psi_1(:, Combinations(i, k))) * Psi_1(:, Combinations(i, k)) * R_tilde_slice) * &
+              & CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+            CALL GET_SLICE_FROM_HERMITIAN_MATRIX(R_tilde_slice, R_tilde_upper, ham_1_size, nstate_1, r_tilde_elems, Changed_indeces(i, j, 1, 1), Combinations(i, k))
+            Relative_distance_expected(nstate) = Relative_distance_expected(nstate) - &
+              & phase * SUM(CONJG(Psi_1(:, Combinations(i, k))) * Psi_1(:, Changed_indeces(i, j, 1, 2)) * R_tilde_slice) * &
+              & CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+          END DO
+        ELSE IF (N_changed_indeces(i, j) == 0) THEN
+          DO k = 1, k_electrons
+            DO l = k + 1, k_electrons
+              IF (Combinations(i, k) /= Combinations(i, l)) THEN
+                phase = 1
+                CALL GET_SLICE_FROM_HERMITIAN_MATRIX(R_tilde_slice, R_tilde_upper, ham_1_size, nstate_1, r_tilde_elems, Combinations(i, k), Combinations(i, k))
+                Relative_distance_expected(nstate) = Relative_distance_expected(nstate) + &
+                  & phase * SUM(CONJG(Psi_1(:, Combinations(i, l))) * Psi_1(:, Combinations(i, l)) * R_tilde_slice) * &
+                  & CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+                CALL GET_SLICE_FROM_HERMITIAN_MATRIX(R_tilde_slice, R_tilde_upper, ham_1_size, nstate_1, r_tilde_elems, Combinations(i, k), Combinations(i, l))
+                Relative_distance_expected(nstate) = Relative_distance_expected(nstate) - &
+                  & phase * SUM(CONJG(Psi_1(:, Combinations(i, l))) * Psi_1(:, Combinations(i, k)) * R_tilde_slice) * &
+                  & CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+              END IF
+            END DO
+          END DO
         END IF
       END DO
     END DO
+    WRITE (log_string, *) "<r_{12}> for state n = ", nstate, Relative_distance_expected(nstate) / nm2au
+    LOG_INFO(log_string)
+  END DO
+
+END SUBROUTINE CALCULATE_REALTIVE_DISTANCE_EXPECTATION_VALUES
+
+SUBROUTINE CALCULATE_INTERACTION_ENERGY_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx, eps_r)
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, Nx, Ny, norbs
+  REAL*8, INTENT(IN) :: eps_r
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1) ! Single-electron wavefunctions \Psi_n(x,y)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstate_2) ! Coefficient of given Slater determinant
+  ! (as ordered in many-body Hamiltonian)
+  ! for a given many-body state
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size) ! Number of single-particle wavefunction indices changed
+  ! between  i-th and j-th Slater determinant
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2) !Specifies which index has been changed to which for example 1 -> 2 and 3 -> 4.
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: k_electrons, nstate_1, nstate_2
+  REAL*8, INTENT(IN) :: dx
+
+  COMPLEX*16, ALLOCATABLE :: V_tilde_upper(:, :) !This matrix contains matrix elements of potential
+  !\tilde{V}(r_2) = < i(r_1) | V(r_1, r_2) | j(r_1) >.
+  !Since this matrix is hermitian, only upper triangle is stored.
+  COMPLEX*16, ALLOCATABLE :: V_tilde_slice(:) !This is an element that should be passed to calculate interaction element
+  REAL*8 :: Interaction_potential_expected_value(nstate_2) ! Expected value of relative distance between particles
+  INTEGER*4 :: v_tilde_elems
+  INTEGER*4 :: i, j, k, l, nn, nstate
+  COMPLEX*16 :: interaction_element
+  INTEGER*4 :: phase
+
+  WRITE (log_string, *) "Calculating potential expectation value"
+  LOG_INFO(log_string)
+
+  v_tilde_elems = (nstate_1 * (nstate_1 + 1)) / 2 !Number of elements in upper triangle of hermitian matrix V_tilde
+  ALLOCATE (V_tilde_upper(v_tilde_elems, ham_1_size))
+  ALLOCATE (V_tilde_slice(ham_1_size))
+  CALL CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, v_tilde_elems, norbs, Nx, Ny, dx)
+
+  Interaction_potential_expected_value = 0.0d0
+
+  !$omp parallel private(nn, interaction_element, V_tilde_slice, phase, log_string)
+  !$omp do schedule(dynamic, 2)
+  DO nstate = 1, nstate_2
+    DO i = 1, ham_2_size
+      DO j = i, ham_2_size
+        !If statements' order determined by frequency of given elements
+        IF (N_changed_indeces(i, j) == 2) THEN
+          phase = get_parity_phase(Combinations(i, :), Combinations(j, :), N_changed_indeces(i, j), Changed_indeces(i, j, 1, 1),&
+                                  &Changed_indeces(i, j, 1, 2), Changed_indeces(i, j, 2, 1), Changed_indeces(i, j, 2, 2), k_electrons)
+
+          !Interaction elements
+          CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i, j, 1, 1), Changed_indeces(i, j, 1, 2))
+          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i, j, 1, 1)), Psi_1(:, Changed_indeces(i, j, 2, 1)),&
+                                                & Psi_1(:, Changed_indeces(i, j, 1, 2)), Psi_1(:, Changed_indeces(i, j, 2, 2)),&
+                                                & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+          Interaction_potential_expected_value(nstate) = Interaction_potential_expected_value(nstate) + interaction_element * phase * CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+          CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i, j, 1, 1), Changed_indeces(i, j, 2, 2))
+          CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i, j, 1, 1)), Psi_1(:, Changed_indeces(i, j, 2, 1)),&
+                                                & Psi_1(:, Changed_indeces(i, j, 2, 2)), Psi_1(:, Changed_indeces(i, j, 1, 2)),&
+                                                & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+          Interaction_potential_expected_value(nstate) = Interaction_potential_expected_value(nstate) - interaction_element * phase * CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+        ELSE IF (N_changed_indeces(i, j) == 1) THEN
+          !Interaction elements
+          DO k = 1, k_electrons
+            phase = get_parity_phase(Combinations(i, :), Combinations(j, :), N_changed_indeces(i, j), Changed_indeces(i, j, 1, 1),&
+                                    &Changed_indeces(i, j, 1, 2), Changed_indeces(i, j, 2, 1), Changed_indeces(i, j, 2, 2), k_electrons)
+
+            CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i, j, 1, 1), Changed_indeces(i, j, 1, 2))
+            CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i, j, 1, 1)), Psi_1(:, Combinations(i, k)),&
+                                                  & Psi_1(:, Changed_indeces(i, j, 1, 2)), Psi_1(:, Combinations(i, k)),&
+                                                  & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+            Interaction_potential_expected_value(nstate) = Interaction_potential_expected_value(nstate) + interaction_element * phase * CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+
+            CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Changed_indeces(i, j, 1, 1), Combinations(i, k))
+            CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Changed_indeces(i, j, 1, 1)), Psi_1(:, Combinations(i, k)),&
+                                                  & Psi_1(:, Combinations(i, k)), Psi_1(:, Changed_indeces(i, j, 1, 2)),&
+                                                  & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+            Interaction_potential_expected_value(nstate) = Interaction_potential_expected_value(nstate) - interaction_element * phase * CONJG(C_slater(i, nstate)) * C_slater(j, nstate)
+          END DO
+          !Diagonal elements
+        ELSE IF (N_changed_indeces(i, j) == 0) THEN
+          !COulomb interaction elements
+          DO k = 1, k_electrons - 1
+            DO l = k + 1, k_electrons !Check whether sum could be reduced to sum_{k, l>k}. Then I will get rid of 0.5*
+              IF (Combinations(i, k) /= Combinations(i, l)) THEN
+                CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Combinations(i, k), Combinations(i, k))
+                CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i, k)), Psi_1(:, Combinations(i, l)),&
+                                                      & Psi_1(:, Combinations(i, k)), Psi_1(:, Combinations(i, l)),&
+                                                      & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+                Interaction_potential_expected_value(nstate) = Interaction_potential_expected_value(nstate) + interaction_element * CONJG(C_slater(i, nstate)) * C_slater(j, nstate)!Check whether it should be  * 0.5.
+
+                CALL GET_SLICE_FROM_HERMITIAN_MATRIX(V_tilde_slice, V_tilde_upper, ham_1_size, nstate_1, v_tilde_elems, Combinations(i, k), Combinations(i, l))
+                CALL CALCULATE_INTERACTION_ELEMENTS(Psi_1(:, Combinations(i, k)), Psi_1(:, Combinations(i, l)),&
+                                                      & Psi_1(:, Combinations(i, l)), Psi_1(:, Combinations(i, k)),&
+                                                      & V_tilde_slice(:), ham_1_size, interaction_element, norbs, eps_r)
+                Interaction_potential_expected_value(nstate) = Interaction_potential_expected_value(nstate) - interaction_element * CONJG(C_slater(i, nstate)) * C_slater(j, nstate)!Check whether it should be  * 0.5
+              END IF
+            END DO
+          END DO
+        ELSE IF (N_changed_indeces(i, j) /= 3) THEN
+          STOP
+        END IF
+      END DO
+    END DO
+
+    WRITE (log_string, *) "Interaction element for state n = ", nstate, Interaction_potential_expected_value(nstate) / ev2au
+    LOG_INFO(log_string)
+  END DO
+  !$omp end do
+  !$omp end parallel
+
+  DEALLOCATE (V_tilde_upper)
+  DEALLOCATE (V_tilde_slice)
+
+END SUBROUTINE CALCULATE_INTERACTION_ENERGY_EXPECTATION_VALUES
+
+SUBROUTINE CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, dx)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size
+  REAL*8, INTENT(OUT) :: Particle_density(ham_1_size, nstate_2) ! Particle density \rho(x,y) for each many-body state
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1) ! Single-electron wavefunctions \Psi_n(x,y)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstate_2) ! Coefficient of given Slater determinant
+  ! (as ordered in many-body Hamiltonian)
+  ! for a given many-body state
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size) ! Number of single-particle wavefunction indices changed
+  ! between  i-th and j-th Slater determinant
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2) !Specifies which index has been changed to which for example 1 -> 2 and 3 -> 4.
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: k_electrons, nstate_1, nstate_2
+  REAL*8, INTENT(IN) :: dx
+  INTEGER*4 :: i, j, n, nstate, k
+  REAL*8 :: phase
+
+  Particle_density = 0.0d0
+
+  DO nstate = 1, nstate_2
+    DO i = 1, ham_2_size
+      DO j = 1, ham_2_size
+        IF (N_changed_indeces(i, j) == 0) THEN
+          DO k = 1, k_electrons
+            Particle_density(:, nstate) = Particle_density(:, nstate) + CONJG(C_slater(i, nstate)) * C_slater(j, nstate) *&
+              & CONJG(Psi_1(:, Combinations(i, k))) * Psi_1(:, Combinations(j, k))
+          END DO
+        ELSE IF (N_changed_indeces(i, j) == 1) THEN
+          phase = get_parity_phase(Combinations(i, :), Combinations(j, :), N_changed_indeces(i, j), Changed_indeces(i, j, 1, 1),&
+                                  &Changed_indeces(i, j, 1, 2), Changed_indeces(i, j, 2, 1), Changed_indeces(i, j, 2, 2), k_electrons)
+
+          Particle_density(:, nstate) = Particle_density(:, nstate) + phase * CONJG(C_slater(i, nstate)) * C_slater(j, nstate) *&
+            & CONJG(Psi_1(:, Changed_indeces(i, j, 1, 1))) * Psi_1(:, Changed_indeces(i, j, 1, 2))
+        END IF
+      END DO
+    END DO
+
+    WRITE (log_string, *) 'Norm particle density of nstate', nstate, SUM(Particle_density(:, nstate))
+    LOG_INFO(log_string)
   END DO
 
 END SUBROUTINE CALCULATE_PARTICLE_DENSITY
 
+SUBROUTINE CALCULATE_IMAGE_INTERACTION_EXPECTATION_VALUE(Potential_image, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, Nx, Ny, norbs
+  REAL*8, INTENT(OUT) :: Potential_image(-Nx:Nx, -Ny:Ny) ! Particle density \rho(x,y) for each many-body state
+  COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1) ! Single-electron wavefunctions \Psi_n(x,y)
+  COMPLEX*16, INTENT(IN) :: C_slater(ham_2_size, nstate_2) ! Coefficient of given Slater determinant
+  ! (as ordered in many-body Hamiltonian)
+  ! for a given many-body state
+  INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size) ! Number of single-particle wavefunction indices changed
+  ! between  i-th and j-th Slater determinant
+  INTEGER*4, INTENT(IN) :: Changed_indeces(ham_2_size, ham_2_size, 2, 2) !Specifies which index has been changed to which for example 1 -> 2 and 3 -> 4.
+  INTEGER*4, INTENT(IN) :: Combinations(ham_2_size, k_electrons)
+  INTEGER*4, INTENT(IN) :: k_electrons, nstate_1, nstate_2
+  REAL*8, INTENT(IN) :: dx
+  REAL*8 :: Potential_image_expectation_values(nstate_2) ! Particle density \rho(x,y) for each many-body state
+  INTEGER*4 :: i, j, n, nstate, k
+  REAL*8 :: phase
+  INTEGER*4 :: a, b
+
+  Potential_image_expectation_values = 0.0d0
+  DO nstate = 1, nstate_2
+    DO a = 1, ham_2_size
+      DO b = 1, ham_2_size !Probably I can sum over upper triangle
+        IF (N_changed_indeces(a, b) == 0) THEN
+          DO k = 1, k_electrons
+            ! Integration over space
+            DO i = 1, ham_1_size
+              Potential_image_expectation_values(nstate) = Potential_image_expectation_values(nstate) + CONJG(C_slater(a, nstate)) * C_slater(b, nstate) *&
+                & CONJG(Psi_1(i, Combinations(a, k))) * Psi_1(i, Combinations(b, k)) * &
+                & Potential_image(get_x_index_from_psi_index(i, norbs, Nx), get_y_index_from_psi_index(i, norbs, Nx, Ny))
+            END DO
+          END DO
+        ELSE IF (N_changed_indeces(a, b) == 1) THEN
+          phase = get_parity_phase(Combinations(a, :), Combinations(b, :), N_changed_indeces(a, b), Changed_indeces(a, b, 1, 1),&
+                                  &Changed_indeces(a, b, 1, 2), Changed_indeces(a, b, 2, 1), Changed_indeces(a, b, 2, 2), k_electrons)
+          DO i = 1, ham_1_size
+            Potential_image_expectation_values(nstate) = Potential_image_expectation_values(nstate) + phase * CONJG(C_slater(a, nstate)) * C_slater(b, nstate) *&
+              & CONJG(Psi_1(i, Changed_indeces(a, b, 1, 1))) * Psi_1(i, Changed_indeces(a, b, 1, 2)) *&
+              & Potential_image(get_x_index_from_psi_index(i, norbs, Nx), get_y_index_from_psi_index(i, norbs, Nx, Ny))
+          END DO
+        END IF
+      END DO
+    END DO
+    WRITE (log_string, *) "Image potential for n = ", nstate, Potential_image_expectation_values(nstate)
+    LOG_INFO(log_string)
+  END DO
+
+END SUBROUTINE
 PURE RECURSIVE COMPLEX * 16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
   !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
   !! X = \sum_i^{k_electrons} x_i.
