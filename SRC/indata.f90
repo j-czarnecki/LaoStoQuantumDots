@@ -36,6 +36,7 @@ REAL*8 :: omega_ac_max
 REAL*8 :: f_ac
 REAL*8 :: Vb
 REAL*8 :: V0
+REAL*8 :: d_image
 
 !Self-constency
 INTEGER*4 :: max_sc_iter
@@ -60,8 +61,8 @@ NAMELIST /calculation_parameters/             &
 NAMELIST /physical_parameters/               &
      &  tl,                                  &
      &  th,                                  &
-     &  td,                                                     &
-     &  dso,                                                   &
+     &  td,                                  &
+     &  dso,                                 &
      &  drso,                                &
      &  dE,                                  &
      &  g,                                   &
@@ -77,7 +78,8 @@ NAMELIST /external_parameters/          &
 &  omega_ac_max,                        &
 &  f_ac,                                &
 &  Vb,                                  &
-&  V0
+&  V0,                                  &
+&  d_image
 
 NAMELIST /self_consistency/     &
 &  max_sc_iter,                 &
@@ -162,6 +164,7 @@ SUBROUTINE INDATA_GET(nmlfile)
   f_ac = f_ac * F2au
   Vb = Vb * eV2au
   V0 = V0 * eV2au
+  d_image = d_image * nm2au
 
   READ (33, NML=self_consistency)
   IF (max_sc_iter < 0) STOP "max_sc_iter must be positive"

@@ -186,103 +186,90 @@ CALL COMPUTE_HARMONIC_OSCILLATOR_POTENTIAL(Potential_confinement, Nx, Ny, omega,
 CALL WRITE_POTENTIAL(Potential_confinement, Nx, Ny, './OutputData/Potential_confinement.dat')
 
 LOG_INFO(log_string)
-if (.not. (nstate_2 < (4 * (nstate_2 + 1)) .and. nstate_2 < ham_2_size .and. (4 * (nstate_2 + 1)) < ham_2_size)) THEN
+IF (.not. (nstate_2 < (4 * (nstate_2 + 1)) .and. nstate_2 < ham_2_size .and. (4 * (nstate_2 + 1)) < ham_2_size)) THEN
   WRITE (log_string, *) 'In ARPES NEV < NCV ≤ N, please lower nstate_2. STOP.'
-  LOG_INFO(log_string)
-
-  print *, "EXIT: see log file"
+  LOG_ERROR(log_string)
   STOP
-end if
+END IF
 
-!#################### NO SPIN ORBIT ####################
-! isSO = .FALSE.
-
-! CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, Potential_confinement, isSO)
-! CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1_noSO, Energies_1_noSO, nstate_1)
-! CALL GET_LEFT_RIGHT_WAVEFUNCTION_PURE(Psi_1_noSO, nstate_1, ham_1_size, Psi_LR, nx, ny, norbs)
-
-! CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1_noSO, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1_noSO')
-! CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_LR, ham_1_size, 2, norbs, Nx, Ny, dx, './OutputData/Psi_LR')
-! CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_LR, ham_1_size, 2, norbs, './OutputData/Expectations_LR.dat')
-! CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1_noSO, ham_1_size, nstate_1, norbs, './OutputData/Expectations_noSO_1.dat')
-! CALL WRITE_ENERGIES(Energies_1_noSO, nstate_1, './OutputData/Energies1_noSO.dat')
-!#################### WITH SPIN ORBIT ####################
-
-isSO = .TRUE.
 DO n_sc_iter = 1, max_sc_iter
   WRITE (log_string, '(a, I0)') "==== SC_ITER: ", n_sc_iter
   LOG_INFO(log_string)
 
   Potential_total = Potential_confinement + Potential_image
 
-  CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, Potential_total, isSO)
+  CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, Potential_total)
 
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, nstate_1)
 
   CALL SINGLE_ELECTRON_TIME_DEPENDENCE(Psi_1, Energies_1, ham_1_size, nstate_1)
 
   !Writing single-electron problem data to a file
-  CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
-  CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
-  CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
-
-  IF (nstate_2 .eq. 0) THEN
-    WRITE (log_string, *) "Program terminated after single electron calculation due to nstate_2 == 0"
-    LOG_INFO(log_string)
-    STOP
-  END IF
-
-  !#################### TWO-ELECTRON PROBLEM #####################
-  !Many problem is solved using Galerkin method, where basis
-  !is chosen as combinnation of Slater determinants.
-
-  !Initialize combination_row to generate next sets
-  CALL INIT_COMBINATION(Combination_current, k_electrons)
-  DO i = 1, ham_2_size
-    CALL GET_COMBINATION(Combination_current, nstate_1, k_electrons)
-    Combinations(i, :) = Combination_current(:)
-    !PRINT*, Combinations(i, :)
-  END DO
-  CALL GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces, ham_2_size, k_electrons)
-  CALL INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_size, nonzero_ham_2)
-
-  CALL CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
-  & N_ham_2_elems_in_prev_rows, Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
-
-  Energies_2(:) = 0.0d0
-  CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, nstate_2)
-
-  CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, dx)
-  CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(DCMPLX(Particle_density), ham_1_size, nstate_2, norbs, Nx, Ny, dx, './OutputData/ParticleDensity')
   IF (n_sc_iter == 1) THEN
-    CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater_no_image.dat')
-    CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
-    CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2_no_image.dat')
+    CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1_no_image')
+    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1_no_imgae.dat')
+    CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1_no_image.dat')
   ELSE
-    CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
-    CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
-    CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
+    CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
+    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
+    CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
   END IF
 
-  CALL CALCULATE_REALTIVE_DISTANCE_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
-  CALL CALCULATE_INTERACTION_ENERGY_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx, eps_r)
-  CALL CALCULATE_IMAGE_INTERACTION_EXPECTATION_VALUE(Potential_image, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
-  ! CALL GET_INIT_COEFFICIENTS(Psi_LR, Psi_1, C_slater, ham_1_size, ham_2_size, nstate_1, nstate_1, nstate_2, Combinations, k_electrons, Cm)
+  IF (nstate_2 .ne. 0) THEN
+    WRITE (log_string, *) "Solving many-body problem"
+    LOG_INFO(log_string)
 
-  ! CALL TIME_EVOLUTION_SPIN_EXPECTATION(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, nmax, k_electrons, Cm, nstate_1, nstate_2, t_max_int, dt, Energies_2, Spin_t, nx, ny, norbs)
-  ! CALL WRITE_TIME_EVOLUTION(Spin_t, t_max_int, nmax, './OutputData/Spin_time_evolution.dat')
-  !CALL GET_INIT_COEFFICIENTS(Psi_LR, Psi_1, C_slater, ham_1_size, ham_2_size,  nstate_1_noSO, nstate_2, Combinations,k_electrons, Cm)
+    !#################### TWO-ELECTRON PROBLEM #####################
+    !Many problem is solved using Galerkin method, where basis
+    !is chosen as combinnation of Slater determinants.
 
-  !CALL TIME_EVOLUTION_SPIN_EXPECTATION(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, nmax, k_electrons, Cm, nstate_1, nstate_2, t_max_int, dt, Energies_2, Spin_t,nx, ny, norbs)
-  !CALL WRITE_TIME_EVOLUTION(Spin_t, t_max_int, nmax, './OutputData/Spin_time_evolution.dat')
+    !Initialize combination_row to generate next sets
+    CALL INIT_COMBINATION(Combination_current, k_electrons)
+    DO i = 1, ham_2_size
+      CALL GET_COMBINATION(Combination_current, nstate_1, k_electrons)
+      Combinations(i, :) = Combination_current(:)
+      !PRINT*, Combinations(i, :)
+    END DO
+    CALL GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces, ham_2_size, k_electrons)
+    CALL INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_size, nonzero_ham_2)
 
-  !CALL TIME_EVOLUTION_SINGLE_SPIN_EXPECTATION(Psi_1, ham_1_size, nmax, Cm, nstate_1, nstate_2, t_max_int, dt, Energies_1, Spin_t_single, Nx, Ny, norbs)
-  !CALL WRITE_TIME_EVOLUTION(Spin_t_single, t_max_int, nmax, './OutputData/Spin_time_evolution_single.dat')
+    CALL CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
+    & N_ham_2_elems_in_prev_rows, Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
 
-  !CALL MANY_BODY_TIME_DEPENDENCE(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, Energies_1, Energies_2, ham_1_size, nstate_1, ham_2_size, nstate_2, k_electrons)
+    Energies_2(:) = 0.0d0
+    CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, nstate_2)
 
-  CALL CALCULATE_IMAGE_POTENTIAL(Potential_image_new, Particle_density, ham_1_size, nstate_2, Nx, Ny)
+    CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, dx)
+    CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(DCMPLX(Particle_density), ham_1_size, nstate_2, norbs, Nx, Ny, dx, './OutputData/ParticleDensity')
 
+    ! Write many-electron data to files
+    IF (n_sc_iter == 1) THEN
+      CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater_no_image.dat')
+      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
+      CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2_no_image.dat')
+    ELSE
+      CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
+      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
+      CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
+    END IF
+
+    CALL CALCULATE_REALTIVE_DISTANCE_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
+    CALL CALCULATE_INTERACTION_ENERGY_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx, eps_r)
+    CALL CALCULATE_IMAGE_INTERACTION_EXPECTATION_VALUE(Potential_image, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
+
+    CALL MANY_BODY_TIME_DEPENDENCE(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, Energies_1, Energies_2, ham_1_size, nstate_1, ham_2_size, nstate_2, k_electrons)
+
+    CALL CALCULATE_IMAGE_POTENTIAL(Potential_image_new, d_image, Particle_density, ham_1_size, nstate_2, Nx, Ny)
+  ELSE
+    WRITE (log_string, *) "Calculating image potential from 1e wavefunctions"
+    LOG_INFO(log_string)
+    CALL CALCULATE_IMAGE_POTENTIAL(Potential_image_new, d_image, ABS(Psi_1)**2, ham_1_size, nstate_1, Nx, Ny)
+
+    WRITE (log_string, *) "Skipping two-electron problem due to nstate_2 == 0"
+    LOG_INFO(log_string)
+  END IF
+
+  ! Convergence condition check
   max_pot_rel_error = MAXVAL(ABS((Potential_image - Potential_image_new) / Potential_image))
   WRITE (log_string, *) "Max relative error is", max_pot_rel_error
   LOG_INFO(log_string)
@@ -293,11 +280,11 @@ DO n_sc_iter = 1, max_sc_iter
     EXIT
   END IF
 
+  ! Broyden mixing of image potential
   Potential_image_broyden = RESHAPE(Potential_image, [SIZE(Potential_image)])
   Potential_image_broyden_new = RESHAPE(Potential_image_new, [SIZE(Potential_image_new)])
 
   CALL MIX_BROYDEN(SIZE(Potential_image_broyden), Potential_image_broyden_new, Potential_image_broyden, sc_alpha, n_sc_iter, 4, .FALSE.)
-  ! Simple linear mixing
 
   Potential_image = RESHAPE(Potential_image_broyden, SHAPE(Potential_image))
 

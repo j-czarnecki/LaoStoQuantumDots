@@ -1,5 +1,5 @@
 TARGET = ./bin/lao_sto_qd.x
-POSTPROCESSING_TARGET = ./bin/post.x
+POSTPROCESSING_TARGET = ./bin/post_qd.x
 SRC_DIR = SRC
 OBJ_DIR = OBJ
 MOD_DIR = MOD

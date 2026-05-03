@@ -1,38 +1,39 @@
 &calculation_parameters
-	Nx=60,
-	Ny=60,
+	Nx=3,
+	Ny=3,
 	dx=.39,
 	norbs=6,
-	nstate_1 = 10,
-	nstate_2 = 5,
+	nstate_1 = 20,
+	nstate_2 = 10,
 	k_electrons = 2,
-	dt = 1e-2,
+	dt = 1.0,
 	t_max = 1.0/
 
 &physical_parameters
 	th=0.04,
 	tl=0.875,
-	td=0.0,
-	dso=0.0,
-	drso=0.0,
+	td=0.04,
+	dso=0.01,
+	drso=0.02,
 	dE=0.047,
 	g=3.0,
 	eps_r = 100.0/
 
 &external_parameters
-	omega = 2.689e-3,
+	omega = 36.689e-3,
 	Bx=0.0,
 	By=0.0,
-	Bz=1e-4,
+	Bz=0.0,
 	domega_ac = 10e-3,
 	omega_ac_max = 50e-3,
 	f_ac = 1e6,
 	Vb = 50.0e-3,
-	V0 = 40.0e-3/
+	V0 = 40.0e-3,
+	d_image = 2.0/
 
 &self_consistency
-	max_sc_iter = 100,
-	eps_potential = 1e-3,
+	max_sc_iter = 2,
+	eps_potential = 1e-6,
 	sc_alpha = 0.2/
 
 

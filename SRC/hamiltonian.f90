@@ -7,7 +7,7 @@ IMPLICIT NONE
 
 CONTAINS
 
-SUBROUTINE CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Ham_1, column_crs, row_crs, nonzero, ham_1_size, nx, ny, norbitals, Potential, isSO)
+SUBROUTINE CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Ham_1, column_crs, row_crs, nonzero, ham_1_size, nx, ny, norbitals, Potential)
   IMPLICIT NONE
   COMPLEX*16, INTENT(OUT) :: Ham_1(nonzero)
   INTEGER*4, INTENT(OUT) :: column_crs(nonzero), row_crs(ham_1_size + 1)
@@ -23,7 +23,6 @@ SUBROUTINE CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Ham_1, column_crs, row_crs, nonze
   COMPLEX*16 :: H_mix(norbitals, norbitals)
   COMPLEX*16 :: Unity(norbitals, norbitals)
   COMPLEX*16 :: H_onsite(norbitals, norbitals)
-  LOGICAL, INTENT(IN) :: isSO
 
   INTEGER*4, ALLOCATABLE :: Ordering(:, :)
 
@@ -73,13 +72,6 @@ SUBROUTINE CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Ham_1, column_crs, row_crs, nonze
   H_0(4, 4) = 2 * tl + 2 * th
   H_0(5, 5) = 2 * tl + 2 * th
   H_0(6, 6) = 2 * tl + 2 * th
-
-  !Atomic spin-robit coupling
-  IF (.NOT. isSO) THEN
-    dso = 0.0d0
-    drso = 0.0d0
-    td = 0.0d0
-  END IF
 
   !Atomic spin-robit coupling
   H_so(1, 4) = imag * dso / 3.0d0

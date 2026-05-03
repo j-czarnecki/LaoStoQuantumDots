@@ -50,11 +50,11 @@ SUBROUTINE COMPUTE_GAUSSIAN_POTENTIAL(Potential, Nx, Ny, V0, Vb)
 
 END SUBROUTINE COMPUTE_GAUSSIAN_POTENTIAL
 
-SUBROUTINE CALCULATE_IMAGE_POTENTIAL(V_image, Particle_density, ham_1_size, nstate_2, Nx, Ny)
-  INTEGER*4, INTENT(IN) :: ham_1_size, nstate_2, Nx, Ny
-  REAL*8, INTENT(IN) :: Particle_density(ham_1_size, nstate_2)
+SUBROUTINE CALCULATE_IMAGE_POTENTIAL(V_image, d_image, Particle_density, ham_1_size, nstate, Nx, Ny)
+  INTEGER*4, INTENT(IN) :: ham_1_size, nstate, Nx, Ny
+  REAL*8, INTENT(IN) :: d_image
+  REAL*8, INTENT(IN) :: Particle_density(ham_1_size, nstate)
   REAL*8, INTENT(OUT) :: V_image(-Nx:Nx, -Ny:Ny)
-  REAL*8, PARAMETER :: d_layer = 5.0d0 * nm2au
   INTEGER*4 :: i, ix, iy
   REAL*8 :: x, y, x_prime, y_prime, r_relative
 
@@ -66,7 +66,7 @@ SUBROUTINE CALCULATE_IMAGE_POTENTIAL(V_image, Particle_density, ham_1_size, nsta
       DO i = 1, ham_1_size
         x_prime = get_x_from_psi_index(i, norbs, Nx, dx)
         y_prime = get_y_from_psi_index(i, norbs, Nx, Ny, dx)
-        r_relative = SQRT((x - x_prime)**2 + (y - y_prime)**2 + d_layer**2)
+        r_relative = SQRT((x - x_prime)**2 + (y - y_prime)**2 + d_image**2)
         ! Minus sign due to opposite charge of the image.
         ! Assuming I only care about the ground state charge density
         V_image(ix, iy) = V_image(ix, iy) - Particle_density(i, 1) / (eps_r * r_relative)

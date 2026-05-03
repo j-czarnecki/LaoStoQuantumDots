@@ -218,9 +218,9 @@ SUBROUTINE CALCULATE_INTERACTION_ELEMENTS(Psi_1, Psi_2, Psi_3, Psi_4, V_tilde, h
 END SUBROUTINE CALCULATE_INTERACTION_ELEMENTS
 
 SUBROUTINE CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, v_tilde_elems, norbs, Nx, Ny, dx)
-    !! This subroutine integrates potential V(r_1, r_2) over r_1, treating r_2 as a parameter.
-    !! \tilde{V}(r_2) = < i(r_1) | V(r_1, r_2) | j(r_1) >
-    !! It stores the results in 1-D array, since resulting matrix is hermitian.
+  !! This subroutine integrates potential V(r_1, r_2) over r_1, treating r_2 as a parameter.
+  !! \tilde{V}(r_2) = < i(r_1) | V(r_1, r_2) | j(r_1) >
+  !! It stores the results in 1-D array, since resulting matrix is hermitian.
   IMPLICIT NONE
   COMPLEX*16, INTENT(OUT) :: V_tilde_upper(v_tilde_elems, ham_1_size)
   COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1)
@@ -311,9 +311,9 @@ SUBROUTINE CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, v_tilde
 END SUBROUTINE CALCULATE_V_TILDE
 
 SUBROUTINE CALCULATE_R_TILDE(Psi_1, ham_1_size, nstate_1, R_tilde_upper, r_tilde_elems, norbs, Nx, Ny, dx)
-    !! This subroutine integrates relative position |r_1 - r_2| over r_1, treating r_2 as a parameter.
-    !! \tilde{R}(r_2) = < i(r_1) | |r_1 - r_2| | j(r_1) >
-    !! It stores the results in 1-D array, since resulting matrix is hermitian.
+  !! This subroutine integrates relative position |r_1 - r_2| over r_1, treating r_2 as a parameter.
+  !! \tilde{R}(r_2) = < i(r_1) | |r_1 - r_2| | j(r_1) >
+  !! It stores the results in 1-D array, since resulting matrix is hermitian.
   IMPLICIT NONE
   COMPLEX*16, INTENT(OUT) :: R_tilde_upper(r_tilde_elems, ham_1_size)
   COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstate_1)
@@ -661,6 +661,7 @@ SUBROUTINE CALCULATE_IMAGE_INTERACTION_EXPECTATION_VALUE(Potential_image, Psi_1,
   END DO
 
 END SUBROUTINE
+
 PURE RECURSIVE COMPLEX * 16 FUNCTION many_body_x_expected_value(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstates_1, nstates_2, n, m, Nx, dx, norbs)
   !! Calculates matrix element of <n|X|m>, where n and m denote multi-body wavefunctions and position operator x is defined as
   !! X = \sum_i^{k_electrons} x_i.
