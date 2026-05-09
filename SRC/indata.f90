@@ -98,6 +98,7 @@ CONTAINS
 SUBROUTINE INDATA_GET(nmlfile)
   IMPLICIT NONE
   CHARACTER(*), INTENT(IN) :: nmlfile
+  REAL*8 :: characteristic_length_harmonic
 
   OPEN (33, FILE=TRIM(nmlfile), FORM="FORMATTED", ACTION="READ",  &
        &   STATUS="OLD")
@@ -173,6 +174,19 @@ SUBROUTINE INDATA_GET(nmlfile)
   d_image = d_image * nm2au
   shift_packet = shift_packet * nm2au
   sigma_packet = sigma_packet * nm2au
+
+  characteristic_length_harmonic = SQRT(1 / (m_eff * omega))
+  WRITE (log_string, *) "Oscillator characteristic length [nm]: ", characteristic_length_harmonic / nm2au
+  LOG_INFO(log_string)
+
+  WRITE (log_string, *) "Minimum box size [nm]:", MIN(Nx, Ny) * dx / nm2au
+  LOG_INFO(log_string)
+
+  WRITE (log_string, *) "Minimum box size to characteristic length ratio:", MIN(Nx, Ny) * dx / characteristic_length_harmonic
+  LOG_INFO(log_string)
+
+  WRITE (log_string, *) "Highest 1e energy level turning point [nm]: ", SQRT(2 * nstate_1 + 1.0d0) * characteristic_length_harmonic / nm2au
+  LOG_INFO(log_string)
 
   READ (33, NML=self_consistency)
   IF (max_sc_iter < 0) STOP "max_sc_iter must be positive"

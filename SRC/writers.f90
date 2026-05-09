@@ -327,7 +327,7 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzer
     & REAL(coulomb_interaction_expected) / eV2au,&
     & REAL(relative_distance_expected) / nm2au, &
     & REAL(h1_no_potential_expected_value) / eV2au, &
-    & REAL(h1_no_potential_expected_value + coulomb_interaction_expected) / eV2au
+    & REAL(h1_no_potential_expected_value + v_image_expected + v_confinement_expected + coulomb_interaction_expected) / eV2au
 
   END DO
   CLOSE (9)

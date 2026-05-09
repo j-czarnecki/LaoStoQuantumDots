@@ -181,7 +181,7 @@ N_changed_indeces(:, :) = 0
 Changed_indeces(:, :, :, :) = 0
 
 !PRINT*, "Memory check 2..."
-!#################### ONE-ELECTRON PROBLEM ####################
+
 Potential_confinement = 0.0d0
 Potential_image = -1e-8 * eV2au
 Potential_image_new = 0.0d0
@@ -211,28 +211,21 @@ DO n_sc_iter = 1, max_sc_iter
 
   Potential_total = Potential_confinement + Potential_image
 
+  !#################### ONE-ELECTRON PROBLEM ####################
   CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, Potential_total)
 
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, nstate_1)
 
   CALL SINGLE_ELECTRON_TIME_DEPENDENCE(Psi_1, Energies_1, ham_1_size, nstate_1)
 
-  DO n = 1, nstate_1
-    WRITE (log_string, *) "Psi_1 normalization: ", SUM(ABS(Psi_1(:, n))**2)
-    LOG_INFO(log_string)
-  END DO
-
   !Writing single-electron problem data to a file
   IF (n_sc_iter == 1) THEN
     CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1_no_image')
-    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1_no_imgae.dat')
+    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1_no_image.dat')
     CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1_no_image.dat')
-  ELSE
-    CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
-    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
-    CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
   END IF
 
+  ! Checking whether we have to compute many-body problem
   IF (nstate_2 .ne. 0) THEN
     WRITE (log_string, *) "Solving many-body problem"
     LOG_INFO(log_string)
@@ -268,12 +261,8 @@ DO n_sc_iter = 1, max_sc_iter
     ! Write many-electron data to files
     IF (n_sc_iter == 1) THEN
       CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater_no_image.dat')
-      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
+      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
       CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2_no_image.dat')
-    ELSE
-      CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
-      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
-      CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
     END IF
 
     CALL MANY_BODY_TIME_DEPENDENCE(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, Energies_1, Energies_2, ham_1_size, nstate_1, ham_2_size, nstate_2, k_electrons)
@@ -310,7 +299,19 @@ DO n_sc_iter = 1, max_sc_iter
   CALL WRITE_POTENTIAL(Potential_image, Nx, Ny, './OutputData/Potential_image_iter.dat')
   CALL WRITE_POTENTIAL(Potential_total, Nx, Ny, './OutputData/Potential_total_iter.dat')
 
-END DO
+END DO ! End of self-consistent loop
+
+IF (n_sc_iter > 2) THEN
+  ! Write 1e data
+  CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
+  CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
+  CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
+
+  ! Write 2e data
+  CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
+  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
+  CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
+END IF
 
 CALL WRITE_POTENTIAL(Potential_image, Nx, Ny, './OutputData/Potential_image.dat')
 CALL WRITE_POTENTIAL(Potential_total, Nx, Ny, './OutputData/Potential_total.dat')
