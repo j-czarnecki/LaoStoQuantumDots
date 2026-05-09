@@ -196,9 +196,11 @@ $(OBJ_DIR)/many_body.o: $(OBJ_DIR)/combinatory.o \
 $(OBJ_DIR)/writers.o: $(OBJ_DIR)/indata.o \
 											$(OBJ_DIR)/constants.o \
 											$(OBJ_DIR)/utility.o \
-											$(OBJ_DIR)/many_body.o
+											$(OBJ_DIR)/many_body.o \
+											$(OBJ_DIR)/logger.o
 
-$(OBJ_DIR)/utility.o:
+$(OBJ_DIR)/utility.o: $(OBJ_DIR)/constants.o \
+											$(OBJ_DIR)/diagonalize.o
 
 $(OBJ_DIR)/logger.o:
 

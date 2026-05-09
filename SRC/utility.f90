@@ -1,5 +1,6 @@
 MODULE utility
 USE constants
+USE diagonalize
 IMPLICIT NONE
 CONTAINS
 
@@ -14,6 +15,41 @@ PURE COMPLEX * 16 FUNCTION energy_phase_offset(En, Em, t)
   REAL*8, INTENT(IN) :: En, Em, t
   energy_phase_offset = EXP(imag * t * (En - Em))
 END FUNCTION energy_phase_offset
+
+RECURSIVE COMPLEX * 16 FUNCTION hamiltonian_expected_value(Psi1, Psi2, Ham_crs, col_crs, row_crs, nonzero_ham, ham_size)
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: ham_size, nonzero_ham
+  COMPLEX*16, INTENT(IN) :: Psi1(ham_size), Psi2(ham_size)
+  COMPLEX*16, INTENT(IN) :: Ham_crs(nonzero_ham)
+  INTEGER*4, INTENT(IN) :: col_crs(nonzero_ham)
+  INTEGER*4, INTENT(IN) :: row_crs(ham_size + 1)
+
+  COMPLEX*16 :: Psi2_prime(ham_size)
+
+  CALL AVMULT(ham_size, nonzero_ham, row_crs, col_crs, Ham_crs, Psi2, Psi2_prime)
+
+  hamiltonian_expected_value = DOT_PRODUCT(Psi1, Psi2_prime)
+END FUNCTION hamiltonian_expected_value
+
+PURE RECURSIVE COMPLEX * 16 FUNCTION potential_expected_value(Psi1, Psi2, V, psi_size, Nx, Ny, norbs)
+  !! Calculates matrix element
+  !! $$
+  !! \langle \Psi_1 | V(r) | \Psi_2 \rangle
+  !! $$
+  IMPLICIT NONE
+  INTEGER*4, INTENT(IN) :: psi_size !! Size of wavefunction (included spatail extent and additional degrees of freedom)
+  INTEGER*4, INTENT(IN) :: Nx, Ny !! Grid dimensions
+  INTEGER*4, INTENT(IN) :: norbs !! Number of additional degrees of freedom on each site
+  COMPLEX*16, INTENT(IN) :: Psi1(psi_size), Psi2(psi_size) !! Wavefunctions
+  REAL*8, INTENT(IN) :: V(-Nx:Nx, -Ny:Ny) !! Potential map
+  INTEGER*4 :: i
+  potential_expected_value = CMPLX(0.0d0, 0.0d0)
+  DO i = 1, psi_size
+    potential_expected_value = potential_expected_value + &
+      & CONJG(Psi1(i)) * Psi2(i) * &
+      & V(get_x_index_from_psi_index(i, norbs, Nx), get_y_index_from_psi_index(i, norbs, Nx, Ny))
+  END DO
+END FUNCTION potential_expected_value
 
 PURE RECURSIVE COMPLEX * 16 FUNCTION sigma_x_expected_value(Psi1, Psi2, psi_size)
   !! Calculates expectation value of sigma_x Pauli matrix.

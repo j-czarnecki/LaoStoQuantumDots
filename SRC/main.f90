@@ -21,6 +21,10 @@ COMPLEX*16, ALLOCATABLE :: Hamiltonian_1_crs(:) !One electron hamiltonian in com
 INTEGER*4, ALLOCATABLE :: column_1_crs(:)
 INTEGER*4, ALLOCATABLE :: row_1_crs(:)
 
+COMPLEX*16, ALLOCATABLE :: Hamiltonian_1_no_potential_crs(:) !One electron hamiltonian in compressed row storage
+INTEGER*4, ALLOCATABLE :: column_1_no_potential_crs(:)
+INTEGER*4, ALLOCATABLE :: row_1_no_potential_crs(:)
+
 COMPLEX*16, ALLOCATABLE :: Hamiltonian_2_crs(:) !Many-body hamiltonian in compressed row storage
 INTEGER*4, ALLOCATABLE :: column_2_crs(:)
 INTEGER*4, ALLOCATABLE :: row_2_crs(:)
@@ -30,6 +34,7 @@ REAL*8, ALLOCATABLE :: Potential_image_new(:, :)
 REAL*8, ALLOCATABLE :: Potential_image_broyden(:)
 REAL*8, ALLOCATABLE :: Potential_image_broyden_new(:)
 REAL*8, ALLOCATABLE :: Potential_total(:, :)
+REAL*8, ALLOCATABLE :: Potential_zero(:, :)
 !COMPLEX*16, ALLOCATABLE :: psi_lapack(:, :, :, :, :)
 !REAL*8, ALLOCATABLE :: ev_lapack(:)
 COMPLEX*16, ALLOCATABLE :: Psi_1(:, :) !Eigenfunction of single-electron hamiltonian, describing real-space wavefunction
@@ -139,9 +144,13 @@ ALLOCATE (Potential_confinement(-Nx:Nx, -Ny:Ny))
 ALLOCATE (Potential_image(-Nx:Nx, -Ny:Ny))
 ALLOCATE (Potential_image_new(-Nx:Nx, -Ny:Ny))
 ALLOCATE (Potential_total(-Nx:Nx, -Ny:Ny))
+ALLOCATE (Potential_zero(-Nx:Nx, -Ny:Ny))
 ALLOCATE (Hamiltonian_1_crs(nonzero_ham_1))
 ALLOCATE (column_1_crs(nonzero_ham_1))
 ALLOCATE (row_1_crs(ham_1_size + 1))
+ALLOCATE (Hamiltonian_1_no_potential_crs(nonzero_ham_1))
+ALLOCATE (column_1_no_potential_crs(nonzero_ham_1))
+ALLOCATE (row_1_no_potential_crs(ham_1_size + 1))
 ALLOCATE (Particle_density(ham_1_size, nstate_2))
 ALLOCATE (Particle_density_up(ham_1_size, nstate_2))
 ALLOCATE (Particle_density_down(ham_1_size, nstate_2))
@@ -180,6 +189,7 @@ mu = 10.0
 Potential_confinement = 0.0d0
 Potential_image = 1e-6 * eV2au
 Potential_image_new = 0.0d0
+Potential_zero = 0.0d0
 !CALL COMPUTE_GAUSSIAN_POTENTIAL(Potential_confinement, Nx, Ny, V0, Vb)
 CALL COMPUTE_HARMONIC_OSCILLATOR_POTENTIAL(Potential_confinement, Nx, Ny, omega, m_eff)
 
@@ -192,6 +202,9 @@ IF (.not. (nstate_2 < (4 * (nstate_2 + 1)) .and. nstate_2 < ham_2_size .and. (4 
   STOP
 END IF
 
+! Computed for checking purposes, so that one can calculate the expectation value of energy of Hamiltonian without potential
+CALL CREATE_ONE_ELECTRON_HAMILTONIAN_CRS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, ham_1_size, Nx, Ny, norbs, Potential_zero)
+
 DO n_sc_iter = 1, max_sc_iter
   WRITE (log_string, '(a, I0)') "==== SC_ITER: ", n_sc_iter
   LOG_INFO(log_string)
@@ -203,6 +216,11 @@ DO n_sc_iter = 1, max_sc_iter
   CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, ham_1_size, Psi_1, Energies_1, nstate_1)
 
   CALL SINGLE_ELECTRON_TIME_DEPENDENCE(Psi_1, Energies_1, ham_1_size, nstate_1)
+
+  DO n = 1, nstate_1
+    WRITE (log_string, *) "Psi_1 normalization: ", SUM(ABS(Psi_1(:, n))**2)
+    LOG_INFO(log_string)
+  END DO
 
   !Writing single-electron problem data to a file
   IF (n_sc_iter == 1) THEN
@@ -239,23 +257,24 @@ DO n_sc_iter = 1, max_sc_iter
     Energies_2(:) = 0.0d0
     CALL DIAGONALIZE_ARPACK_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, nonzero_ham_2, ham_2_size, C_slater, Energies_2, nstate_2)
 
+    DO n = 1, nstate_2
+      WRITE (log_string, *) "Slater normalization: ", SUM(ABS(C_slater(:, n))**2)
+      LOG_INFO(log_string)
+    END DO
+
     CALL CALCULATE_PARTICLE_DENSITY(Particle_density, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, dx)
     CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(DCMPLX(Particle_density), ham_1_size, nstate_2, norbs, Nx, Ny, dx, './OutputData/ParticleDensity')
 
     ! Write many-electron data to files
     IF (n_sc_iter == 1) THEN
       CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater_no_image.dat')
-      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
+      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
       CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2_no_image.dat')
     ELSE
       CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
-      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
+      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_crs, column_1_crs, row_1_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
       CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
     END IF
-
-    CALL CALCULATE_REALTIVE_DISTANCE_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
-    CALL CALCULATE_INTERACTION_ENERGY_EXPECTATION_VALUES(Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx, eps_r)
-    CALL CALCULATE_IMAGE_INTERACTION_EXPECTATION_VALUE(Potential_image, Psi_1, C_slater, N_changed_indeces, Changed_indeces, Combinations, ham_1_size, ham_2_size, nstate_1, nstate_2, k_electrons, norbs, Nx, Ny, dx)
 
     CALL MANY_BODY_TIME_DEPENDENCE(Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, Energies_1, Energies_2, ham_1_size, nstate_1, ham_2_size, nstate_2, k_electrons)
 
@@ -304,9 +323,13 @@ DEALLOCATE (Potential_confinement)
 DEALLOCATE (Potential_image)
 DEALLOCATE (Potential_image_new)
 DEALLOCATE (Potential_total)
+DEALLOCATE (Potential_zero)
 DEALLOCATE (Hamiltonian_1_crs)
 DEALLOCATE (row_1_crs)
 DEALLOCATE (column_1_crs)
+DEALLOCATE (Hamiltonian_1_no_potential_crs)
+DEALLOCATE (row_1_no_potential_crs)
+DEALLOCATE (column_1_no_potential_crs)
 DEALLOCATE (Particle_density)
 DEALLOCATE (Particle_density_up)
 DEALLOCATE (Particle_density_down)
