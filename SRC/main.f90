@@ -182,20 +182,20 @@ Changed_indeces(:, :, :, :) = 0
 
 !PRINT*, "Memory check 2..."
 !#################### ONE-ELECTRON PROBLEM ####################
-Rx = dx * Nx / 1.15
-Ry = dx * Ny / 1.4
-Rb = Ry / 2.0
-mu = 10.0
 Potential_confinement = 0.0d0
-Potential_image = 1e-6 * eV2au
+Potential_image = -1e-8 * eV2au
 Potential_image_new = 0.0d0
 Potential_zero = 0.0d0
 !CALL COMPUTE_GAUSSIAN_POTENTIAL(Potential_confinement, Nx, Ny, V0, Vb)
 CALL COMPUTE_HARMONIC_OSCILLATOR_POTENTIAL(Potential_confinement, Nx, Ny, omega, m_eff)
 
-CALL WRITE_POTENTIAL(Potential_confinement, Nx, Ny, './OutputData/Potential_confinement.dat')
+IF (initialize_image) THEN
+  CALL COMPUTE_GAUSSIAN_PACKETS_POTENTIAL(Potential_image, d_image, eps_r, shift_packet, sigma_packet, Nx, Ny, dx)
+END IF
 
-LOG_INFO(log_string)
+CALL WRITE_POTENTIAL(Potential_confinement, Nx, Ny, './OutputData/Potential_confinement.dat')
+CALL WRITE_POTENTIAL(Potential_image, Nx, Ny, './OutputData/Potential_image_initial.dat')
+
 IF (.not. (nstate_2 < (4 * (nstate_2 + 1)) .and. nstate_2 < ham_2_size .and. (4 * (nstate_2 + 1)) < ham_2_size)) THEN
   WRITE (log_string, *) 'In ARPES NEV < NCV ≤ N, please lower nstate_2. STOP.'
   LOG_ERROR(log_string)

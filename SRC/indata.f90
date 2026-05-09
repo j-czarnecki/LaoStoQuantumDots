@@ -37,6 +37,9 @@ REAL*8 :: f_ac
 REAL*8 :: Vb
 REAL*8 :: V0
 REAL*8 :: d_image
+LOGICAL :: initialize_image
+REAL*8 :: shift_packet
+REAL*8 :: sigma_packet
 
 !Self-constency
 INTEGER*4 :: max_sc_iter
@@ -79,7 +82,10 @@ NAMELIST /external_parameters/          &
 &  f_ac,                                &
 &  Vb,                                  &
 &  V0,                                  &
-&  d_image
+&  d_image,                             &
+&  initialize_image,                    &
+&  shift_packet,                        &
+&  sigma_packet
 
 NAMELIST /self_consistency/     &
 &  max_sc_iter,                 &
@@ -165,6 +171,8 @@ SUBROUTINE INDATA_GET(nmlfile)
   Vb = Vb * eV2au
   V0 = V0 * eV2au
   d_image = d_image * nm2au
+  shift_packet = shift_packet * nm2au
+  sigma_packet = sigma_packet * nm2au
 
   READ (33, NML=self_consistency)
   IF (max_sc_iter < 0) STOP "max_sc_iter must be positive"

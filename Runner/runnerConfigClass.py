@@ -103,7 +103,10 @@ class RunnerConfig:
                 f_ac = 1e6, \
                 Vb = 0.0, \
                 V0 = 0.0, \
-                d_image = 5.0/ \
+                d_image = 5.0, \
+                initialize_image = .FALSE., \
+                shift_packet = 2.0, \
+                sigma_packet = 5.0/ \
               &self_consistency \
                 max_sc_iter = 30, \
                 eps_potential = 1e-6, \
