@@ -193,6 +193,8 @@ SUBROUTINE INDATA_GET(nmlfile)
 
   N_omega_ac_steps = INT(omega_ac_max / domega_ac)
 
+  CLOSE (33)
+
 END SUBROUTINE INDATA_GET
 
 SUBROUTINE READ_SINGLE_ELECTRON_WAVEFUNCTIONS(path, Psi, psi_size, nstates, norbs)
@@ -225,5 +227,27 @@ SUBROUTINE READ_SINGLE_ELECTRON_WAVEFUNCTIONS(path, Psi, psi_size, nstates, norb
 
   DEALLOCATE (Line_as_array)
 END SUBROUTINE READ_SINGLE_ELECTRON_WAVEFUNCTIONS
+
+SUBROUTINE READ_POTENTIAL(path, Potential, Nx, Ny)
+  IMPLICIT NONE
+  CHARACTER(len=*), INTENT(IN) :: path
+  INTEGER*4, INTENT(IN) :: Nx, Ny
+  REAL*8, INTENT(OUT) :: Potential(-Nx:Nx, -Ny:Ny)
+  INTEGER*4 :: ix, iy
+  REAL*8 :: x, y, potential_value
+
+  WRITE (log_string, *) "Reading potential map from file: ", path
+  LOG_INFO(log_string)
+
+  OPEN (10, FILE=path, ACTION='READ', FORM='FORMATTED')
+  READ (10, '(A)') !Skip first line, since it is a comment
+  DO ix = -Ny, Ny
+    DO iy = -Nx, Nx
+      READ (10, '(3E20.8)') x, y, potential_value
+      Potential(ix, iy) = potential_value * eV2au
+    END DO
+  END DO
+  CLOSE (10)
+END SUBROUTINE READ_POTENTIAL
 
 END MODULE indata

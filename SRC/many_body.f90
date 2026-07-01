@@ -7,12 +7,13 @@ USE omp_lib
 IMPLICIT NONE
 CONTAINS
 
-SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
+SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, V_tilde_upper, v_tilde_elems, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
   & N_ham_2_elems_in_prev_rows, Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
   IMPLICIT NONE
-  INTEGER*4, INTENT(IN) :: ham_2_size, norbs, Nx, Ny, k_electrons, nonzero_ham_2
+  INTEGER*4, INTENT(IN) :: ham_2_size, norbs, Nx, Ny, k_electrons, nonzero_ham_2, v_tilde_elems
   REAL*8, INTENT(IN) :: dx, eps_r
   COMPLEX*16, INTENT(OUT) :: Hamiltonian_2_crs(nonzero_ham_2)
+  COMPLEX*16, INTENT(OUT) :: V_tilde_upper(v_tilde_elems, ham_1_size) !This matrix contains matrix elements of potential
   INTEGER*4, INTENT(OUT) :: column_2_crs(nonzero_ham_2)
   INTEGER*4, INTENT(OUT) :: row_2_crs(ham_2_size + 1)
   INTEGER*1, INTENT(IN) :: N_changed_indeces(ham_2_size, ham_2_size)
@@ -23,11 +24,9 @@ SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row
   REAL*8, INTENT(IN) :: Energies_1(nstate_1)
   INTEGER*4, INTENT(IN) :: ham_1_size, nstate_1
 
-  COMPLEX*16, ALLOCATABLE :: V_tilde_upper(:, :) !This matrix contains matrix elements of potential
   !\tilde{V}(r_2) = < i(r_1) | V(r_1, r_2) | j(r_1) >.
   !Since this matrix is hermitian, only upper triangle is stored.
   COMPLEX*16, ALLOCATABLE :: V_tilde_slice(:) !This is an element that should be passed to calculate interaction element
-  INTEGER*4 :: v_tilde_elems
   INTEGER*4 :: i, j, k, l, nn
   COMPLEX*16 :: interaction_element
   INTEGER*4 :: phase
@@ -35,8 +34,6 @@ SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row
   WRITE (log_string, *) "Creating many-body Hamiltonian"
   LOG_INFO(log_string)
 
-  v_tilde_elems = (nstate_1 * (nstate_1 + 1)) / 2 !Number of elements in upper triangle of hermitian matrix V_tilde
-  ALLOCATE (V_tilde_upper(v_tilde_elems, ham_1_size))
   ALLOCATE (V_tilde_slice(ham_1_size))
   CALL CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, v_tilde_elems, norbs, Nx, Ny, dx)
 
@@ -154,7 +151,6 @@ SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row
   END DO
   CLOSE (1)
 
-  DEALLOCATE (V_tilde_upper)
   DEALLOCATE (V_tilde_slice)
 END SUBROUTINE CREATE_MANY_BODY_HAMILTONIAN_CRS
 

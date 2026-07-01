@@ -1,10 +1,10 @@
 &calculation_parameters
-	Nx=3,
-	Ny=3,
+	Nx=10,
+	Ny=10,
 	dx=.39,
 	norbs=6,
 	nstate_1 = 20,
-	nstate_2 = 10,
+	nstate_2 = 2,
 	k_electrons = 2,
 	dt = 1.0,
 	t_max = 1.0/
@@ -20,19 +20,22 @@
 	eps_r = 100.0/
 
 &external_parameters
-	omega = 36.689e-3,
+	omega = 3e-4,
 	Bx=0.0,
 	By=0.0,
 	Bz=0.0,
-	domega_ac = 10e-3,
+	domega_ac = 50e-3,
 	omega_ac_max = 50e-3,
 	f_ac = 1e6,
 	Vb = 50.0e-3,
 	V0 = 40.0e-3,
-	d_image = 2.0/
+	d_image = 2.0,
+	initialize_image= .FALSE.,
+	shift_packet = 2.0,
+	sigma_packet = 5.0/
 
 &self_consistency
-	max_sc_iter = 2,
+	max_sc_iter = 5,
 	eps_potential = 1e-6,
 	sc_alpha = 0.2/
 

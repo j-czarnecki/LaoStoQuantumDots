@@ -66,6 +66,7 @@ INTEGER*4, ALLOCATABLE :: N_ham_2_elems_in_prev_rows(:) !Contains number of non-
 COMPLEX*16, ALLOCATABLE :: Spin_t(:, :)
 COMPLEX*16, ALLOCATABLE :: Spin_t_single(:, :)
 COMPLEX*16, ALLOCATABLE :: many_body_sigma_z_expected_value_ind(:)
+COMPLEX*16, ALLOCATABLE :: V_tilde_upper(:, :) !This matrix contains matrix elements of potential
 INTEGER*4 :: INFO
 INTEGER*4 :: it, iomega
 REAL*8 :: omega_ac
@@ -74,6 +75,7 @@ INTEGER*4 :: i, n, m
 REAL*8 :: x, y, Rx, Ry, Rb, mu
 INTEGER*4 :: ham_1_size, nonzero_ham_1
 INTEGER*4 :: ham_2_size, nonzero_ham_2
+INTEGER*4 :: v_tilde_elems
 INTEGER*4 :: t_max_int
 INTEGER*4 :: nmax
 REAL*8 :: slater_norm
@@ -127,7 +129,9 @@ ham_1_size = get_ham_1_size(Nx, Ny, norbs)
 nonzero_ham_1 = get_nonzero_ham_1(Nx, Ny)
 ham_2_size = get_ham_2_size(nstate_1, k_electrons)
 nonzero_ham_2 = get_nonzero_ham_2(ham_2_size, nstate_1, k_electrons)
-WRITE (log_string, *) 'ham_1_size = ', ham_1_size, 'nonzero_ham_1 = ', nonzero_ham_1, 'ham_2_size = ', ham_2_size, 'nonzero_ham_2 = ', nonzero_ham_2
+v_tilde_elems = (nstate_1 * (nstate_1 + 1)) / 2 !Number of elements in upper triangle of hermitian matrix V_tilde
+
+WRITE (log_string, *) 'ham_1_size = ', ham_1_size, 'nonzero_ham_1 = ', nonzero_ham_1, 'ham_2_size = ', ham_2_size, 'nonzero_ham_2 = ', nonzero_ham_2, 'v_tilde_elems = ', v_tilde_elems
 LOG_INFO(log_string)
 
 slater_norm = SQRT(GAMMA(k_electrons + 1.0d0))
@@ -175,6 +179,7 @@ ALLOCATE (Cm(nstate_1))
 ALLOCATE (Spin_t(t_max_int, nmax))
 ALLOCATE (Spin_t_single(t_max_int, nmax))
 ALLOCATE (many_body_sigma_z_expected_value_ind(k_electrons))
+ALLOCATE (V_tilde_upper(v_tilde_elems, ham_1_size))
 !PRINT*, "Memory check..."
 
 N_changed_indeces(:, :) = 0
@@ -221,7 +226,7 @@ DO n_sc_iter = 1, max_sc_iter
   !Writing single-electron problem data to a file
   IF (n_sc_iter == 1) THEN
     CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1_no_image')
-    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1_no_image.dat')
+    CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, Potential_image, Potential_confinement, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1_no_image.dat')
     CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1_no_image.dat')
   END IF
 
@@ -244,7 +249,7 @@ DO n_sc_iter = 1, max_sc_iter
     CALL GET_CHANGED_INDECES(Changed_indeces, Combinations, N_changed_indeces, ham_2_size, k_electrons)
     CALL INIT_PREV_ELEMS(N_ham_2_elems_in_prev_rows, N_changed_indeces, ham_2_size, nonzero_ham_2)
 
-    CALL CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
+    CALL CREATE_MANY_BODY_HAMILTONIAN_CRS(Hamiltonian_2_crs, V_tilde_upper, v_tilde_elems, column_2_crs, row_2_crs, N_changed_indeces, Changed_indeces, Combinations,&
     & N_ham_2_elems_in_prev_rows, Psi_1, Energies_1, ham_1_size, nstate_1, nonzero_ham_2, ham_2_size, k_electrons, norbs, Nx, Ny, dx, eps_r)
 
     Energies_2(:) = 0.0d0
@@ -261,7 +266,7 @@ DO n_sc_iter = 1, max_sc_iter
     ! Write many-electron data to files
     IF (n_sc_iter == 1) THEN
       CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater_no_image.dat')
-      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
+      CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, V_tilde_upper, v_tilde_elems, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2_no_image.dat')
       CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2_no_image.dat')
     END IF
 
@@ -304,12 +309,12 @@ END DO ! End of self-consistent loop
 IF (n_sc_iter > 2) THEN
   ! Write 1e data
   CALL WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi_1, ham_1_size, nstate_1, norbs, Nx, Ny, dx, './OutputData/Psi_1')
-  CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
+  CALL WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, Potential_image, Potential_confinement, ham_1_size, nstate_1, norbs, './OutputData/Expectations_1.dat')
   CALL WRITE_ENERGIES(Energies_1, nstate_1, './OutputData/Energies1.dat')
 
   ! Write 2e data
   CALL WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstate_2, './OutputData/C_slater.dat')
-  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
+  CALL WRITE_MULTI_ELECTRON_EXPECTATIONS(Hamiltonian_1_no_potential_crs, column_1_no_potential_crs, row_1_no_potential_crs, nonzero_ham_1, V_tilde_upper, v_tilde_elems, Potential_image, Potential_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, './OutputData/Expectations_2.dat')
   CALL WRITE_ENERGIES(Energies_2, nstate_2, './OutputData/Energies2.dat')
 END IF
 
@@ -356,4 +361,5 @@ DEALLOCATE (Cm)
 DEALLOCATE (Spin_t)
 DEALLOCATE (Spin_t_single)
 DEALLOCATE (many_body_sigma_z_expected_value_ind)
+DEALLOCATE (V_tilde_upper)
 END PROGRAM MAIN

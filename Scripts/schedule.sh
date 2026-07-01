@@ -1,6 +1,6 @@
 #!/bin/bash
 ##### Amount of cores per task
-#SBATCH --cpus-per-task=56
+#SBATCH --cpus-per-task=48
 ##### Partition name
 #SBATCH -p cpu
 ##### Name of job in queuing system

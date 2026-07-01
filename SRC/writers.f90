@@ -88,9 +88,11 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS(Psi, psi_size, nstates, norbs, Nx
 
 END SUBROUTINE WRITE_SINGLE_ELECTRON_WAVEFUNCTIONS
 
-SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbitals, filename)
+SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, V_image, V_confinement, ham_1_size, nstates, norbitals, filename)
   IMPLICIT NONE
   COMPLEX*16, INTENT(IN) :: Psi_1(ham_1_size, nstates)
+  REAL*8, INTENT(IN) :: V_image(-Nx:Nx, -Ny:Ny)
+  REAL*8, INTENT(IN) :: V_confinement(-Nx:Nx, -Ny:Ny)
   INTEGER*4, INTENT(IN) :: ham_1_size, nstates, norbitals
   CHARACTER(LEN=*), INTENT(IN) :: filename
   INTEGER*4 :: n
@@ -100,9 +102,9 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbit
   LOG_INFO(log_string)
 
   !Writing expectations for a given state
-  format_string = '(I10, 14E20.8)'
+  format_string = '(I10, 16E20.8)'
   OPEN (unit=9, FILE=filename, FORM="FORMATTED", ACTION="WRITE")
-  WRITE (9, *) "#No. state [-]  <s_x>   <s_y>   <s_z>   <d_xy_up>   <d_xy_down>   <d_xz_up>   <d_xz_down>   <d_yz_up>   <d_yz_down>   <parity>   <x>   <y>"
+  WRITE (9, *) "#No. state [-]       <s_x>               <s_y>               <s_z>             <d_xy_up>          <d_xy_down>          <d_xz_up>          <d_xz_down>          <d_yz_up>          <d_yz_down>           <parity>            <x>[nm]             <y>[nm]             <S_z^L>             <S_z^R>          <V_image>[eV]        <V_conf>[eV]    "
   DO n = 1, nstates
     WRITE (9, format_string) n,&
       & REAL(sigma_x_expected_value(Psi_1(:, n), Psi_1(:, n), ham_1_size)),&
@@ -112,10 +114,12 @@ SUBROUTINE WRITE_SINGLE_ELECTRON_EXPECTATIONS(Psi_1, ham_1_size, nstates, norbit
       & REAL(d_xz_up_share(Psi_1(:, n), ham_1_size, norbitals)), REAL(d_xz_down_share(Psi_1(:, n), ham_1_size, norbitals)),&
       & REAL(d_yz_up_share(Psi_1(:, n), ham_1_size, norbitals)), REAL(d_yz_down_share(Psi_1(:, n), ham_1_size, norbitals)),&
       & REAL(single_electron_parity(Psi_1(:, n), Psi_1(:, n), ham_1_size, norbitals, Nx, Ny)), &
-      & REAL(single_electron_x_expected_value(Psi_1(:, n), Psi_1(:, n), norbitals, Nx, dx, ham_1_size)), &
-      & REAL(single_electron_y_expected_value(Psi_1(:, n), Psi_1(:, n), norbitals, Nx, Ny, dx, ham_1_size)), &
+      & REAL(single_electron_x_expected_value(Psi_1(:, n), Psi_1(:, n), norbitals, Nx, dx, ham_1_size)) / nm2au, &
+      & REAL(single_electron_y_expected_value(Psi_1(:, n), Psi_1(:, n), norbitals, Nx, Ny, dx, ham_1_size)) / nm2au, &
       & REAL(sigma_z_expected_value_L(Psi_1(:, n), Psi_1(:, n), ham_1_size, Nx, Ny, 6)), &
-      & REAL(sigma_z_expected_value_R(Psi_1(:, n), Psi_1(:, n), ham_1_size, Nx, Ny, 6))
+      & REAL(sigma_z_expected_value_R(Psi_1(:, n), Psi_1(:, n), ham_1_size, Nx, Ny, 6)), &
+      & REAL(potential_expected_value(Psi_1(:, n), Psi_1(:, n), V_image, ham_1_size, Nx, Ny, norbs)), &
+      & REAL(potential_expected_value(Psi_1(:, n), Psi_1(:, n), V_confinement, ham_1_size, Nx, Ny, norbs))
   END DO
   CLOSE (9)
 
@@ -148,11 +152,12 @@ SUBROUTINE WRITE_SLATER_COEFFICIENTS(C_slater, ham_2_size, nstates, filename)
 
 END SUBROUTINE WRITE_SLATER_COEFFICIENTS
 
-SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzero_ham_1, V_image, V_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, filename)
+SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzero_ham_1, V_tilde_upper, v_tilde_elems, V_image, V_confinement, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, norbs, Nx, Ny, dx, filename)
   IMPLICIT NONE
   INTEGER*4, INTENT(IN) :: ham_1_size, ham_2_size, k_electrons
-  INTEGER*4, INTENT(IN) :: nonzero_ham_1
+  INTEGER*4, INTENT(IN) :: nonzero_ham_1, v_tilde_elems
   COMPLEX*16, INTENT(IN) :: Ham_1_crs(nonzero_ham_1)
+  COMPLEX*16, INTENT(IN) :: V_tilde_upper(v_tilde_elems, ham_1_size)
   INTEGER*4, INTENT(IN) :: col_crs(nonzero_ham_1)
   INTEGER*4, INTENT(IN) :: row_crs(ham_1_size + 1)
   REAL*8, INTENT(IN) :: V_image(-Nx:Nx, -Ny:Ny)
@@ -167,7 +172,6 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzer
   REAL*8, INTENT(IN) :: dx
   INTEGER*4 :: tilde_upper_triangle_elems
   COMPLEX*16, ALLOCATABLE :: R_tilde_upper(:, :)
-  COMPLEX*16, ALLOCATABLE :: V_tilde_upper(:, :)
   CHARACTER(LEN=*), INTENT(IN) :: filename
   INTEGER*4 :: n
   CHARACTER(LEN=200) :: format_string
@@ -194,16 +198,11 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzer
   COMPLEX*16 :: h1_no_potential_expected_value ! Mean value of the single-electron Hamiltonian without potentials
   tilde_upper_triangle_elems = (nstate_1 * (nstate_1 + 1)) / 2 !Number of elements in upper triangle of hermitian matrix V_tilde
 
-  ALLOCATE (R_tilde_upper(tilde_upper_triangle_elems, ham_1_size))
-  ALLOCATE (V_tilde_upper(tilde_upper_triangle_elems, ham_1_size))
+  ! ALLOCATE (R_tilde_upper(tilde_upper_triangle_elems, ham_1_size))
 
-  WRITE (log_string, *) "Calculating R_tilde for expectation values"
-  LOG_INFO(log_string)
-  CALL CALCULATE_R_TILDE(Psi_1, ham_1_size, nstate_1, R_tilde_upper, tilde_upper_triangle_elems, norbs, Nx, Ny, dx)
-
-  WRITE (log_string, *) "Calculating V_tilde for expectation values"
-  LOG_INFO(log_string)
-  CALL CALCULATE_V_TILDE(Psi_1, ham_1_size, nstate_1, V_tilde_upper, tilde_upper_triangle_elems, norbs, Nx, Ny, dx)
+  ! WRITE (log_string, *) "Calculating R_tilde for expectation values"
+  ! LOG_INFO(log_string)
+  ! CALL CALCULATE_R_TILDE(Psi_1, ham_1_size, nstate_1, R_tilde_upper, tilde_upper_triangle_elems, norbs, Nx, Ny, dx)
 
   WRITE (log_string, *) "Saving 2e expectations to file "//TRIM(filename)
   LOG_INFO(log_string)
@@ -211,7 +210,7 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzer
   !Writing expectations for a given state
   format_string = '(I10, 20E20.8)'
   OPEN (unit=9, FILE=filename, FORM="FORMATTED", ACTION="WRITE")
-  WRITE (9, *) "#No. state [-]  <x>[nm]    <S_x>   <S_y>   <S_z>    <d_xy_up>   <d_xy_down>   <d_xz_up>   <d_xz_down>   <d_yz_up>   <d_yz_down>   <parity>   <S_z^L>   <S_z^R>   <V_image>[eV]   <V_confinement>[eV]   <V_Coulomb>[eV]   <r_12>   <H_0(V=0)>[eV]   <H_tot>[eV]"
+  WRITE (9, *) "#No. state [-]      <x>[nm]              <S_x>               <S_y>               <S_z>             <d_xy_up>          <d_xy_down>          <d_xz_up>          <d_xz_down>          <d_yz_up>          <d_yz_down>           <parity>            <S_z^L>             <S_z^R>          <V_image>[eV]        <V_conf>[eV]      <V_Coulomb>[eV]        <r_12>[nm]        <H_0(V=0)>[eV]       <H_tot>[eV]     "
   DO n = 1, nstate_2
 
     ! Compute all expectation values for state n
@@ -231,7 +230,8 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzer
     v_image_expected = many_body_potential_expected_value(V_image, Psi_1, C_slater, Combinations, N_Changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, Ny, dx, norbs)
     v_confinement_expected = many_body_potential_expected_value(V_confinement, Psi_1, C_slater, Combinations, N_Changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n, Nx, Ny, dx, norbs)
     coulomb_interaction_expected = many_body_coulomb_expected_value(V_tilde_upper, Psi_1, C_slater, N_Changed_indeces, Changed_indeces, Combinations, tilde_upper_triangle_elems, ham_1_size, ham_2_size, nstate_1, nstate_2, n, n, k_electrons, norbs, Nx, Ny, dx, eps_r)
-    relative_distance_expected = many_body_relative_distance_expected_value(R_tilde_upper, Psi_1, C_slater, N_Changed_indeces, Changed_indeces, Combinations, tilde_upper_triangle_elems, ham_1_size, ham_2_size, nstate_1, nstate_2, n, n, k_electrons, norbs, Nx, Ny, dx)
+    ! relative_distance_expected = many_body_relative_distance_expected_value(R_tilde_upper, Psi_1, C_slater, N_Changed_indeces, Changed_indeces, Combinations, tilde_upper_triangle_elems, ham_1_size, ham_2_size, nstate_1, nstate_2, n, n, k_electrons, norbs, Nx, Ny, dx)
+    relative_distance_expected = 0.0d0
     h1_no_potential_expected_value = many_body_hamiltonian_expected_value(Ham_1_crs, col_crs, row_crs, nonzero_ham_1, Psi_1, C_slater, Combinations, N_changed_indeces, Changed_indeces, ham_1_size, ham_2_size, k_electrons, nstate_1, nstate_2, n, n)
     ! Verify that imaginary parts are negligible (physical observables must be real)
     IF (ABS(AIMAG(x_expected)) > imag_tol) THEN
@@ -332,8 +332,7 @@ SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS(Ham_1_crs, col_crs, row_crs, nonzer
   END DO
   CLOSE (9)
 
-  DEALLOCATE (R_tilde_upper)
-  DEALLOCATE (V_tilde_upper)
+  ! DEALLOCATE (R_tilde_upper)
 
 END SUBROUTINE WRITE_MULTI_ELECTRON_EXPECTATIONS
 

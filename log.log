@@ -1,102 +1,1279 @@
  ==== START ====
-2024-12-12 22:26:14.433 TID = 0 INFO:  Calculation parameters: Nx =           10 Ny =           10 dx =   0.39000000000000001      norbs =            6 nstate_1 =            8 nstate_2 =            4 k_electrons =            4
-2024-12-12 22:26:14.433 TID = 0 INFO:  Physical parameters: th =    4.0000000000000001E-002 tl =   0.87500000000000000      td =    4.0000000000000001E-002 dso =    1.0000000000000000E-002 drso =    2.0000000000000000E-002 dE =    4.7000000000000007E-002 g =    3.0000000000000000
-2024-12-12 22:26:14.433 TID = 0 INFO:  External parameters: omega =    1.8689000000000001E-002 Bx =    0.0000000000000000      By =    0.0000000000000000      Bz =    10.000000000000000      domega_ac =    1.0000000000000000E-002 omega_ac_max =    5.0000000000000003E-002 F =    999999.99999999988
-2024-12-12 22:26:14.433 TID = 0 INFO:  Number of threads:            8
-2024-12-12 22:26:14.433 TID = 0 INFO:  ham_1_size =         2646 nonzero_ham_1 =        19979 ham_2_size =           70 nonzero_ham_2 =         1890
-2024-12-12 22:26:14.433 TID = 0 INFO:  Creating one-electron Hamiltonian
-2024-12-12 22:26:14.434 TID = 0 INFO:  Diagonalizing Hamiltonian
-2024-12-12 22:26:15.33 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
-2024-12-12 22:26:15.41 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
-2024-12-12 22:26:15.528 TID = 0 INFO:  n - 1 =         1890  nonzero_ham_2 =         1890
-2024-12-12 22:26:15.528 TID = 0 INFO:  Creating many-body Hamiltonian
-2024-12-12 22:26:15.528 TID = 0 INFO:  V_tilde i =            1
-2024-12-12 22:26:15.528 TID = 7 INFO:  V_tilde i =            8
-2024-12-12 22:26:15.528 TID = 5 INFO:  V_tilde i =            6
-2024-12-12 22:26:15.528 TID = 6 INFO:  V_tilde i =            7
-2024-12-12 22:26:15.528 TID = 2 INFO:  V_tilde i =            3
-2024-12-12 22:26:15.528 TID = 4 INFO:  V_tilde i =            5
-2024-12-12 22:26:15.529 TID = 1 INFO:  V_tilde i =            2
-2024-12-12 22:26:15.528 TID = 3 INFO:  V_tilde i =            4
-2024-12-12 22:26:16.183 TID = 0 INFO:  Ham_2 i =            1
-2024-12-12 22:26:16.183 TID = 4 INFO:  Ham_2 i =            4
-2024-12-12 22:26:16.183 TID = 3 INFO:  Ham_2 i =            6
-2024-12-12 22:26:16.183 TID = 5 INFO:  Ham_2 i =            7
-2024-12-12 22:26:16.183 TID = 1 INFO:  Ham_2 i =            2
-2024-12-12 22:26:16.183 TID = 7 INFO:  Ham_2 i =            8
-2024-12-12 22:26:16.183 TID = 2 INFO:  Ham_2 i =            3
-2024-12-12 22:26:16.183 TID = 6 INFO:  Ham_2 i =            5
-2024-12-12 22:26:16.211 TID = 7 INFO:  Ham_2 i =            9
-2024-12-12 22:26:16.212 TID = 4 INFO:  Ham_2 i =           10
-2024-12-12 22:26:16.213 TID = 2 INFO:  Ham_2 i =           11
-2024-12-12 22:26:16.214 TID = 3 INFO:  Ham_2 i =           12
-2024-12-12 22:26:16.214 TID = 5 INFO:  Ham_2 i =           13
-2024-12-12 22:26:16.215 TID = 1 INFO:  Ham_2 i =           14
-2024-12-12 22:26:16.215 TID = 0 INFO:  Ham_2 i =           15
-2024-12-12 22:26:16.217 TID = 6 INFO:  Ham_2 i =           16
-2024-12-12 22:26:16.227 TID = 7 INFO:  Ham_2 i =           17
-2024-12-12 22:26:16.236 TID = 0 INFO:  Ham_2 i =           18
-2024-12-12 22:26:16.237 TID = 1 INFO:  Ham_2 i =           19
-2024-12-12 22:26:16.237 TID = 3 INFO:  Ham_2 i =           20
-2024-12-12 22:26:16.238 TID = 4 INFO:  Ham_2 i =           21
-2024-12-12 22:26:16.239 TID = 2 INFO:  Ham_2 i =           22
-2024-12-12 22:26:16.243 TID = 7 INFO:  Ham_2 i =           23
-2024-12-12 22:26:16.251 TID = 5 INFO:  Ham_2 i =           24
-2024-12-12 22:26:16.255 TID = 6 INFO:  Ham_2 i =           25
-2024-12-12 22:26:16.259 TID = 2 INFO:  Ham_2 i =           26
-2024-12-12 22:26:16.259 TID = 1 INFO:  Ham_2 i =           27
-2024-12-12 22:26:16.260 TID = 0 INFO:  Ham_2 i =           28
-2024-12-12 22:26:16.260 TID = 4 INFO:  Ham_2 i =           29
-2024-12-12 22:26:16.260 TID = 3 INFO:  Ham_2 i =           30
-2024-12-12 22:26:16.264 TID = 7 INFO:  Ham_2 i =           31
-2024-12-12 22:26:16.273 TID = 6 INFO:  Ham_2 i =           32
-2024-12-12 22:26:16.277 TID = 5 INFO:  Ham_2 i =           33
-2024-12-12 22:26:16.277 TID = 3 INFO:  Ham_2 i =           34
-2024-12-12 22:26:16.278 TID = 0 INFO:  Ham_2 i =           35
-2024-12-12 22:26:16.278 TID = 4 INFO:  Ham_2 i =           36
-2024-12-12 22:26:16.279 TID = 1 INFO:  Ham_2 i =           37
-2024-12-12 22:26:16.279 TID = 7 INFO:  Ham_2 i =           38
-2024-12-12 22:26:16.279 TID = 2 INFO:  Ham_2 i =           39
-2024-12-12 22:26:16.290 TID = 0 INFO:  Ham_2 i =           40
-2024-12-12 22:26:16.290 TID = 6 INFO:  Ham_2 i =           41
-2024-12-12 22:26:16.291 TID = 3 INFO:  Ham_2 i =           42
-2024-12-12 22:26:16.297 TID = 5 INFO:  Ham_2 i =           43
-2024-12-12 22:26:16.298 TID = 2 INFO:  Ham_2 i =           44
-2024-12-12 22:26:16.299 TID = 7 INFO:  Ham_2 i =           45
-2024-12-12 22:26:16.299 TID = 1 INFO:  Ham_2 i =           46
-2024-12-12 22:26:16.301 TID = 4 INFO:  Ham_2 i =           47
-2024-12-12 22:26:16.308 TID = 3 INFO:  Ham_2 i =           48
-2024-12-12 22:26:16.308 TID = 6 INFO:  Ham_2 i =           49
-2024-12-12 22:26:16.309 TID = 0 INFO:  Ham_2 i =           50
-2024-12-12 22:26:16.313 TID = 2 INFO:  Ham_2 i =           51
-2024-12-12 22:26:16.313 TID = 7 INFO:  Ham_2 i =           52
-2024-12-12 22:26:16.316 TID = 1 INFO:  Ham_2 i =           53
-2024-12-12 22:26:16.318 TID = 4 INFO:  Ham_2 i =           54
-2024-12-12 22:26:16.321 TID = 0 INFO:  Ham_2 i =           55
-2024-12-12 22:26:16.321 TID = 5 INFO:  Ham_2 i =           56
-2024-12-12 22:26:16.322 TID = 3 INFO:  Ham_2 i =           57
-2024-12-12 22:26:16.324 TID = 6 INFO:  Ham_2 i =           58
-2024-12-12 22:26:16.325 TID = 2 INFO:  Ham_2 i =           59
-2024-12-12 22:26:16.326 TID = 7 INFO:  Ham_2 i =           60
-2024-12-12 22:26:16.327 TID = 1 INFO:  Ham_2 i =           61
-2024-12-12 22:26:16.328 TID = 4 INFO:  Ham_2 i =           62
-2024-12-12 22:26:16.330 TID = 0 INFO:  Ham_2 i =           63
-2024-12-12 22:26:16.334 TID = 3 INFO:  Ham_2 i =           64
-2024-12-12 22:26:16.335 TID = 1 INFO:  Ham_2 i =           65
-2024-12-12 22:26:16.335 TID = 6 INFO:  Ham_2 i =           66
-2024-12-12 22:26:16.336 TID = 2 INFO:  Ham_2 i =           67
-2024-12-12 22:26:16.336 TID = 7 INFO:  Ham_2 i =           68
-2024-12-12 22:26:16.336 TID = 4 INFO:  Ham_2 i =           69
-2024-12-12 22:26:16.337 TID = 5 INFO:  Ham_2 i =           70
-2024-12-12 22:26:16.342 TID = 0 INFO:  V_{iiii} integral for i =            1
-2024-12-12 22:26:16.342 TID = 0 INFO:  V_{iiii} integral for i =            2
-2024-12-12 22:26:16.342 TID = 0 INFO:  V_{iiii} integral for i =            3
-2024-12-12 22:26:16.343 TID = 0 INFO:  V_{iiii} integral for i =            4
-2024-12-12 22:26:16.343 TID = 0 INFO:  V_{iiii} integral for i =            5
-2024-12-12 22:26:16.343 TID = 0 INFO:  V_{iiii} integral for i =            6
-2024-12-12 22:26:16.343 TID = 0 INFO:  V_{iiii} integral for i =            7
-2024-12-12 22:26:16.343 TID = 0 INFO:  V_{iiii} integral for i =            8
-2024-12-12 22:26:16.344 TID = 0 INFO:  Diagonalizing Hamiltonian
-2024-12-12 22:26:16.649 TID = 0 INFO:  Running Crank-Nicolson scheme
- Time of simulation (seconds):    8.3007310000000007     
+2026-7-1 10:29:34.312 TID = 0 INFO:  Number of threads:           48
+2026-7-1 10:29:34.312 TID = 0 INFO:  Oscillator characteristic length [nm]:    29.801135003159811
+2026-7-1 10:29:34.312 TID = 0 INFO:  Minimum box size [nm]:   3.8999999999999999
+2026-7-1 10:29:34.312 TID = 0 INFO:  Minimum box size to characteristic length ratio:  0.13086749882467508
+2026-7-1 10:29:34.312 TID = 0 INFO:  Highest 1e energy level turning point [nm]:    190.82036984174104
+2026-7-1 10:29:34.312 TID = 0 INFO:  Calculation parameters: Nx =           10 Ny =           10 dx =   0.39000000000000001      norbs =            6 nstate_1 =           20 nstate_2 =            2 k_electrons =            2
+2026-7-1 10:29:34.312 TID = 0 INFO:  Physical parameters: th =    4.0000000000000001E-002 tl =   0.87500000000000000      td =    4.0000000000000001E-002 dso =    1.0000000000000000E-002 drso =    2.0000000000000000E-002 dE =    4.7000000000000000E-002 g =    3.0000000000000000
+2026-7-1 10:29:34.312 TID = 0 INFO:  External parameters: omega =    2.9999999999999997E-004 Bx =    0.0000000000000000      By =    0.0000000000000000      Bz =    0.0000000000000000      domega_ac =    5.0000000000000003E-002 omega_ac_max =    5.0000000000000003E-002 F =    999999.99999999988      V_b =    5.0000000000000003E-002 V_0 =    4.0000000000000001E-002
+2026-7-1 10:29:34.313 TID = 0 INFO:  ham_1_size =         2646 nonzero_ham_1 =        19979 ham_2_size =          190 nonzero_ham_2 =        18145 v_tilde_elems =          210
+2026-7-1 10:29:34.313 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_confinement.dat
+2026-7-1 10:29:34.315 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image_initial.dat
+2026-7-1 10:29:34.316 TID = 0 INFO:  Creating one-electron Hamiltonian
+2026-7-1 10:29:34.318 TID = 0 INFO: ==== SC_ITER: 1
+2026-7-1 10:29:34.318 TID = 0 INFO:  Creating one-electron Hamiltonian
+2026-7-1 10:29:34.320 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:29:35.825 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
+2026-7-1 10:29:35.832 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
+2026-7-1 10:29:35.862 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/Psi_1_no_image
+2026-7-1 10:29:35.926 TID = 0 INFO:  Saving 1e expectations to file ./OutputData/Expectations_1_no_image.dat
+2026-7-1 10:29:35.930 TID = 0 INFO:  Saving energies to file ./OutputData/Energies1_no_image.dat
+2026-7-1 10:29:35.930 TID = 0 INFO:  Solving many-body problem
+2026-7-1 10:29:35.932 TID = 0 INFO:  n - 1 =        18145  nonzero_ham_2 =        18145
+2026-7-1 10:29:35.933 TID = 0 INFO:  Creating many-body Hamiltonian
+2026-7-1 10:29:35.934 TID = 4 INFO:  V_tilde i =            5
+2026-7-1 10:29:35.934 TID = 8 INFO:  V_tilde i =            9
+2026-7-1 10:29:35.934 TID = 16 INFO:  V_tilde i =           17
+2026-7-1 10:29:35.934 TID = 10 INFO:  V_tilde i =           11
+2026-7-1 10:29:35.934 TID = 0 INFO:  V_tilde i =            1
+2026-7-1 10:29:35.934 TID = 15 INFO:  V_tilde i =           16
+2026-7-1 10:29:35.934 TID = 14 INFO:  V_tilde i =           15
+2026-7-1 10:29:35.934 TID = 9 INFO:  V_tilde i =           10
+2026-7-1 10:29:35.934 TID = 1 INFO:  V_tilde i =            2
+2026-7-1 10:29:35.934 TID = 7 INFO:  V_tilde i =            8
+2026-7-1 10:29:35.935 TID = 12 INFO:  V_tilde i =           13
+2026-7-1 10:29:35.935 TID = 2 INFO:  V_tilde i =            3
+2026-7-1 10:29:35.935 TID = 19 INFO:  V_tilde i =           20
+2026-7-1 10:29:35.934 TID = 3 INFO:  V_tilde i =            4
+2026-7-1 10:29:35.934 TID = 17 INFO:  V_tilde i =           18
+2026-7-1 10:29:35.935 TID = 6 INFO:  V_tilde i =            7
+2026-7-1 10:29:35.934 TID = 13 INFO:  V_tilde i =           14
+2026-7-1 10:29:35.934 TID = 5 INFO:  V_tilde i =            6
+2026-7-1 10:29:35.934 TID = 11 INFO:  V_tilde i =           12
+2026-7-1 10:29:35.935 TID = 18 INFO:  V_tilde i =           19
+2026-7-1 10:29:38.574 TID = 14 INFO:  Ham_2 i =           15
+2026-7-1 10:29:38.574 TID = 2 INFO:  Ham_2 i =            9
+2026-7-1 10:29:38.574 TID = 39 INFO:  Ham_2 i =           14
+2026-7-1 10:29:38.574 TID = 9 INFO:  Ham_2 i =            8
+2026-7-1 10:29:38.574 TID = 42 INFO:  Ham_2 i =           21
+2026-7-1 10:29:38.574 TID = 1 INFO:  Ham_2 i =           42
+2026-7-1 10:29:38.574 TID = 11 INFO:  Ham_2 i =            2
+2026-7-1 10:29:38.574 TID = 30 INFO:  Ham_2 i =           22
+2026-7-1 10:29:38.574 TID = 26 INFO:  Ham_2 i =           28
+2026-7-1 10:29:38.574 TID = 27 INFO:  Ham_2 i =           12
+2026-7-1 10:29:38.574 TID = 16 INFO:  Ham_2 i =           37
+2026-7-1 10:29:38.574 TID = 6 INFO:  Ham_2 i =           27
+2026-7-1 10:29:38.574 TID = 7 INFO:  Ham_2 i =           44
+2026-7-1 10:29:38.574 TID = 5 INFO:  Ham_2 i =           47
+2026-7-1 10:29:38.574 TID = 25 INFO:  Ham_2 i =           41
+2026-7-1 10:29:38.574 TID = 44 INFO:  Ham_2 i =           25
+2026-7-1 10:29:38.574 TID = 43 INFO:  Ham_2 i =           48
+2026-7-1 10:29:38.574 TID = 19 INFO:  Ham_2 i =           17
+2026-7-1 10:29:38.574 TID = 45 INFO:  Ham_2 i =           10
+2026-7-1 10:29:38.574 TID = 3 INFO:  Ham_2 i =           34
+2026-7-1 10:29:38.574 TID = 28 INFO:  Ham_2 i =           33
+2026-7-1 10:29:38.574 TID = 47 INFO:  Ham_2 i =           23
+2026-7-1 10:29:38.574 TID = 23 INFO:  Ham_2 i =            5
+2026-7-1 10:29:38.574 TID = 21 INFO:  Ham_2 i =           13
+2026-7-1 10:29:38.574 TID = 24 INFO:  Ham_2 i =           24
+2026-7-1 10:29:38.574 TID = 38 INFO:  Ham_2 i =           32
+2026-7-1 10:29:38.574 TID = 32 INFO:  Ham_2 i =           16
+2026-7-1 10:29:38.574 TID = 12 INFO:  Ham_2 i =           19
+2026-7-1 10:29:38.574 TID = 46 INFO:  Ham_2 i =           36
+2026-7-1 10:29:38.574 TID = 20 INFO:  Ham_2 i =           26
+2026-7-1 10:29:38.574 TID = 17 INFO:  Ham_2 i =            3
+2026-7-1 10:29:38.574 TID = 41 INFO:  Ham_2 i =           29
+2026-7-1 10:29:38.574 TID = 31 INFO:  Ham_2 i =           43
+2026-7-1 10:29:38.574 TID = 4 INFO:  Ham_2 i =            6
+2026-7-1 10:29:38.574 TID = 8 INFO:  Ham_2 i =           30
+2026-7-1 10:29:38.574 TID = 13 INFO:  Ham_2 i =           39
+2026-7-1 10:29:38.574 TID = 34 INFO:  Ham_2 i =           45
+2026-7-1 10:29:38.574 TID = 0 INFO:  Ham_2 i =            1
+2026-7-1 10:29:38.574 TID = 36 INFO:  Ham_2 i =           18
+2026-7-1 10:29:38.574 TID = 22 INFO:  Ham_2 i =           38
+2026-7-1 10:29:38.574 TID = 10 INFO:  Ham_2 i =           46
+2026-7-1 10:29:38.574 TID = 29 INFO:  Ham_2 i =           31
+2026-7-1 10:29:38.574 TID = 18 INFO:  Ham_2 i =           20
+2026-7-1 10:29:38.574 TID = 40 INFO:  Ham_2 i =           35
+2026-7-1 10:29:38.574 TID = 35 INFO:  Ham_2 i =            4
+2026-7-1 10:29:38.574 TID = 33 INFO:  Ham_2 i =            7
+2026-7-1 10:29:38.574 TID = 15 INFO:  Ham_2 i =           11
+2026-7-1 10:29:38.574 TID = 37 INFO:  Ham_2 i =           40
+2026-7-1 10:29:38.726 TID = 29 INFO:  Ham_2 i =           49
+2026-7-1 10:29:38.739 TID = 10 INFO:  Ham_2 i =           50
+2026-7-1 10:29:38.739 TID = 34 INFO:  Ham_2 i =           51
+2026-7-1 10:29:38.749 TID = 3 INFO:  Ham_2 i =           52
+2026-7-1 10:29:38.750 TID = 28 INFO:  Ham_2 i =           53
+2026-7-1 10:29:38.759 TID = 43 INFO:  Ham_2 i =           54
+2026-7-1 10:29:38.759 TID = 1 INFO:  Ham_2 i =           55
+2026-7-1 10:29:38.760 TID = 25 INFO:  Ham_2 i =           56
+2026-7-1 10:29:38.761 TID = 5 INFO:  Ham_2 i =           57
+2026-7-1 10:29:38.761 TID = 0 INFO:  Ham_2 i =           58
+2026-7-1 10:29:38.765 TID = 16 INFO:  Ham_2 i =           59
+2026-7-1 10:29:38.765 TID = 31 INFO:  Ham_2 i =           60
+2026-7-1 10:29:38.766 TID = 7 INFO:  Ham_2 i =           61
+2026-7-1 10:29:38.766 TID = 38 INFO:  Ham_2 i =           62
+2026-7-1 10:29:38.769 TID = 46 INFO:  Ham_2 i =           63
+2026-7-1 10:29:38.772 TID = 40 INFO:  Ham_2 i =           64
+2026-7-1 10:29:38.772 TID = 13 INFO:  Ham_2 i =           65
+2026-7-1 10:29:38.773 TID = 37 INFO:  Ham_2 i =           66
+2026-7-1 10:29:38.776 TID = 8 INFO:  Ham_2 i =           67
+2026-7-1 10:29:38.777 TID = 19 INFO:  Ham_2 i =           68
+2026-7-1 10:29:38.777 TID = 12 INFO:  Ham_2 i =           69
+2026-7-1 10:29:38.777 TID = 30 INFO:  Ham_2 i =           70
+2026-7-1 10:29:38.778 TID = 41 INFO:  Ham_2 i =           71
+2026-7-1 10:29:38.778 TID = 42 INFO:  Ham_2 i =           72
+2026-7-1 10:29:38.779 TID = 26 INFO:  Ham_2 i =           73
+2026-7-1 10:29:38.779 TID = 35 INFO:  Ham_2 i =           74
+2026-7-1 10:29:38.779 TID = 11 INFO:  Ham_2 i =           75
+2026-7-1 10:29:38.780 TID = 36 INFO:  Ham_2 i =           76
+2026-7-1 10:29:38.780 TID = 22 INFO:  Ham_2 i =           77
+2026-7-1 10:29:38.781 TID = 6 INFO:  Ham_2 i =           78
+2026-7-1 10:29:38.781 TID = 20 INFO:  Ham_2 i =           79
+2026-7-1 10:29:38.781 TID = 44 INFO:  Ham_2 i =           80
+2026-7-1 10:29:38.783 TID = 45 INFO:  Ham_2 i =           81
+2026-7-1 10:29:38.784 TID = 2 INFO:  Ham_2 i =           82
+2026-7-1 10:29:38.785 TID = 24 INFO:  Ham_2 i =           83
+2026-7-1 10:29:38.785 TID = 47 INFO:  Ham_2 i =           84
+2026-7-1 10:29:38.786 TID = 32 INFO:  Ham_2 i =           85
+2026-7-1 10:29:38.787 TID = 14 INFO:  Ham_2 i =           86
+2026-7-1 10:29:38.788 TID = 39 INFO:  Ham_2 i =           87
+2026-7-1 10:29:38.789 TID = 27 INFO:  Ham_2 i =           88
+2026-7-1 10:29:38.791 TID = 18 INFO:  Ham_2 i =           89
+2026-7-1 10:29:38.791 TID = 21 INFO:  Ham_2 i =           90
+2026-7-1 10:29:38.793 TID = 15 INFO:  Ham_2 i =           91
+2026-7-1 10:29:38.799 TID = 9 INFO:  Ham_2 i =           92
+2026-7-1 10:29:38.800 TID = 4 INFO:  Ham_2 i =           93
+2026-7-1 10:29:38.800 TID = 33 INFO:  Ham_2 i =           94
+2026-7-1 10:29:38.804 TID = 23 INFO:  Ham_2 i =           95
+2026-7-1 10:29:38.805 TID = 17 INFO:  Ham_2 i =           96
+2026-7-1 10:29:38.861 TID = 29 INFO:  Ham_2 i =           97
+2026-7-1 10:29:38.871 TID = 34 INFO:  Ham_2 i =           98
+2026-7-1 10:29:38.871 TID = 10 INFO:  Ham_2 i =           99
+2026-7-1 10:29:38.877 TID = 28 INFO:  Ham_2 i =          100
+2026-7-1 10:29:38.878 TID = 3 INFO:  Ham_2 i =          101
+2026-7-1 10:29:38.885 TID = 32 INFO:  Ham_2 i =          102
+2026-7-1 10:29:38.885 TID = 43 INFO:  Ham_2 i =          103
+2026-7-1 10:29:38.886 TID = 47 INFO:  Ham_2 i =          104
+2026-7-1 10:29:38.888 TID = 24 INFO:  Ham_2 i =          105
+2026-7-1 10:29:38.888 TID = 2 INFO:  Ham_2 i =          106
+2026-7-1 10:29:38.888 TID = 44 INFO:  Ham_2 i =          107
+2026-7-1 10:29:38.889 TID = 45 INFO:  Ham_2 i =          108
+2026-7-1 10:29:38.889 TID = 30 INFO:  Ham_2 i =          109
+2026-7-1 10:29:38.890 TID = 20 INFO:  Ham_2 i =          110
+2026-7-1 10:29:38.891 TID = 6 INFO:  Ham_2 i =          111
+2026-7-1 10:29:38.891 TID = 12 INFO:  Ham_2 i =          112
+2026-7-1 10:29:38.891 TID = 37 INFO:  Ham_2 i =          113
+2026-7-1 10:29:38.892 TID = 38 INFO:  Ham_2 i =          114
+2026-7-1 10:29:38.892 TID = 22 INFO:  Ham_2 i =          115
+2026-7-1 10:29:38.892 TID = 15 INFO:  Ham_2 i =          116
+2026-7-1 10:29:38.892 TID = 19 INFO:  Ham_2 i =          117
+2026-7-1 10:29:38.893 TID = 21 INFO:  Ham_2 i =          118
+2026-7-1 10:29:38.893 TID = 8 INFO:  Ham_2 i =          119
+2026-7-1 10:29:38.893 TID = 13 INFO:  Ham_2 i =          120
+2026-7-1 10:29:38.893 TID = 7 INFO:  Ham_2 i =          121
+2026-7-1 10:29:38.893 TID = 27 INFO:  Ham_2 i =          122
+2026-7-1 10:29:38.893 TID = 46 INFO:  Ham_2 i =          123
+2026-7-1 10:29:38.893 TID = 0 INFO:  Ham_2 i =          124
+2026-7-1 10:29:38.893 TID = 40 INFO:  Ham_2 i =          126
+2026-7-1 10:29:38.893 TID = 36 INFO:  Ham_2 i =          125
+2026-7-1 10:29:38.894 TID = 5 INFO:  Ham_2 i =          127
+2026-7-1 10:29:38.894 TID = 31 INFO:  Ham_2 i =          128
+2026-7-1 10:29:38.894 TID = 18 INFO:  Ham_2 i =          129
+2026-7-1 10:29:38.894 TID = 11 INFO:  Ham_2 i =          130
+2026-7-1 10:29:38.895 TID = 39 INFO:  Ham_2 i =          131
+2026-7-1 10:29:38.895 TID = 14 INFO:  Ham_2 i =          132
+2026-7-1 10:29:38.895 TID = 25 INFO:  Ham_2 i =          133
+2026-7-1 10:29:38.895 TID = 16 INFO:  Ham_2 i =          134
+2026-7-1 10:29:38.895 TID = 33 INFO:  Ham_2 i =          135
+2026-7-1 10:29:38.896 TID = 1 INFO:  Ham_2 i =          136
+2026-7-1 10:29:38.896 TID = 17 INFO:  Ham_2 i =          137
+2026-7-1 10:29:38.896 TID = 4 INFO:  Ham_2 i =          138
+2026-7-1 10:29:38.896 TID = 35 INFO:  Ham_2 i =          139
+2026-7-1 10:29:38.897 TID = 23 INFO:  Ham_2 i =          140
+2026-7-1 10:29:38.897 TID = 9 INFO:  Ham_2 i =          141
+2026-7-1 10:29:38.897 TID = 26 INFO:  Ham_2 i =          142
+2026-7-1 10:29:38.899 TID = 42 INFO:  Ham_2 i =          143
+2026-7-1 10:29:38.900 TID = 41 INFO:  Ham_2 i =          144
+2026-7-1 10:29:38.947 TID = 42 INFO:  Ham_2 i =          145
+2026-7-1 10:29:38.947 TID = 41 INFO:  Ham_2 i =          146
+2026-7-1 10:29:38.948 TID = 26 INFO:  Ham_2 i =          147
+2026-7-1 10:29:38.949 TID = 9 INFO:  Ham_2 i =          148
+2026-7-1 10:29:38.950 TID = 33 INFO:  Ham_2 i =          149
+2026-7-1 10:29:38.950 TID = 23 INFO:  Ham_2 i =          150
+2026-7-1 10:29:38.951 TID = 29 INFO:  Ham_2 i =          151
+2026-7-1 10:29:38.951 TID = 16 INFO:  Ham_2 i =          152
+2026-7-1 10:29:38.952 TID = 35 INFO:  Ham_2 i =          153
+2026-7-1 10:29:38.953 TID = 25 INFO:  Ham_2 i =          154
+2026-7-1 10:29:38.953 TID = 4 INFO:  Ham_2 i =          155
+2026-7-1 10:29:38.954 TID = 14 INFO:  Ham_2 i =          156
+2026-7-1 10:29:38.955 TID = 17 INFO:  Ham_2 i =          157
+2026-7-1 10:29:38.956 TID = 39 INFO:  Ham_2 i =          158
+2026-7-1 10:29:38.956 TID = 1 INFO:  Ham_2 i =          159
+2026-7-1 10:29:38.957 TID = 10 INFO:  Ham_2 i =          160
+2026-7-1 10:29:38.957 TID = 11 INFO:  Ham_2 i =          161
+2026-7-1 10:29:38.957 TID = 0 INFO:  Ham_2 i =          162
+2026-7-1 10:29:38.959 TID = 18 INFO:  Ham_2 i =          163
+2026-7-1 10:29:38.960 TID = 34 INFO:  Ham_2 i =          164
+2026-7-1 10:29:38.960 TID = 46 INFO:  Ham_2 i =          165
+2026-7-1 10:29:38.960 TID = 31 INFO:  Ham_2 i =          166
+2026-7-1 10:29:38.961 TID = 27 INFO:  Ham_2 i =          167
+2026-7-1 10:29:38.962 TID = 5 INFO:  Ham_2 i =          168
+2026-7-1 10:29:38.963 TID = 7 INFO:  Ham_2 i =          169
+2026-7-1 10:29:38.963 TID = 40 INFO:  Ham_2 i =          170
+2026-7-1 10:29:38.964 TID = 13 INFO:  Ham_2 i =          171
+2026-7-1 10:29:38.964 TID = 36 INFO:  Ham_2 i =          172
+2026-7-1 10:29:38.966 TID = 8 INFO:  Ham_2 i =          173
+2026-7-1 10:29:38.966 TID = 12 INFO:  Ham_2 i =          174
+2026-7-1 10:29:38.967 TID = 21 INFO:  Ham_2 i =          175
+2026-7-1 10:29:38.967 TID = 6 INFO:  Ham_2 i =          176
+2026-7-1 10:29:38.968 TID = 20 INFO:  Ham_2 i =          177
+2026-7-1 10:29:38.968 TID = 19 INFO:  Ham_2 i =          178
+2026-7-1 10:29:38.969 TID = 30 INFO:  Ham_2 i =          179
+2026-7-1 10:29:38.970 TID = 15 INFO:  Ham_2 i =          180
+2026-7-1 10:29:38.970 TID = 45 INFO:  Ham_2 i =          181
+2026-7-1 10:29:38.971 TID = 22 INFO:  Ham_2 i =          182
+2026-7-1 10:29:38.972 TID = 3 INFO:  Ham_2 i =          183
+2026-7-1 10:29:38.972 TID = 44 INFO:  Ham_2 i =          184
+2026-7-1 10:29:38.973 TID = 28 INFO:  Ham_2 i =          185
+2026-7-1 10:29:38.973 TID = 38 INFO:  Ham_2 i =          186
+2026-7-1 10:29:38.973 TID = 2 INFO:  Ham_2 i =          187
+2026-7-1 10:29:38.974 TID = 37 INFO:  Ham_2 i =          188
+2026-7-1 10:29:38.974 TID = 47 INFO:  Ham_2 i =          189
+2026-7-1 10:29:38.975 TID = 24 INFO:  Ham_2 i =          190
+2026-7-1 10:29:38.997 TID = 0 INFO:  V_{iiii} integral for i =            1
+2026-7-1 10:29:38.998 TID = 0 INFO:  V_{iiii} integral for i =            2
+2026-7-1 10:29:38.998 TID = 0 INFO:  V_{iiii} integral for i =            3
+2026-7-1 10:29:38.998 TID = 0 INFO:  V_{iiii} integral for i =            4
+2026-7-1 10:29:38.999 TID = 0 INFO:  V_{iiii} integral for i =            5
+2026-7-1 10:29:38.999 TID = 0 INFO:  V_{iiii} integral for i =            6
+2026-7-1 10:29:38.999 TID = 0 INFO:  V_{iiii} integral for i =            7
+2026-7-1 10:29:39.0 TID = 0 INFO:  V_{iiii} integral for i =            8
+2026-7-1 10:29:39.0 TID = 0 INFO:  V_{iiii} integral for i =            9
+2026-7-1 10:29:39.0 TID = 0 INFO:  V_{iiii} integral for i =           10
+2026-7-1 10:29:39.1 TID = 0 INFO:  V_{iiii} integral for i =           11
+2026-7-1 10:29:39.1 TID = 0 INFO:  V_{iiii} integral for i =           12
+2026-7-1 10:29:39.1 TID = 0 INFO:  V_{iiii} integral for i =           13
+2026-7-1 10:29:39.2 TID = 0 INFO:  V_{iiii} integral for i =           14
+2026-7-1 10:29:39.2 TID = 0 INFO:  V_{iiii} integral for i =           15
+2026-7-1 10:29:39.2 TID = 0 INFO:  V_{iiii} integral for i =           16
+2026-7-1 10:29:39.3 TID = 0 INFO:  V_{iiii} integral for i =           17
+2026-7-1 10:29:39.3 TID = 0 INFO:  V_{iiii} integral for i =           18
+2026-7-1 10:29:39.3 TID = 0 INFO:  V_{iiii} integral for i =           19
+2026-7-1 10:29:39.3 TID = 0 INFO:  V_{iiii} integral for i =           20
+2026-7-1 10:29:39.4 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:29:39.55 TID = 0 INFO:  Slater normalization:    1.0000000000000002
+2026-7-1 10:29:39.55 TID = 0 INFO:  Slater normalization:    1.0000000000000002
+2026-7-1 10:29:39.116 TID = 0 INFO:  Density matrix for            1           1        (2.0000033353326967,-9.20596219739344631E-019)
+2026-7-1 10:29:39.176 TID = 0 INFO:  Density matrix for            1           2   (3.01069607174728261E-005,1.87223173668636119E-005)
+2026-7-1 10:29:39.235 TID = 0 INFO:  Density matrix for            2           1  (3.01069607174381249E-005,-1.87223173668636492E-005)
+2026-7-1 10:29:39.295 TID = 0 INFO:  Density matrix for            2           2         (1.9263986029458653,9.31197624016444898E-018)
+2026-7-1 10:29:39.295 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/ParticleDensity
+2026-7-1 10:29:39.301 TID = 0 INFO:  Saving Slater coeffs to file ./OutputData/C_slater_no_image.dat
+2026-7-1 10:29:39.301 TID = 0 INFO:  Saving 2e expectations to file ./OutputData/Expectations_2_no_image.dat
+2026-7-1 10:30:1.806 TID = 0 INFO:  Saving energies to file ./OutputData/Energies2_no_image.dat
+2026-7-1 10:30:2.502 TID = 0 INFO:  Running Crank-Nicolson scheme
+2026-7-1 10:30:2.531 TID = 0 INFO:  Max relative error is   1036778.5230291414
+2026-7-1 10:30:2.531 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image_iter.dat
+2026-7-1 10:30:2.531 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_total_iter.dat
+2026-7-1 10:30:2.532 TID = 0 INFO: ==== SC_ITER: 2
+2026-7-1 10:30:2.532 TID = 0 INFO:  Creating one-electron Hamiltonian
+2026-7-1 10:30:2.533 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:3.773 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
+2026-7-1 10:30:3.777 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
+2026-7-1 10:30:3.777 TID = 0 INFO:  Solving many-body problem
+2026-7-1 10:30:3.780 TID = 0 INFO:  n - 1 =        18145  nonzero_ham_2 =        18145
+2026-7-1 10:30:3.781 TID = 0 INFO:  Creating many-body Hamiltonian
+2026-7-1 10:30:3.781 TID = 11 INFO:  V_tilde i =           12
+2026-7-1 10:30:3.781 TID = 8 INFO:  V_tilde i =            9
+2026-7-1 10:30:3.781 TID = 9 INFO:  V_tilde i =           10
+2026-7-1 10:30:3.781 TID = 5 INFO:  V_tilde i =            6
+2026-7-1 10:30:3.781 TID = 0 INFO:  V_tilde i =            1
+2026-7-1 10:30:3.781 TID = 12 INFO:  V_tilde i =           13
+2026-7-1 10:30:3.781 TID = 2 INFO:  V_tilde i =            3
+2026-7-1 10:30:3.781 TID = 6 INFO:  V_tilde i =            7
+2026-7-1 10:30:3.781 TID = 15 INFO:  V_tilde i =           16
+2026-7-1 10:30:3.781 TID = 18 INFO:  V_tilde i =           19
+2026-7-1 10:30:3.781 TID = 10 INFO:  V_tilde i =           11
+2026-7-1 10:30:3.781 TID = 16 INFO:  V_tilde i =           17
+2026-7-1 10:30:3.781 TID = 1 INFO:  V_tilde i =            2
+2026-7-1 10:30:3.781 TID = 19 INFO:  V_tilde i =           20
+2026-7-1 10:30:3.781 TID = 13 INFO:  V_tilde i =           14
+2026-7-1 10:30:3.781 TID = 4 INFO:  V_tilde i =            5
+2026-7-1 10:30:3.781 TID = 14 INFO:  V_tilde i =           15
+2026-7-1 10:30:3.781 TID = 7 INFO:  V_tilde i =            8
+2026-7-1 10:30:3.781 TID = 17 INFO:  V_tilde i =           18
+2026-7-1 10:30:3.781 TID = 3 INFO:  V_tilde i =            4
+2026-7-1 10:30:6.430 TID = 3 INFO:  Ham_2 i =           17
+2026-7-1 10:30:6.430 TID = 0 INFO:  Ham_2 i =            1
+2026-7-1 10:30:6.430 TID = 11 INFO:  Ham_2 i =           23
+2026-7-1 10:30:6.430 TID = 31 INFO:  Ham_2 i =           33
+2026-7-1 10:30:6.430 TID = 2 INFO:  Ham_2 i =           28
+2026-7-1 10:30:6.430 TID = 20 INFO:  Ham_2 i =           44
+2026-7-1 10:30:6.430 TID = 28 INFO:  Ham_2 i =           14
+2026-7-1 10:30:6.430 TID = 26 INFO:  Ham_2 i =           46
+2026-7-1 10:30:6.430 TID = 14 INFO:  Ham_2 i =           47
+2026-7-1 10:30:6.430 TID = 34 INFO:  Ham_2 i =            8
+2026-7-1 10:30:6.430 TID = 33 INFO:  Ham_2 i =           26
+2026-7-1 10:30:6.430 TID = 41 INFO:  Ham_2 i =           29
+2026-7-1 10:30:6.430 TID = 24 INFO:  Ham_2 i =            4
+2026-7-1 10:30:6.430 TID = 40 INFO:  Ham_2 i =            2
+2026-7-1 10:30:6.430 TID = 43 INFO:  Ham_2 i =            7
+2026-7-1 10:30:6.430 TID = 9 INFO:  Ham_2 i =           15
+2026-7-1 10:30:6.430 TID = 23 INFO:  Ham_2 i =            6
+2026-7-1 10:30:6.430 TID = 32 INFO:  Ham_2 i =           31
+2026-7-1 10:30:6.430 TID = 46 INFO:  Ham_2 i =           22
+2026-7-1 10:30:6.430 TID = 5 INFO:  Ham_2 i =           40
+2026-7-1 10:30:6.430 TID = 37 INFO:  Ham_2 i =           21
+2026-7-1 10:30:6.430 TID = 16 INFO:  Ham_2 i =           32
+2026-7-1 10:30:6.430 TID = 6 INFO:  Ham_2 i =           43
+2026-7-1 10:30:6.430 TID = 35 INFO:  Ham_2 i =            5
+2026-7-1 10:30:6.430 TID = 13 INFO:  Ham_2 i =           39
+2026-7-1 10:30:6.430 TID = 30 INFO:  Ham_2 i =           27
+2026-7-1 10:30:6.430 TID = 44 INFO:  Ham_2 i =           42
+2026-7-1 10:30:6.430 TID = 15 INFO:  Ham_2 i =           18
+2026-7-1 10:30:6.430 TID = 18 INFO:  Ham_2 i =           37
+2026-7-1 10:30:6.430 TID = 38 INFO:  Ham_2 i =           48
+2026-7-1 10:30:6.430 TID = 10 INFO:  Ham_2 i =           11
+2026-7-1 10:30:6.430 TID = 4 INFO:  Ham_2 i =           45
+2026-7-1 10:30:6.430 TID = 36 INFO:  Ham_2 i =           25
+2026-7-1 10:30:6.430 TID = 25 INFO:  Ham_2 i =           16
+2026-7-1 10:30:6.430 TID = 42 INFO:  Ham_2 i =           20
+2026-7-1 10:30:6.430 TID = 45 INFO:  Ham_2 i =           19
+2026-7-1 10:30:6.430 TID = 47 INFO:  Ham_2 i =           13
+2026-7-1 10:30:6.430 TID = 8 INFO:  Ham_2 i =           35
+2026-7-1 10:30:6.430 TID = 7 INFO:  Ham_2 i =           30
+2026-7-1 10:30:6.430 TID = 39 INFO:  Ham_2 i =           10
+2026-7-1 10:30:6.430 TID = 1 INFO:  Ham_2 i =            9
+2026-7-1 10:30:6.430 TID = 17 INFO:  Ham_2 i =           38
+2026-7-1 10:30:6.430 TID = 21 INFO:  Ham_2 i =           34
+2026-7-1 10:30:6.430 TID = 27 INFO:  Ham_2 i =           12
+2026-7-1 10:30:6.430 TID = 22 INFO:  Ham_2 i =            3
+2026-7-1 10:30:6.430 TID = 19 INFO:  Ham_2 i =           41
+2026-7-1 10:30:6.430 TID = 12 INFO:  Ham_2 i =           36
+2026-7-1 10:30:6.430 TID = 29 INFO:  Ham_2 i =           24
+2026-7-1 10:30:6.579 TID = 17 INFO:  Ham_2 i =           49
+2026-7-1 10:30:6.589 TID = 15 INFO:  Ham_2 i =           50
+2026-7-1 10:30:6.596 TID = 18 INFO:  Ham_2 i =           51
+2026-7-1 10:30:6.597 TID = 6 INFO:  Ham_2 i =           52
+2026-7-1 10:30:6.600 TID = 27 INFO:  Ham_2 i =           53
+2026-7-1 10:30:6.600 TID = 29 INFO:  Ham_2 i =           54
+2026-7-1 10:30:6.605 TID = 1 INFO:  Ham_2 i =           55
+2026-7-1 10:30:6.607 TID = 2 INFO:  Ham_2 i =           56
+2026-7-1 10:30:6.607 TID = 8 INFO:  Ham_2 i =           57
+2026-7-1 10:30:6.608 TID = 38 INFO:  Ham_2 i =           58
+2026-7-1 10:30:6.608 TID = 41 INFO:  Ham_2 i =           59
+2026-7-1 10:30:6.608 TID = 3 INFO:  Ham_2 i =           60
+2026-7-1 10:30:6.609 TID = 45 INFO:  Ham_2 i =           61
+2026-7-1 10:30:6.610 TID = 12 INFO:  Ham_2 i =           62
+2026-7-1 10:30:6.611 TID = 31 INFO:  Ham_2 i =           63
+2026-7-1 10:30:6.612 TID = 33 INFO:  Ham_2 i =           64
+2026-7-1 10:30:6.614 TID = 28 INFO:  Ham_2 i =           65
+2026-7-1 10:30:6.615 TID = 14 INFO:  Ham_2 i =           66
+2026-7-1 10:30:6.616 TID = 26 INFO:  Ham_2 i =           67
+2026-7-1 10:30:6.616 TID = 9 INFO:  Ham_2 i =           68
+2026-7-1 10:30:6.616 TID = 11 INFO:  Ham_2 i =           69
+2026-7-1 10:30:6.616 TID = 7 INFO:  Ham_2 i =           70
+2026-7-1 10:30:6.617 TID = 0 INFO:  Ham_2 i =           71
+2026-7-1 10:30:6.620 TID = 10 INFO:  Ham_2 i =           72
+2026-7-1 10:30:6.622 TID = 19 INFO:  Ham_2 i =           73
+2026-7-1 10:30:6.622 TID = 4 INFO:  Ham_2 i =           74
+2026-7-1 10:30:6.622 TID = 20 INFO:  Ham_2 i =           75
+2026-7-1 10:30:6.623 TID = 32 INFO:  Ham_2 i =           76
+2026-7-1 10:30:6.624 TID = 34 INFO:  Ham_2 i =           77
+2026-7-1 10:30:6.625 TID = 16 INFO:  Ham_2 i =           78
+2026-7-1 10:30:6.626 TID = 21 INFO:  Ham_2 i =           79
+2026-7-1 10:30:6.626 TID = 13 INFO:  Ham_2 i =           80
+2026-7-1 10:30:6.627 TID = 44 INFO:  Ham_2 i =           81
+2026-7-1 10:30:6.627 TID = 5 INFO:  Ham_2 i =           82
+2026-7-1 10:30:6.631 TID = 35 INFO:  Ham_2 i =           83
+2026-7-1 10:30:6.638 TID = 30 INFO:  Ham_2 i =           84
+2026-7-1 10:30:6.642 TID = 36 INFO:  Ham_2 i =           85
+2026-7-1 10:30:6.642 TID = 37 INFO:  Ham_2 i =           86
+2026-7-1 10:30:6.643 TID = 25 INFO:  Ham_2 i =           87
+2026-7-1 10:30:6.646 TID = 46 INFO:  Ham_2 i =           88
+2026-7-1 10:30:6.648 TID = 47 INFO:  Ham_2 i =           89
+2026-7-1 10:30:6.651 TID = 42 INFO:  Ham_2 i =           90
+2026-7-1 10:30:6.652 TID = 39 INFO:  Ham_2 i =           91
+2026-7-1 10:30:6.654 TID = 43 INFO:  Ham_2 i =           92
+2026-7-1 10:30:6.658 TID = 23 INFO:  Ham_2 i =           93
+2026-7-1 10:30:6.660 TID = 40 INFO:  Ham_2 i =           94
+2026-7-1 10:30:6.661 TID = 24 INFO:  Ham_2 i =           95
+2026-7-1 10:30:6.664 TID = 22 INFO:  Ham_2 i =           96
+2026-7-1 10:30:6.714 TID = 17 INFO:  Ham_2 i =           97
+2026-7-1 10:30:6.723 TID = 15 INFO:  Ham_2 i =           98
+2026-7-1 10:30:6.726 TID = 29 INFO:  Ham_2 i =           99
+2026-7-1 10:30:6.726 TID = 6 INFO:  Ham_2 i =          100
+2026-7-1 10:30:6.727 TID = 18 INFO:  Ham_2 i =          101
+2026-7-1 10:30:6.728 TID = 27 INFO:  Ham_2 i =          102
+2026-7-1 10:30:6.729 TID = 7 INFO:  Ham_2 i =          103
+2026-7-1 10:30:6.730 TID = 5 INFO:  Ham_2 i =          104
+2026-7-1 10:30:6.731 TID = 11 INFO:  Ham_2 i =          105
+2026-7-1 10:30:6.732 TID = 9 INFO:  Ham_2 i =          106
+2026-7-1 10:30:6.733 TID = 26 INFO:  Ham_2 i =          107
+2026-7-1 10:30:6.733 TID = 44 INFO:  Ham_2 i =          108
+2026-7-1 10:30:6.734 TID = 35 INFO:  Ham_2 i =          109
+2026-7-1 10:30:6.734 TID = 31 INFO:  Ham_2 i =          110
+2026-7-1 10:30:6.734 TID = 13 INFO:  Ham_2 i =          111
+2026-7-1 10:30:6.734 TID = 28 INFO:  Ham_2 i =          112
+2026-7-1 10:30:6.735 TID = 21 INFO:  Ham_2 i =          113
+2026-7-1 10:30:6.735 TID = 33 INFO:  Ham_2 i =          114
+2026-7-1 10:30:6.735 TID = 14 INFO:  Ham_2 i =          115
+2026-7-1 10:30:6.735 TID = 16 INFO:  Ham_2 i =          116
+2026-7-1 10:30:6.736 TID = 12 INFO:  Ham_2 i =          117
+2026-7-1 10:30:6.736 TID = 45 INFO:  Ham_2 i =          118
+2026-7-1 10:30:6.737 TID = 20 INFO:  Ham_2 i =          119
+2026-7-1 10:30:6.737 TID = 34 INFO:  Ham_2 i =          120
+2026-7-1 10:30:6.737 TID = 32 INFO:  Ham_2 i =          121
+2026-7-1 10:30:6.738 TID = 3 INFO:  Ham_2 i =          122
+2026-7-1 10:30:6.739 TID = 0 INFO:  Ham_2 i =          123
+2026-7-1 10:30:6.740 TID = 4 INFO:  Ham_2 i =          124
+2026-7-1 10:30:6.740 TID = 30 INFO:  Ham_2 i =          125
+2026-7-1 10:30:6.740 TID = 41 INFO:  Ham_2 i =          126
+2026-7-1 10:30:6.740 TID = 19 INFO:  Ham_2 i =          127
+2026-7-1 10:30:6.741 TID = 36 INFO:  Ham_2 i =          128
+2026-7-1 10:30:6.741 TID = 8 INFO:  Ham_2 i =          129
+2026-7-1 10:30:6.741 TID = 10 INFO:  Ham_2 i =          130
+2026-7-1 10:30:6.741 TID = 38 INFO:  Ham_2 i =          131
+2026-7-1 10:30:6.742 TID = 2 INFO:  Ham_2 i =          132
+2026-7-1 10:30:6.742 TID = 1 INFO:  Ham_2 i =          133
+2026-7-1 10:30:6.749 TID = 25 INFO:  Ham_2 i =          134
+2026-7-1 10:30:6.750 TID = 37 INFO:  Ham_2 i =          135
+2026-7-1 10:30:6.751 TID = 46 INFO:  Ham_2 i =          136
+2026-7-1 10:30:6.751 TID = 47 INFO:  Ham_2 i =          137
+2026-7-1 10:30:6.752 TID = 43 INFO:  Ham_2 i =          138
+2026-7-1 10:30:6.752 TID = 42 INFO:  Ham_2 i =          139
+2026-7-1 10:30:6.753 TID = 39 INFO:  Ham_2 i =          140
+2026-7-1 10:30:6.754 TID = 24 INFO:  Ham_2 i =          141
+2026-7-1 10:30:6.755 TID = 22 INFO:  Ham_2 i =          142
+2026-7-1 10:30:6.755 TID = 23 INFO:  Ham_2 i =          143
+2026-7-1 10:30:6.755 TID = 40 INFO:  Ham_2 i =          144
+2026-7-1 10:30:6.800 TID = 1 INFO:  Ham_2 i =          145
+2026-7-1 10:30:6.801 TID = 2 INFO:  Ham_2 i =          146
+2026-7-1 10:30:6.802 TID = 38 INFO:  Ham_2 i =          147
+2026-7-1 10:30:6.802 TID = 40 INFO:  Ham_2 i =          148
+2026-7-1 10:30:6.803 TID = 23 INFO:  Ham_2 i =          149
+2026-7-1 10:30:6.804 TID = 17 INFO:  Ham_2 i =          150
+2026-7-1 10:30:6.804 TID = 10 INFO:  Ham_2 i =          151
+2026-7-1 10:30:6.804 TID = 4 INFO:  Ham_2 i =          152
+2026-7-1 10:30:6.804 TID = 37 INFO:  Ham_2 i =          153
+2026-7-1 10:30:6.805 TID = 25 INFO:  Ham_2 i =          154
+2026-7-1 10:30:6.805 TID = 22 INFO:  Ham_2 i =          155
+2026-7-1 10:30:6.805 TID = 0 INFO:  Ham_2 i =          156
+2026-7-1 10:30:6.805 TID = 8 INFO:  Ham_2 i =          157
+2026-7-1 10:30:6.806 TID = 3 INFO:  Ham_2 i =          158
+2026-7-1 10:30:6.806 TID = 39 INFO:  Ham_2 i =          159
+2026-7-1 10:30:6.807 TID = 24 INFO:  Ham_2 i =          160
+2026-7-1 10:30:6.807 TID = 36 INFO:  Ham_2 i =          161
+2026-7-1 10:30:6.807 TID = 32 INFO:  Ham_2 i =          162
+2026-7-1 10:30:6.807 TID = 42 INFO:  Ham_2 i =          163
+2026-7-1 10:30:6.808 TID = 19 INFO:  Ham_2 i =          164
+2026-7-1 10:30:6.808 TID = 34 INFO:  Ham_2 i =          165
+2026-7-1 10:30:6.808 TID = 43 INFO:  Ham_2 i =          166
+2026-7-1 10:30:6.809 TID = 41 INFO:  Ham_2 i =          167
+2026-7-1 10:30:6.809 TID = 28 INFO:  Ham_2 i =          168
+2026-7-1 10:30:6.809 TID = 20 INFO:  Ham_2 i =          169
+2026-7-1 10:30:6.810 TID = 47 INFO:  Ham_2 i =          170
+2026-7-1 10:30:6.810 TID = 30 INFO:  Ham_2 i =          171
+2026-7-1 10:30:6.811 TID = 45 INFO:  Ham_2 i =          172
+2026-7-1 10:30:6.811 TID = 13 INFO:  Ham_2 i =          173
+2026-7-1 10:30:6.812 TID = 15 INFO:  Ham_2 i =          174
+2026-7-1 10:30:6.812 TID = 46 INFO:  Ham_2 i =          175
+2026-7-1 10:30:6.812 TID = 12 INFO:  Ham_2 i =          176
+2026-7-1 10:30:6.812 TID = 31 INFO:  Ham_2 i =          177
+2026-7-1 10:30:6.813 TID = 29 INFO:  Ham_2 i =          178
+2026-7-1 10:30:6.813 TID = 16 INFO:  Ham_2 i =          179
+2026-7-1 10:30:6.814 TID = 35 INFO:  Ham_2 i =          180
+2026-7-1 10:30:6.814 TID = 14 INFO:  Ham_2 i =          181
+2026-7-1 10:30:6.815 TID = 33 INFO:  Ham_2 i =          182
+2026-7-1 10:30:6.815 TID = 44 INFO:  Ham_2 i =          183
+2026-7-1 10:30:6.816 TID = 26 INFO:  Ham_2 i =          184
+2026-7-1 10:30:6.817 TID = 11 INFO:  Ham_2 i =          185
+2026-7-1 10:30:6.817 TID = 21 INFO:  Ham_2 i =          186
+2026-7-1 10:30:6.818 TID = 9 INFO:  Ham_2 i =          187
+2026-7-1 10:30:6.819 TID = 7 INFO:  Ham_2 i =          188
+2026-7-1 10:30:6.819 TID = 5 INFO:  Ham_2 i =          189
+2026-7-1 10:30:6.819 TID = 27 INFO:  Ham_2 i =          190
+2026-7-1 10:30:6.846 TID = 0 INFO:  V_{iiii} integral for i =            1
+2026-7-1 10:30:6.846 TID = 0 INFO:  V_{iiii} integral for i =            2
+2026-7-1 10:30:6.847 TID = 0 INFO:  V_{iiii} integral for i =            3
+2026-7-1 10:30:6.847 TID = 0 INFO:  V_{iiii} integral for i =            4
+2026-7-1 10:30:6.847 TID = 0 INFO:  V_{iiii} integral for i =            5
+2026-7-1 10:30:6.848 TID = 0 INFO:  V_{iiii} integral for i =            6
+2026-7-1 10:30:6.848 TID = 0 INFO:  V_{iiii} integral for i =            7
+2026-7-1 10:30:6.848 TID = 0 INFO:  V_{iiii} integral for i =            8
+2026-7-1 10:30:6.848 TID = 0 INFO:  V_{iiii} integral for i =            9
+2026-7-1 10:30:6.849 TID = 0 INFO:  V_{iiii} integral for i =           10
+2026-7-1 10:30:6.849 TID = 0 INFO:  V_{iiii} integral for i =           11
+2026-7-1 10:30:6.849 TID = 0 INFO:  V_{iiii} integral for i =           12
+2026-7-1 10:30:6.850 TID = 0 INFO:  V_{iiii} integral for i =           13
+2026-7-1 10:30:6.850 TID = 0 INFO:  V_{iiii} integral for i =           14
+2026-7-1 10:30:6.850 TID = 0 INFO:  V_{iiii} integral for i =           15
+2026-7-1 10:30:6.851 TID = 0 INFO:  V_{iiii} integral for i =           16
+2026-7-1 10:30:6.851 TID = 0 INFO:  V_{iiii} integral for i =           17
+2026-7-1 10:30:6.851 TID = 0 INFO:  V_{iiii} integral for i =           18
+2026-7-1 10:30:6.851 TID = 0 INFO:  V_{iiii} integral for i =           19
+2026-7-1 10:30:6.852 TID = 0 INFO:  V_{iiii} integral for i =           20
+2026-7-1 10:30:6.852 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:6.892 TID = 0 INFO:  Slater normalization:    1.0000000000000002
+2026-7-1 10:30:6.892 TID = 0 INFO:  Slater normalization:   0.99999999999999978
+2026-7-1 10:30:6.952 TID = 0 INFO:  Density matrix for            1           1         (2.0000031512940661,1.92749727835334742E-018)
+2026-7-1 10:30:7.11 TID = 0 INFO:  Density matrix for            1           2   (2.57873411761177518E-005,2.28828897393542606E-005)
+2026-7-1 10:30:7.72 TID = 0 INFO:  Density matrix for            2           1  (2.57873411761257512E-005,-2.28828897393588752E-005)
+2026-7-1 10:30:7.131 TID = 0 INFO:  Density matrix for            2           2         (1.8637226441611365,2.01562296095452506E-018)
+2026-7-1 10:30:7.131 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/ParticleDensity
+2026-7-1 10:30:7.830 TID = 0 INFO:  Running Crank-Nicolson scheme
+2026-7-1 10:30:7.858 TID = 0 INFO:  Max relative error is   4.0034081634360712
+2026-7-1 10:30:7.859 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image_iter.dat
+2026-7-1 10:30:7.859 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_total_iter.dat
+2026-7-1 10:30:7.860 TID = 0 INFO: ==== SC_ITER: 3
+2026-7-1 10:30:7.860 TID = 0 INFO:  Creating one-electron Hamiltonian
+2026-7-1 10:30:7.861 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:9.430 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
+2026-7-1 10:30:9.434 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
+2026-7-1 10:30:9.434 TID = 0 INFO:  Solving many-body problem
+2026-7-1 10:30:9.437 TID = 0 INFO:  n - 1 =        18145  nonzero_ham_2 =        18145
+2026-7-1 10:30:9.437 TID = 0 INFO:  Creating many-body Hamiltonian
+2026-7-1 10:30:9.438 TID = 9 INFO:  V_tilde i =           10
+2026-7-1 10:30:9.438 TID = 3 INFO:  V_tilde i =            4
+2026-7-1 10:30:9.438 TID = 7 INFO:  V_tilde i =            8
+2026-7-1 10:30:9.438 TID = 12 INFO:  V_tilde i =           13
+2026-7-1 10:30:9.438 TID = 11 INFO:  V_tilde i =           12
+2026-7-1 10:30:9.438 TID = 19 INFO:  V_tilde i =           20
+2026-7-1 10:30:9.438 TID = 0 INFO:  V_tilde i =            1
+2026-7-1 10:30:9.438 TID = 2 INFO:  V_tilde i =            3
+2026-7-1 10:30:9.438 TID = 5 INFO:  V_tilde i =            6
+2026-7-1 10:30:9.438 TID = 13 INFO:  V_tilde i =           14
+2026-7-1 10:30:9.438 TID = 16 INFO:  V_tilde i =           17
+2026-7-1 10:30:9.438 TID = 18 INFO:  V_tilde i =           19
+2026-7-1 10:30:9.438 TID = 10 INFO:  V_tilde i =           11
+2026-7-1 10:30:9.438 TID = 1 INFO:  V_tilde i =            2
+2026-7-1 10:30:9.438 TID = 8 INFO:  V_tilde i =            9
+2026-7-1 10:30:9.438 TID = 14 INFO:  V_tilde i =           15
+2026-7-1 10:30:9.438 TID = 6 INFO:  V_tilde i =            7
+2026-7-1 10:30:9.438 TID = 4 INFO:  V_tilde i =            5
+2026-7-1 10:30:9.438 TID = 15 INFO:  V_tilde i =           16
+2026-7-1 10:30:9.438 TID = 17 INFO:  V_tilde i =           18
+2026-7-1 10:30:12.91 TID = 32 INFO:  Ham_2 i =            1
+2026-7-1 10:30:12.91 TID = 19 INFO:  Ham_2 i =           46
+2026-7-1 10:30:12.92 TID = 14 INFO:  Ham_2 i =           36
+2026-7-1 10:30:12.91 TID = 3 INFO:  Ham_2 i =           32
+2026-7-1 10:30:12.92 TID = 17 INFO:  Ham_2 i =           18
+2026-7-1 10:30:12.92 TID = 45 INFO:  Ham_2 i =            8
+2026-7-1 10:30:12.92 TID = 37 INFO:  Ham_2 i =           29
+2026-7-1 10:30:12.92 TID = 26 INFO:  Ham_2 i =           38
+2026-7-1 10:30:12.91 TID = 39 INFO:  Ham_2 i =            6
+2026-7-1 10:30:12.91 TID = 41 INFO:  Ham_2 i =           11
+2026-7-1 10:30:12.91 TID = 11 INFO:  Ham_2 i =           41
+2026-7-1 10:30:12.91 TID = 31 INFO:  Ham_2 i =           30
+2026-7-1 10:30:12.92 TID = 44 INFO:  Ham_2 i =           42
+2026-7-1 10:30:12.92 TID = 36 INFO:  Ham_2 i =           14
+2026-7-1 10:30:12.92 TID = 8 INFO:  Ham_2 i =           31
+2026-7-1 10:30:12.92 TID = 24 INFO:  Ham_2 i =           21
+2026-7-1 10:30:12.92 TID = 25 INFO:  Ham_2 i =           33
+2026-7-1 10:30:12.92 TID = 12 INFO:  Ham_2 i =           17
+2026-7-1 10:30:12.92 TID = 46 INFO:  Ham_2 i =           25
+2026-7-1 10:30:12.91 TID = 28 INFO:  Ham_2 i =           28
+2026-7-1 10:30:12.92 TID = 10 INFO:  Ham_2 i =           22
+2026-7-1 10:30:12.91 TID = 42 INFO:  Ham_2 i =           12
+2026-7-1 10:30:12.91 TID = 5 INFO:  Ham_2 i =           10
+2026-7-1 10:30:12.92 TID = 6 INFO:  Ham_2 i =           39
+2026-7-1 10:30:12.92 TID = 34 INFO:  Ham_2 i =           26
+2026-7-1 10:30:12.92 TID = 21 INFO:  Ham_2 i =            7
+2026-7-1 10:30:12.92 TID = 16 INFO:  Ham_2 i =           48
+2026-7-1 10:30:12.92 TID = 38 INFO:  Ham_2 i =            9
+2026-7-1 10:30:12.92 TID = 47 INFO:  Ham_2 i =           15
+2026-7-1 10:30:12.92 TID = 2 INFO:  Ham_2 i =           47
+2026-7-1 10:30:12.92 TID = 7 INFO:  Ham_2 i =           40
+2026-7-1 10:30:12.92 TID = 0 INFO:  Ham_2 i =           45
+2026-7-1 10:30:12.91 TID = 43 INFO:  Ham_2 i =            2
+2026-7-1 10:30:12.91 TID = 13 INFO:  Ham_2 i =           34
+2026-7-1 10:30:12.91 TID = 18 INFO:  Ham_2 i =           16
+2026-7-1 10:30:12.92 TID = 15 INFO:  Ham_2 i =            5
+2026-7-1 10:30:12.92 TID = 23 INFO:  Ham_2 i =           20
+2026-7-1 10:30:12.92 TID = 27 INFO:  Ham_2 i =            3
+2026-7-1 10:30:12.92 TID = 1 INFO:  Ham_2 i =           44
+2026-7-1 10:30:12.92 TID = 33 INFO:  Ham_2 i =            4
+2026-7-1 10:30:12.92 TID = 20 INFO:  Ham_2 i =           37
+2026-7-1 10:30:12.92 TID = 22 INFO:  Ham_2 i =           23
+2026-7-1 10:30:12.92 TID = 9 INFO:  Ham_2 i =           35
+2026-7-1 10:30:12.92 TID = 29 INFO:  Ham_2 i =           19
+2026-7-1 10:30:12.92 TID = 30 INFO:  Ham_2 i =           13
+2026-7-1 10:30:12.92 TID = 40 INFO:  Ham_2 i =           27
+2026-7-1 10:30:12.92 TID = 35 INFO:  Ham_2 i =           24
+2026-7-1 10:30:12.92 TID = 4 INFO:  Ham_2 i =           43
+2026-7-1 10:30:12.233 TID = 16 INFO:  Ham_2 i =           49
+2026-7-1 10:30:12.234 TID = 0 INFO:  Ham_2 i =           50
+2026-7-1 10:30:12.236 TID = 1 INFO:  Ham_2 i =           51
+2026-7-1 10:30:12.238 TID = 44 INFO:  Ham_2 i =           52
+2026-7-1 10:30:12.253 TID = 12 INFO:  Ham_2 i =           53
+2026-7-1 10:30:12.256 TID = 18 INFO:  Ham_2 i =           54
+2026-7-1 10:30:12.274 TID = 22 INFO:  Ham_2 i =           55
+2026-7-1 10:30:12.274 TID = 4 INFO:  Ham_2 i =           56
+2026-7-1 10:30:12.275 TID = 19 INFO:  Ham_2 i =           57
+2026-7-1 10:30:12.276 TID = 10 INFO:  Ham_2 i =           58
+2026-7-1 10:30:12.277 TID = 2 INFO:  Ham_2 i =           59
+2026-7-1 10:30:12.278 TID = 14 INFO:  Ham_2 i =           60
+2026-7-1 10:30:12.280 TID = 20 INFO:  Ham_2 i =           61
+2026-7-1 10:30:12.282 TID = 11 INFO:  Ham_2 i =           62
+2026-7-1 10:30:12.283 TID = 9 INFO:  Ham_2 i =           63
+2026-7-1 10:30:12.284 TID = 13 INFO:  Ham_2 i =           64
+2026-7-1 10:30:12.285 TID = 25 INFO:  Ham_2 i =           65
+2026-7-1 10:30:12.286 TID = 26 INFO:  Ham_2 i =           66
+2026-7-1 10:30:12.287 TID = 6 INFO:  Ham_2 i =           67
+2026-7-1 10:30:12.288 TID = 17 INFO:  Ham_2 i =           68
+2026-7-1 10:30:12.288 TID = 7 INFO:  Ham_2 i =           69
+2026-7-1 10:30:12.288 TID = 3 INFO:  Ham_2 i =           70
+2026-7-1 10:30:12.289 TID = 8 INFO:  Ham_2 i =           71
+2026-7-1 10:30:12.290 TID = 31 INFO:  Ham_2 i =           72
+2026-7-1 10:30:12.292 TID = 37 INFO:  Ham_2 i =           73
+2026-7-1 10:30:12.294 TID = 28 INFO:  Ham_2 i =           74
+2026-7-1 10:30:12.296 TID = 29 INFO:  Ham_2 i =           75
+2026-7-1 10:30:12.296 TID = 40 INFO:  Ham_2 i =           76
+2026-7-1 10:30:12.297 TID = 34 INFO:  Ham_2 i =           77
+2026-7-1 10:30:12.298 TID = 46 INFO:  Ham_2 i =           78
+2026-7-1 10:30:12.299 TID = 47 INFO:  Ham_2 i =           79
+2026-7-1 10:30:12.302 TID = 35 INFO:  Ham_2 i =           80
+2026-7-1 10:30:12.302 TID = 36 INFO:  Ham_2 i =           81
+2026-7-1 10:30:12.302 TID = 24 INFO:  Ham_2 i =           82
+2026-7-1 10:30:12.304 TID = 42 INFO:  Ham_2 i =           83
+2026-7-1 10:30:12.305 TID = 27 INFO:  Ham_2 i =           84
+2026-7-1 10:30:12.305 TID = 33 INFO:  Ham_2 i =           85
+2026-7-1 10:30:12.305 TID = 23 INFO:  Ham_2 i =           86
+2026-7-1 10:30:12.306 TID = 30 INFO:  Ham_2 i =           87
+2026-7-1 10:30:12.306 TID = 41 INFO:  Ham_2 i =           88
+2026-7-1 10:30:12.309 TID = 38 INFO:  Ham_2 i =           89
+2026-7-1 10:30:12.310 TID = 5 INFO:  Ham_2 i =           90
+2026-7-1 10:30:12.312 TID = 45 INFO:  Ham_2 i =           91
+2026-7-1 10:30:12.315 TID = 21 INFO:  Ham_2 i =           92
+2026-7-1 10:30:12.318 TID = 39 INFO:  Ham_2 i =           93
+2026-7-1 10:30:12.320 TID = 15 INFO:  Ham_2 i =           94
+2026-7-1 10:30:12.323 TID = 32 INFO:  Ham_2 i =           95
+2026-7-1 10:30:12.326 TID = 43 INFO:  Ham_2 i =           96
+2026-7-1 10:30:12.367 TID = 0 INFO:  Ham_2 i =           97
+2026-7-1 10:30:12.367 TID = 1 INFO:  Ham_2 i =           98
+2026-7-1 10:30:12.368 TID = 44 INFO:  Ham_2 i =           99
+2026-7-1 10:30:12.368 TID = 16 INFO:  Ham_2 i =          100
+2026-7-1 10:30:12.381 TID = 12 INFO:  Ham_2 i =          101
+2026-7-1 10:30:12.383 TID = 18 INFO:  Ham_2 i =          102
+2026-7-1 10:30:12.400 TID = 3 INFO:  Ham_2 i =          103
+2026-7-1 10:30:12.402 TID = 7 INFO:  Ham_2 i =          104
+2026-7-1 10:30:12.403 TID = 17 INFO:  Ham_2 i =          105
+2026-7-1 10:30:12.404 TID = 33 INFO:  Ham_2 i =          106
+2026-7-1 10:30:12.405 TID = 6 INFO:  Ham_2 i =          107
+2026-7-1 10:30:12.405 TID = 25 INFO:  Ham_2 i =          108
+2026-7-1 10:30:12.405 TID = 26 INFO:  Ham_2 i =          109
+2026-7-1 10:30:12.405 TID = 27 INFO:  Ham_2 i =          110
+2026-7-1 10:30:12.406 TID = 20 INFO:  Ham_2 i =          111
+2026-7-1 10:30:12.406 TID = 13 INFO:  Ham_2 i =          112
+2026-7-1 10:30:12.406 TID = 9 INFO:  Ham_2 i =          113
+2026-7-1 10:30:12.407 TID = 14 INFO:  Ham_2 i =          114
+2026-7-1 10:30:12.407 TID = 42 INFO:  Ham_2 i =          115
+2026-7-1 10:30:12.407 TID = 36 INFO:  Ham_2 i =          116
+2026-7-1 10:30:12.407 TID = 24 INFO:  Ham_2 i =          117
+2026-7-1 10:30:12.408 TID = 11 INFO:  Ham_2 i =          118
+2026-7-1 10:30:12.408 TID = 2 INFO:  Ham_2 i =          119
+2026-7-1 10:30:12.408 TID = 10 INFO:  Ham_2 i =          120
+2026-7-1 10:30:12.408 TID = 35 INFO:  Ham_2 i =          121
+2026-7-1 10:30:12.409 TID = 34 INFO:  Ham_2 i =          122
+2026-7-1 10:30:12.409 TID = 47 INFO:  Ham_2 i =          123
+2026-7-1 10:30:12.409 TID = 46 INFO:  Ham_2 i =          124
+2026-7-1 10:30:12.409 TID = 19 INFO:  Ham_2 i =          125
+2026-7-1 10:30:12.410 TID = 4 INFO:  Ham_2 i =          126
+2026-7-1 10:30:12.410 TID = 28 INFO:  Ham_2 i =          127
+2026-7-1 10:30:12.410 TID = 31 INFO:  Ham_2 i =          128
+2026-7-1 10:30:12.410 TID = 40 INFO:  Ham_2 i =          129
+2026-7-1 10:30:12.410 TID = 22 INFO:  Ham_2 i =          130
+2026-7-1 10:30:12.410 TID = 8 INFO:  Ham_2 i =          131
+2026-7-1 10:30:12.411 TID = 37 INFO:  Ham_2 i =          132
+2026-7-1 10:30:12.411 TID = 5 INFO:  Ham_2 i =          133
+2026-7-1 10:30:12.411 TID = 30 INFO:  Ham_2 i =          134
+2026-7-1 10:30:12.411 TID = 41 INFO:  Ham_2 i =          135
+2026-7-1 10:30:12.412 TID = 45 INFO:  Ham_2 i =          136
+2026-7-1 10:30:12.412 TID = 23 INFO:  Ham_2 i =          137
+2026-7-1 10:30:12.412 TID = 29 INFO:  Ham_2 i =          138
+2026-7-1 10:30:12.412 TID = 38 INFO:  Ham_2 i =          139
+2026-7-1 10:30:12.413 TID = 21 INFO:  Ham_2 i =          140
+2026-7-1 10:30:12.414 TID = 39 INFO:  Ham_2 i =          141
+2026-7-1 10:30:12.415 TID = 15 INFO:  Ham_2 i =          142
+2026-7-1 10:30:12.416 TID = 32 INFO:  Ham_2 i =          143
+2026-7-1 10:30:12.417 TID = 43 INFO:  Ham_2 i =          144
+2026-7-1 10:30:12.454 TID = 44 INFO:  Ham_2 i =          145
+2026-7-1 10:30:12.455 TID = 1 INFO:  Ham_2 i =          146
+2026-7-1 10:30:12.456 TID = 0 INFO:  Ham_2 i =          147
+2026-7-1 10:30:12.463 TID = 16 INFO:  Ham_2 i =          148
+2026-7-1 10:30:12.464 TID = 32 INFO:  Ham_2 i =          149
+2026-7-1 10:30:12.464 TID = 43 INFO:  Ham_2 i =          150
+2026-7-1 10:30:12.465 TID = 15 INFO:  Ham_2 i =          151
+2026-7-1 10:30:12.466 TID = 41 INFO:  Ham_2 i =          152
+2026-7-1 10:30:12.466 TID = 39 INFO:  Ham_2 i =          153
+2026-7-1 10:30:12.466 TID = 21 INFO:  Ham_2 i =          154
+2026-7-1 10:30:12.467 TID = 30 INFO:  Ham_2 i =          155
+2026-7-1 10:30:12.468 TID = 38 INFO:  Ham_2 i =          156
+2026-7-1 10:30:12.469 TID = 5 INFO:  Ham_2 i =          157
+2026-7-1 10:30:12.469 TID = 29 INFO:  Ham_2 i =          158
+2026-7-1 10:30:12.470 TID = 37 INFO:  Ham_2 i =          159
+2026-7-1 10:30:12.471 TID = 23 INFO:  Ham_2 i =          160
+2026-7-1 10:30:12.471 TID = 8 INFO:  Ham_2 i =          161
+2026-7-1 10:30:12.472 TID = 45 INFO:  Ham_2 i =          162
+2026-7-1 10:30:12.473 TID = 46 INFO:  Ham_2 i =          163
+2026-7-1 10:30:12.473 TID = 22 INFO:  Ham_2 i =          164
+2026-7-1 10:30:12.474 TID = 12 INFO:  Ham_2 i =          165
+2026-7-1 10:30:12.474 TID = 47 INFO:  Ham_2 i =          166
+2026-7-1 10:30:12.475 TID = 40 INFO:  Ham_2 i =          167
+2026-7-1 10:30:12.476 TID = 34 INFO:  Ham_2 i =          168
+2026-7-1 10:30:12.476 TID = 31 INFO:  Ham_2 i =          169
+2026-7-1 10:30:12.477 TID = 18 INFO:  Ham_2 i =          170
+2026-7-1 10:30:12.478 TID = 35 INFO:  Ham_2 i =          171
+2026-7-1 10:30:12.478 TID = 28 INFO:  Ham_2 i =          172
+2026-7-1 10:30:12.479 TID = 4 INFO:  Ham_2 i =          173
+2026-7-1 10:30:12.479 TID = 10 INFO:  Ham_2 i =          174
+2026-7-1 10:30:12.480 TID = 19 INFO:  Ham_2 i =          175
+2026-7-1 10:30:12.480 TID = 2 INFO:  Ham_2 i =          176
+2026-7-1 10:30:12.481 TID = 13 INFO:  Ham_2 i =          177
+2026-7-1 10:30:12.482 TID = 11 INFO:  Ham_2 i =          178
+2026-7-1 10:30:12.483 TID = 24 INFO:  Ham_2 i =          179
+2026-7-1 10:30:12.483 TID = 20 INFO:  Ham_2 i =          180
+2026-7-1 10:30:12.484 TID = 27 INFO:  Ham_2 i =          181
+2026-7-1 10:30:12.485 TID = 36 INFO:  Ham_2 i =          182
+2026-7-1 10:30:12.485 TID = 26 INFO:  Ham_2 i =          183
+2026-7-1 10:30:12.486 TID = 42 INFO:  Ham_2 i =          184
+2026-7-1 10:30:12.487 TID = 25 INFO:  Ham_2 i =          185
+2026-7-1 10:30:12.488 TID = 14 INFO:  Ham_2 i =          186
+2026-7-1 10:30:12.488 TID = 6 INFO:  Ham_2 i =          187
+2026-7-1 10:30:12.489 TID = 9 INFO:  Ham_2 i =          188
+2026-7-1 10:30:12.489 TID = 33 INFO:  Ham_2 i =          189
+2026-7-1 10:30:12.490 TID = 17 INFO:  Ham_2 i =          190
+2026-7-1 10:30:12.509 TID = 0 INFO:  V_{iiii} integral for i =            1
+2026-7-1 10:30:12.510 TID = 0 INFO:  V_{iiii} integral for i =            2
+2026-7-1 10:30:12.510 TID = 0 INFO:  V_{iiii} integral for i =            3
+2026-7-1 10:30:12.510 TID = 0 INFO:  V_{iiii} integral for i =            4
+2026-7-1 10:30:12.510 TID = 0 INFO:  V_{iiii} integral for i =            5
+2026-7-1 10:30:12.511 TID = 0 INFO:  V_{iiii} integral for i =            6
+2026-7-1 10:30:12.511 TID = 0 INFO:  V_{iiii} integral for i =            7
+2026-7-1 10:30:12.511 TID = 0 INFO:  V_{iiii} integral for i =            8
+2026-7-1 10:30:12.512 TID = 0 INFO:  V_{iiii} integral for i =            9
+2026-7-1 10:30:12.512 TID = 0 INFO:  V_{iiii} integral for i =           10
+2026-7-1 10:30:12.512 TID = 0 INFO:  V_{iiii} integral for i =           11
+2026-7-1 10:30:12.513 TID = 0 INFO:  V_{iiii} integral for i =           12
+2026-7-1 10:30:12.513 TID = 0 INFO:  V_{iiii} integral for i =           13
+2026-7-1 10:30:12.513 TID = 0 INFO:  V_{iiii} integral for i =           14
+2026-7-1 10:30:12.514 TID = 0 INFO:  V_{iiii} integral for i =           15
+2026-7-1 10:30:12.514 TID = 0 INFO:  V_{iiii} integral for i =           16
+2026-7-1 10:30:12.514 TID = 0 INFO:  V_{iiii} integral for i =           17
+2026-7-1 10:30:12.514 TID = 0 INFO:  V_{iiii} integral for i =           18
+2026-7-1 10:30:12.515 TID = 0 INFO:  V_{iiii} integral for i =           19
+2026-7-1 10:30:12.515 TID = 0 INFO:  V_{iiii} integral for i =           20
+2026-7-1 10:30:12.515 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:12.615 TID = 0 INFO:  Slater normalization:    1.0000000000000002
+2026-7-1 10:30:12.615 TID = 0 INFO:  Slater normalization:   0.99999999999999978
+2026-7-1 10:30:12.675 TID = 0 INFO:  Density matrix for            1           1         (2.0000001318474330,1.09611691735350995E-018)
+2026-7-1 10:30:12.734 TID = 0 INFO:  Density matrix for            1           2  (2.20453419318009749E-005,-9.07211335384396624E-006)
+2026-7-1 10:30:12.794 TID = 0 INFO:  Density matrix for            2           1   (2.20453419318079985E-005,9.07211335384688004E-006)
+2026-7-1 10:30:12.854 TID = 0 INFO:  Density matrix for            2           2         (1.9730338430753758,1.31401545195218409E-017)
+2026-7-1 10:30:12.854 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/ParticleDensity
+2026-7-1 10:30:13.554 TID = 0 INFO:  Running Crank-Nicolson scheme
+2026-7-1 10:30:13.581 TID = 0 INFO:  Max relative error is   1.7707970509560288E-003
+2026-7-1 10:30:13.581 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image_iter.dat
+2026-7-1 10:30:13.582 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_total_iter.dat
+2026-7-1 10:30:13.582 TID = 0 INFO: ==== SC_ITER: 4
+2026-7-1 10:30:13.582 TID = 0 INFO:  Creating one-electron Hamiltonian
+2026-7-1 10:30:13.583 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:14.924 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
+2026-7-1 10:30:14.927 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
+2026-7-1 10:30:14.928 TID = 0 INFO:  Solving many-body problem
+2026-7-1 10:30:14.931 TID = 0 INFO:  n - 1 =        18145  nonzero_ham_2 =        18145
+2026-7-1 10:30:14.931 TID = 0 INFO:  Creating many-body Hamiltonian
+2026-7-1 10:30:14.931 TID = 18 INFO:  V_tilde i =           19
+2026-7-1 10:30:14.932 TID = 14 INFO:  V_tilde i =           15
+2026-7-1 10:30:14.932 TID = 5 INFO:  V_tilde i =            6
+2026-7-1 10:30:14.932 TID = 7 INFO:  V_tilde i =            8
+2026-7-1 10:30:14.932 TID = 9 INFO:  V_tilde i =           10
+2026-7-1 10:30:14.932 TID = 6 INFO:  V_tilde i =            7
+2026-7-1 10:30:14.932 TID = 1 INFO:  V_tilde i =            2
+2026-7-1 10:30:14.932 TID = 10 INFO:  V_tilde i =           11
+2026-7-1 10:30:14.932 TID = 13 INFO:  V_tilde i =           14
+2026-7-1 10:30:14.932 TID = 12 INFO:  V_tilde i =           13
+2026-7-1 10:30:14.932 TID = 16 INFO:  V_tilde i =           17
+2026-7-1 10:30:14.932 TID = 4 INFO:  V_tilde i =            5
+2026-7-1 10:30:14.932 TID = 17 INFO:  V_tilde i =           18
+2026-7-1 10:30:14.932 TID = 19 INFO:  V_tilde i =           20
+2026-7-1 10:30:14.932 TID = 2 INFO:  V_tilde i =            3
+2026-7-1 10:30:14.932 TID = 11 INFO:  V_tilde i =           12
+2026-7-1 10:30:14.932 TID = 8 INFO:  V_tilde i =            9
+2026-7-1 10:30:14.932 TID = 15 INFO:  V_tilde i =           16
+2026-7-1 10:30:14.932 TID = 3 INFO:  V_tilde i =            4
+2026-7-1 10:30:14.932 TID = 0 INFO:  V_tilde i =            1
+2026-7-1 10:30:17.579 TID = 18 INFO:  Ham_2 i =           47
+2026-7-1 10:30:17.579 TID = 35 INFO:  Ham_2 i =            7
+2026-7-1 10:30:17.579 TID = 10 INFO:  Ham_2 i =           20
+2026-7-1 10:30:17.579 TID = 12 INFO:  Ham_2 i =           19
+2026-7-1 10:30:17.579 TID = 44 INFO:  Ham_2 i =           32
+2026-7-1 10:30:17.579 TID = 8 INFO:  Ham_2 i =           27
+2026-7-1 10:30:17.579 TID = 31 INFO:  Ham_2 i =           43
+2026-7-1 10:30:17.579 TID = 25 INFO:  Ham_2 i =           15
+2026-7-1 10:30:17.579 TID = 17 INFO:  Ham_2 i =           16
+2026-7-1 10:30:17.579 TID = 39 INFO:  Ham_2 i =            3
+2026-7-1 10:30:17.579 TID = 0 INFO:  Ham_2 i =            1
+2026-7-1 10:30:17.579 TID = 32 INFO:  Ham_2 i =            6
+2026-7-1 10:30:17.579 TID = 29 INFO:  Ham_2 i =           39
+2026-7-1 10:30:17.579 TID = 14 INFO:  Ham_2 i =           36
+2026-7-1 10:30:17.579 TID = 43 INFO:  Ham_2 i =           24
+2026-7-1 10:30:17.579 TID = 2 INFO:  Ham_2 i =           44
+2026-7-1 10:30:17.579 TID = 22 INFO:  Ham_2 i =           30
+2026-7-1 10:30:17.579 TID = 40 INFO:  Ham_2 i =           12
+2026-7-1 10:30:17.579 TID = 45 INFO:  Ham_2 i =           46
+2026-7-1 10:30:17.579 TID = 21 INFO:  Ham_2 i =           28
+2026-7-1 10:30:17.579 TID = 3 INFO:  Ham_2 i =           38
+2026-7-1 10:30:17.579 TID = 26 INFO:  Ham_2 i =           31
+2026-7-1 10:30:17.579 TID = 5 INFO:  Ham_2 i =           10
+2026-7-1 10:30:17.579 TID = 11 INFO:  Ham_2 i =           18
+2026-7-1 10:30:17.579 TID = 20 INFO:  Ham_2 i =           29
+2026-7-1 10:30:17.579 TID = 13 INFO:  Ham_2 i =           45
+2026-7-1 10:30:17.579 TID = 36 INFO:  Ham_2 i =            2
+2026-7-1 10:30:17.579 TID = 9 INFO:  Ham_2 i =           17
+2026-7-1 10:30:17.579 TID = 4 INFO:  Ham_2 i =            5
+2026-7-1 10:30:17.579 TID = 16 INFO:  Ham_2 i =           23
+2026-7-1 10:30:17.579 TID = 33 INFO:  Ham_2 i =           35
+2026-7-1 10:30:17.579 TID = 42 INFO:  Ham_2 i =            9
+2026-7-1 10:30:17.579 TID = 47 INFO:  Ham_2 i =           34
+2026-7-1 10:30:17.579 TID = 38 INFO:  Ham_2 i =            4
+2026-7-1 10:30:17.579 TID = 23 INFO:  Ham_2 i =           48
+2026-7-1 10:30:17.579 TID = 41 INFO:  Ham_2 i =           26
+2026-7-1 10:30:17.579 TID = 27 INFO:  Ham_2 i =           40
+2026-7-1 10:30:17.579 TID = 46 INFO:  Ham_2 i =           11
+2026-7-1 10:30:17.579 TID = 1 INFO:  Ham_2 i =           33
+2026-7-1 10:30:17.579 TID = 30 INFO:  Ham_2 i =            8
+2026-7-1 10:30:17.579 TID = 6 INFO:  Ham_2 i =           42
+2026-7-1 10:30:17.579 TID = 37 INFO:  Ham_2 i =           13
+2026-7-1 10:30:17.579 TID = 34 INFO:  Ham_2 i =           14
+2026-7-1 10:30:17.579 TID = 19 INFO:  Ham_2 i =           41
+2026-7-1 10:30:17.579 TID = 28 INFO:  Ham_2 i =           37
+2026-7-1 10:30:17.579 TID = 15 INFO:  Ham_2 i =           25
+2026-7-1 10:30:17.579 TID = 7 INFO:  Ham_2 i =           22
+2026-7-1 10:30:17.579 TID = 24 INFO:  Ham_2 i =           21
+2026-7-1 10:30:17.717 TID = 18 INFO:  Ham_2 i =           49
+2026-7-1 10:30:17.719 TID = 45 INFO:  Ham_2 i =           50
+2026-7-1 10:30:17.734 TID = 20 INFO:  Ham_2 i =           51
+2026-7-1 10:30:17.746 TID = 47 INFO:  Ham_2 i =           52
+2026-7-1 10:30:17.758 TID = 9 INFO:  Ham_2 i =           53
+2026-7-1 10:30:17.761 TID = 23 INFO:  Ham_2 i =           54
+2026-7-1 10:30:17.761 TID = 25 INFO:  Ham_2 i =           55
+2026-7-1 10:30:17.765 TID = 14 INFO:  Ham_2 i =           56
+2026-7-1 10:30:17.766 TID = 28 INFO:  Ham_2 i =           57
+2026-7-1 10:30:17.766 TID = 0 INFO:  Ham_2 i =           58
+2026-7-1 10:30:17.766 TID = 1 INFO:  Ham_2 i =           59
+2026-7-1 10:30:17.767 TID = 13 INFO:  Ham_2 i =           60
+2026-7-1 10:30:17.768 TID = 2 INFO:  Ham_2 i =           61
+2026-7-1 10:30:17.769 TID = 5 INFO:  Ham_2 i =           62
+2026-7-1 10:30:17.770 TID = 22 INFO:  Ham_2 i =           63
+2026-7-1 10:30:17.770 TID = 33 INFO:  Ham_2 i =           64
+2026-7-1 10:30:17.771 TID = 24 INFO:  Ham_2 i =           65
+2026-7-1 10:30:17.771 TID = 31 INFO:  Ham_2 i =           66
+2026-7-1 10:30:17.773 TID = 27 INFO:  Ham_2 i =           67
+2026-7-1 10:30:17.773 TID = 19 INFO:  Ham_2 i =           68
+2026-7-1 10:30:17.774 TID = 44 INFO:  Ham_2 i =           69
+2026-7-1 10:30:17.774 TID = 26 INFO:  Ham_2 i =           70
+2026-7-1 10:30:17.775 TID = 6 INFO:  Ham_2 i =           71
+2026-7-1 10:30:17.775 TID = 30 INFO:  Ham_2 i =           72
+2026-7-1 10:30:17.776 TID = 3 INFO:  Ham_2 i =           73
+2026-7-1 10:30:17.779 TID = 21 INFO:  Ham_2 i =           74
+2026-7-1 10:30:17.780 TID = 29 INFO:  Ham_2 i =           75
+2026-7-1 10:30:17.781 TID = 11 INFO:  Ham_2 i =           76
+2026-7-1 10:30:17.783 TID = 8 INFO:  Ham_2 i =           77
+2026-7-1 10:30:17.784 TID = 16 INFO:  Ham_2 i =           78
+2026-7-1 10:30:17.784 TID = 12 INFO:  Ham_2 i =           79
+2026-7-1 10:30:17.784 TID = 17 INFO:  Ham_2 i =           80
+2026-7-1 10:30:17.785 TID = 43 INFO:  Ham_2 i =           81
+2026-7-1 10:30:17.787 TID = 41 INFO:  Ham_2 i =           82
+2026-7-1 10:30:17.788 TID = 34 INFO:  Ham_2 i =           83
+2026-7-1 10:30:17.791 TID = 15 INFO:  Ham_2 i =           84
+2026-7-1 10:30:17.791 TID = 37 INFO:  Ham_2 i =           85
+2026-7-1 10:30:17.791 TID = 40 INFO:  Ham_2 i =           86
+2026-7-1 10:30:17.792 TID = 10 INFO:  Ham_2 i =           87
+2026-7-1 10:30:17.794 TID = 46 INFO:  Ham_2 i =           88
+2026-7-1 10:30:17.796 TID = 7 INFO:  Ham_2 i =           89
+2026-7-1 10:30:17.800 TID = 42 INFO:  Ham_2 i =           90
+2026-7-1 10:30:17.801 TID = 32 INFO:  Ham_2 i =           91
+2026-7-1 10:30:17.801 TID = 35 INFO:  Ham_2 i =           92
+2026-7-1 10:30:17.804 TID = 38 INFO:  Ham_2 i =           93
+2026-7-1 10:30:17.805 TID = 4 INFO:  Ham_2 i =           94
+2026-7-1 10:30:17.806 TID = 39 INFO:  Ham_2 i =           95
+2026-7-1 10:30:17.812 TID = 36 INFO:  Ham_2 i =           96
+2026-7-1 10:30:17.852 TID = 18 INFO:  Ham_2 i =           97
+2026-7-1 10:30:17.852 TID = 45 INFO:  Ham_2 i =           98
+2026-7-1 10:30:17.865 TID = 20 INFO:  Ham_2 i =           99
+2026-7-1 10:30:17.876 TID = 47 INFO:  Ham_2 i =          100
+2026-7-1 10:30:17.886 TID = 9 INFO:  Ham_2 i =          101
+2026-7-1 10:30:17.887 TID = 26 INFO:  Ham_2 i =          102
+2026-7-1 10:30:17.887 TID = 23 INFO:  Ham_2 i =          103
+2026-7-1 10:30:17.888 TID = 44 INFO:  Ham_2 i =          104
+2026-7-1 10:30:17.888 TID = 19 INFO:  Ham_2 i =          105
+2026-7-1 10:30:17.890 TID = 27 INFO:  Ham_2 i =          106
+2026-7-1 10:30:17.890 TID = 37 INFO:  Ham_2 i =          107
+2026-7-1 10:30:17.890 TID = 43 INFO:  Ham_2 i =          108
+2026-7-1 10:30:17.890 TID = 31 INFO:  Ham_2 i =          109
+2026-7-1 10:30:17.890 TID = 34 INFO:  Ham_2 i =          110
+2026-7-1 10:30:17.891 TID = 24 INFO:  Ham_2 i =          111
+2026-7-1 10:30:17.891 TID = 41 INFO:  Ham_2 i =          112
+2026-7-1 10:30:17.891 TID = 17 INFO:  Ham_2 i =          113
+2026-7-1 10:30:17.892 TID = 33 INFO:  Ham_2 i =          114
+2026-7-1 10:30:17.892 TID = 15 INFO:  Ham_2 i =          115
+2026-7-1 10:30:17.893 TID = 12 INFO:  Ham_2 i =          116
+2026-7-1 10:30:17.893 TID = 22 INFO:  Ham_2 i =          117
+2026-7-1 10:30:17.894 TID = 5 INFO:  Ham_2 i =          118
+2026-7-1 10:30:17.895 TID = 16 INFO:  Ham_2 i =          119
+2026-7-1 10:30:17.895 TID = 3 INFO:  Ham_2 i =          120
+2026-7-1 10:30:17.895 TID = 11 INFO:  Ham_2 i =          121
+2026-7-1 10:30:17.895 TID = 8 INFO:  Ham_2 i =          122
+2026-7-1 10:30:17.895 TID = 2 INFO:  Ham_2 i =          123
+2026-7-1 10:30:17.895 TID = 29 INFO:  Ham_2 i =          124
+2026-7-1 10:30:17.895 TID = 30 INFO:  Ham_2 i =          125
+2026-7-1 10:30:17.896 TID = 13 INFO:  Ham_2 i =          126
+2026-7-1 10:30:17.897 TID = 1 INFO:  Ham_2 i =          127
+2026-7-1 10:30:17.897 TID = 21 INFO:  Ham_2 i =          128
+2026-7-1 10:30:17.898 TID = 0 INFO:  Ham_2 i =          129
+2026-7-1 10:30:17.898 TID = 10 INFO:  Ham_2 i =          130
+2026-7-1 10:30:17.898 TID = 6 INFO:  Ham_2 i =          131
+2026-7-1 10:30:17.898 TID = 25 INFO:  Ham_2 i =          132
+2026-7-1 10:30:17.899 TID = 46 INFO:  Ham_2 i =          133
+2026-7-1 10:30:17.899 TID = 40 INFO:  Ham_2 i =          134
+2026-7-1 10:30:17.899 TID = 7 INFO:  Ham_2 i =          135
+2026-7-1 10:30:17.899 TID = 39 INFO:  Ham_2 i =          136
+2026-7-1 10:30:17.899 TID = 35 INFO:  Ham_2 i =          137
+2026-7-1 10:30:17.900 TID = 28 INFO:  Ham_2 i =          138
+2026-7-1 10:30:17.900 TID = 4 INFO:  Ham_2 i =          139
+2026-7-1 10:30:17.901 TID = 38 INFO:  Ham_2 i =          140
+2026-7-1 10:30:17.901 TID = 32 INFO:  Ham_2 i =          141
+2026-7-1 10:30:17.901 TID = 14 INFO:  Ham_2 i =          142
+2026-7-1 10:30:17.901 TID = 42 INFO:  Ham_2 i =          143
+2026-7-1 10:30:17.904 TID = 36 INFO:  Ham_2 i =          144
+2026-7-1 10:30:17.940 TID = 45 INFO:  Ham_2 i =          145
+2026-7-1 10:30:17.942 TID = 18 INFO:  Ham_2 i =          146
+2026-7-1 10:30:17.949 TID = 42 INFO:  Ham_2 i =          147
+2026-7-1 10:30:17.951 TID = 36 INFO:  Ham_2 i =          148
+2026-7-1 10:30:17.951 TID = 14 INFO:  Ham_2 i =          149
+2026-7-1 10:30:17.952 TID = 20 INFO:  Ham_2 i =          150
+2026-7-1 10:30:17.952 TID = 32 INFO:  Ham_2 i =          151
+2026-7-1 10:30:17.953 TID = 7 INFO:  Ham_2 i =          152
+2026-7-1 10:30:17.954 TID = 38 INFO:  Ham_2 i =          153
+2026-7-1 10:30:17.955 TID = 4 INFO:  Ham_2 i =          154
+2026-7-1 10:30:17.955 TID = 40 INFO:  Ham_2 i =          155
+2026-7-1 10:30:17.956 TID = 46 INFO:  Ham_2 i =          156
+2026-7-1 10:30:17.956 TID = 28 INFO:  Ham_2 i =          157
+2026-7-1 10:30:17.957 TID = 25 INFO:  Ham_2 i =          158
+2026-7-1 10:30:17.958 TID = 35 INFO:  Ham_2 i =          159
+2026-7-1 10:30:17.960 TID = 39 INFO:  Ham_2 i =          160
+2026-7-1 10:30:17.960 TID = 6 INFO:  Ham_2 i =          161
+2026-7-1 10:30:17.960 TID = 29 INFO:  Ham_2 i =          162
+2026-7-1 10:30:17.961 TID = 10 INFO:  Ham_2 i =          163
+2026-7-1 10:30:17.961 TID = 2 INFO:  Ham_2 i =          164
+2026-7-1 10:30:17.962 TID = 0 INFO:  Ham_2 i =          165
+2026-7-1 10:30:17.962 TID = 21 INFO:  Ham_2 i =          166
+2026-7-1 10:30:17.963 TID = 8 INFO:  Ham_2 i =          167
+2026-7-1 10:30:17.964 TID = 1 INFO:  Ham_2 i =          168
+2026-7-1 10:30:17.964 TID = 11 INFO:  Ham_2 i =          169
+2026-7-1 10:30:17.965 TID = 3 INFO:  Ham_2 i =          170
+2026-7-1 10:30:17.965 TID = 13 INFO:  Ham_2 i =          171
+2026-7-1 10:30:17.967 TID = 30 INFO:  Ham_2 i =          172
+2026-7-1 10:30:17.967 TID = 41 INFO:  Ham_2 i =          173
+2026-7-1 10:30:17.967 TID = 16 INFO:  Ham_2 i =          174
+2026-7-1 10:30:17.968 TID = 24 INFO:  Ham_2 i =          175
+2026-7-1 10:30:17.969 TID = 5 INFO:  Ham_2 i =          176
+2026-7-1 10:30:17.969 TID = 22 INFO:  Ham_2 i =          177
+2026-7-1 10:30:17.969 TID = 34 INFO:  Ham_2 i =          178
+2026-7-1 10:30:17.970 TID = 12 INFO:  Ham_2 i =          179
+2026-7-1 10:30:17.970 TID = 47 INFO:  Ham_2 i =          180
+2026-7-1 10:30:17.970 TID = 31 INFO:  Ham_2 i =          181
+2026-7-1 10:30:17.971 TID = 15 INFO:  Ham_2 i =          182
+2026-7-1 10:30:17.973 TID = 43 INFO:  Ham_2 i =          183
+2026-7-1 10:30:17.973 TID = 33 INFO:  Ham_2 i =          184
+2026-7-1 10:30:17.974 TID = 37 INFO:  Ham_2 i =          185
+2026-7-1 10:30:17.974 TID = 17 INFO:  Ham_2 i =          186
+2026-7-1 10:30:17.974 TID = 27 INFO:  Ham_2 i =          187
+2026-7-1 10:30:17.975 TID = 19 INFO:  Ham_2 i =          188
+2026-7-1 10:30:17.975 TID = 44 INFO:  Ham_2 i =          189
+2026-7-1 10:30:17.977 TID = 23 INFO:  Ham_2 i =          190
+2026-7-1 10:30:17.996 TID = 0 INFO:  V_{iiii} integral for i =            1
+2026-7-1 10:30:17.996 TID = 0 INFO:  V_{iiii} integral for i =            2
+2026-7-1 10:30:17.996 TID = 0 INFO:  V_{iiii} integral for i =            3
+2026-7-1 10:30:17.997 TID = 0 INFO:  V_{iiii} integral for i =            4
+2026-7-1 10:30:17.997 TID = 0 INFO:  V_{iiii} integral for i =            5
+2026-7-1 10:30:17.997 TID = 0 INFO:  V_{iiii} integral for i =            6
+2026-7-1 10:30:17.998 TID = 0 INFO:  V_{iiii} integral for i =            7
+2026-7-1 10:30:17.998 TID = 0 INFO:  V_{iiii} integral for i =            8
+2026-7-1 10:30:17.998 TID = 0 INFO:  V_{iiii} integral for i =            9
+2026-7-1 10:30:17.998 TID = 0 INFO:  V_{iiii} integral for i =           10
+2026-7-1 10:30:17.999 TID = 0 INFO:  V_{iiii} integral for i =           11
+2026-7-1 10:30:17.999 TID = 0 INFO:  V_{iiii} integral for i =           12
+2026-7-1 10:30:17.999 TID = 0 INFO:  V_{iiii} integral for i =           13
+2026-7-1 10:30:18.0 TID = 0 INFO:  V_{iiii} integral for i =           14
+2026-7-1 10:30:18.0 TID = 0 INFO:  V_{iiii} integral for i =           15
+2026-7-1 10:30:18.0 TID = 0 INFO:  V_{iiii} integral for i =           16
+2026-7-1 10:30:18.1 TID = 0 INFO:  V_{iiii} integral for i =           17
+2026-7-1 10:30:18.1 TID = 0 INFO:  V_{iiii} integral for i =           18
+2026-7-1 10:30:18.1 TID = 0 INFO:  V_{iiii} integral for i =           19
+2026-7-1 10:30:18.1 TID = 0 INFO:  V_{iiii} integral for i =           20
+2026-7-1 10:30:18.2 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:18.49 TID = 0 INFO:  Slater normalization:   0.99999999999999978
+2026-7-1 10:30:18.49 TID = 0 INFO:  Slater normalization:   0.99999999999999967
+2026-7-1 10:30:18.109 TID = 0 INFO:  Density matrix for            1           1         (2.0000141103020090,8.09305733087488068E-019)
+2026-7-1 10:30:18.169 TID = 0 INFO:  Density matrix for            1           2 (-1.33114588683041228E-005,-1.42106264934517153E-005)
+2026-7-1 10:30:18.229 TID = 0 INFO:  Density matrix for            2           1  (-1.33114588683061082E-005,1.42106264934591387E-005)
+2026-7-1 10:30:18.288 TID = 0 INFO:  Density matrix for            2           2        (1.8798057424407535,-2.81138062225753965E-018)
+2026-7-1 10:30:18.289 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/ParticleDensity
+2026-7-1 10:30:18.986 TID = 0 INFO:  Running Crank-Nicolson scheme
+2026-7-1 10:30:19.14 TID = 0 INFO:  Max relative error is   1.4111850022827657E-003
+2026-7-1 10:30:19.15 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image_iter.dat
+2026-7-1 10:30:19.15 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_total_iter.dat
+2026-7-1 10:30:19.16 TID = 0 INFO: ==== SC_ITER: 5
+2026-7-1 10:30:19.16 TID = 0 INFO:  Creating one-electron Hamiltonian
+2026-7-1 10:30:19.16 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:20.299 TID = 0 INFO:  Calculating <n|x|m> elements for single electron
+2026-7-1 10:30:20.306 TID = 0 INFO:  Running Crank-Nicolson scheme for single electron
+2026-7-1 10:30:20.306 TID = 0 INFO:  Solving many-body problem
+2026-7-1 10:30:20.309 TID = 0 INFO:  n - 1 =        18145  nonzero_ham_2 =        18145
+2026-7-1 10:30:20.309 TID = 0 INFO:  Creating many-body Hamiltonian
+2026-7-1 10:30:20.310 TID = 0 INFO:  V_tilde i =            1
+2026-7-1 10:30:20.310 TID = 11 INFO:  V_tilde i =           12
+2026-7-1 10:30:20.310 TID = 5 INFO:  V_tilde i =            6
+2026-7-1 10:30:20.310 TID = 10 INFO:  V_tilde i =           11
+2026-7-1 10:30:20.310 TID = 6 INFO:  V_tilde i =            7
+2026-7-1 10:30:20.310 TID = 15 INFO:  V_tilde i =           16
+2026-7-1 10:30:20.310 TID = 7 INFO:  V_tilde i =            8
+2026-7-1 10:30:20.310 TID = 16 INFO:  V_tilde i =           17
+2026-7-1 10:30:20.310 TID = 8 INFO:  V_tilde i =            9
+2026-7-1 10:30:20.310 TID = 17 INFO:  V_tilde i =           18
+2026-7-1 10:30:20.310 TID = 3 INFO:  V_tilde i =            4
+2026-7-1 10:30:20.310 TID = 4 INFO:  V_tilde i =            5
+2026-7-1 10:30:20.310 TID = 19 INFO:  V_tilde i =           20
+2026-7-1 10:30:20.310 TID = 14 INFO:  V_tilde i =           15
+2026-7-1 10:30:20.310 TID = 18 INFO:  V_tilde i =           19
+2026-7-1 10:30:20.310 TID = 1 INFO:  V_tilde i =            2
+2026-7-1 10:30:20.310 TID = 9 INFO:  V_tilde i =           10
+2026-7-1 10:30:20.310 TID = 12 INFO:  V_tilde i =           13
+2026-7-1 10:30:20.310 TID = 13 INFO:  V_tilde i =           14
+2026-7-1 10:30:20.310 TID = 2 INFO:  V_tilde i =            3
+2026-7-1 10:30:22.960 TID = 29 INFO:  Ham_2 i =            6
+2026-7-1 10:30:22.960 TID = 38 INFO:  Ham_2 i =            4
+2026-7-1 10:30:22.960 TID = 8 INFO:  Ham_2 i =           24
+2026-7-1 10:30:22.960 TID = 6 INFO:  Ham_2 i =           32
+2026-7-1 10:30:22.960 TID = 27 INFO:  Ham_2 i =           15
+2026-7-1 10:30:22.960 TID = 47 INFO:  Ham_2 i =           29
+2026-7-1 10:30:22.960 TID = 18 INFO:  Ham_2 i =           37
+2026-7-1 10:30:22.960 TID = 46 INFO:  Ham_2 i =           12
+2026-7-1 10:30:22.960 TID = 35 INFO:  Ham_2 i =           11
+2026-7-1 10:30:22.960 TID = 15 INFO:  Ham_2 i =           27
+2026-7-1 10:30:22.960 TID = 43 INFO:  Ham_2 i =           36
+2026-7-1 10:30:22.960 TID = 22 INFO:  Ham_2 i =           43
+2026-7-1 10:30:22.960 TID = 44 INFO:  Ham_2 i =            2
+2026-7-1 10:30:22.960 TID = 17 INFO:  Ham_2 i =           31
+2026-7-1 10:30:22.960 TID = 41 INFO:  Ham_2 i =           39
+2026-7-1 10:30:22.960 TID = 3 INFO:  Ham_2 i =           44
+2026-7-1 10:30:22.960 TID = 32 INFO:  Ham_2 i =            3
+2026-7-1 10:30:22.960 TID = 12 INFO:  Ham_2 i =           47
+2026-7-1 10:30:22.960 TID = 10 INFO:  Ham_2 i =           46
+2026-7-1 10:30:22.960 TID = 40 INFO:  Ham_2 i =           14
+2026-7-1 10:30:22.960 TID = 21 INFO:  Ham_2 i =           35
+2026-7-1 10:30:22.960 TID = 37 INFO:  Ham_2 i =           23
+2026-7-1 10:30:22.960 TID = 34 INFO:  Ham_2 i =           13
+2026-7-1 10:30:22.960 TID = 0 INFO:  Ham_2 i =            1
+2026-7-1 10:30:22.960 TID = 36 INFO:  Ham_2 i =            7
+2026-7-1 10:30:22.960 TID = 39 INFO:  Ham_2 i =           16
+2026-7-1 10:30:22.960 TID = 16 INFO:  Ham_2 i =           19
+2026-7-1 10:30:22.960 TID = 20 INFO:  Ham_2 i =           48
+2026-7-1 10:30:22.960 TID = 31 INFO:  Ham_2 i =            9
+2026-7-1 10:30:22.960 TID = 11 INFO:  Ham_2 i =           34
+2026-7-1 10:30:22.960 TID = 24 INFO:  Ham_2 i =           10
+2026-7-1 10:30:22.960 TID = 7 INFO:  Ham_2 i =           17
+2026-7-1 10:30:22.960 TID = 26 INFO:  Ham_2 i =           33
+2026-7-1 10:30:22.960 TID = 14 INFO:  Ham_2 i =           38
+2026-7-1 10:30:22.960 TID = 28 INFO:  Ham_2 i =           18
+2026-7-1 10:30:22.960 TID = 30 INFO:  Ham_2 i =           40
+2026-7-1 10:30:22.960 TID = 13 INFO:  Ham_2 i =           22
+2026-7-1 10:30:22.960 TID = 45 INFO:  Ham_2 i =           45
+2026-7-1 10:30:22.960 TID = 2 INFO:  Ham_2 i =           30
+2026-7-1 10:30:22.960 TID = 9 INFO:  Ham_2 i =           28
+2026-7-1 10:30:22.960 TID = 42 INFO:  Ham_2 i =            8
+2026-7-1 10:30:22.960 TID = 19 INFO:  Ham_2 i =           42
+2026-7-1 10:30:22.960 TID = 5 INFO:  Ham_2 i =           41
+2026-7-1 10:30:22.960 TID = 4 INFO:  Ham_2 i =           20
+2026-7-1 10:30:22.960 TID = 1 INFO:  Ham_2 i =           26
+2026-7-1 10:30:22.960 TID = 23 INFO:  Ham_2 i =            5
+2026-7-1 10:30:22.960 TID = 33 INFO:  Ham_2 i =           21
+2026-7-1 10:30:22.960 TID = 25 INFO:  Ham_2 i =           25
+2026-7-1 10:30:23.117 TID = 15 INFO:  Ham_2 i =           49
+2026-7-1 10:30:23.121 TID = 1 INFO:  Ham_2 i =           50
+2026-7-1 10:30:23.128 TID = 12 INFO:  Ham_2 i =           51
+2026-7-1 10:30:23.131 TID = 43 INFO:  Ham_2 i =           52
+2026-7-1 10:30:23.132 TID = 4 INFO:  Ham_2 i =           53
+2026-7-1 10:30:23.139 TID = 17 INFO:  Ham_2 i =           54
+2026-7-1 10:30:23.141 TID = 14 INFO:  Ham_2 i =           55
+2026-7-1 10:30:23.143 TID = 20 INFO:  Ham_2 i =           56
+2026-7-1 10:30:23.145 TID = 3 INFO:  Ham_2 i =           57
+2026-7-1 10:30:23.145 TID = 47 INFO:  Ham_2 i =           58
+2026-7-1 10:30:23.145 TID = 10 INFO:  Ham_2 i =           59
+2026-7-1 10:30:23.147 TID = 22 INFO:  Ham_2 i =           60
+2026-7-1 10:30:23.147 TID = 28 INFO:  Ham_2 i =           61
+2026-7-1 10:30:23.148 TID = 0 INFO:  Ham_2 i =           62
+2026-7-1 10:30:23.148 TID = 18 INFO:  Ham_2 i =           63
+2026-7-1 10:30:23.149 TID = 45 INFO:  Ham_2 i =           64
+2026-7-1 10:30:23.149 TID = 19 INFO:  Ham_2 i =           65
+2026-7-1 10:30:23.150 TID = 8 INFO:  Ham_2 i =           66
+2026-7-1 10:30:23.150 TID = 11 INFO:  Ham_2 i =           67
+2026-7-1 10:30:23.151 TID = 5 INFO:  Ham_2 i =           68
+2026-7-1 10:30:23.152 TID = 26 INFO:  Ham_2 i =           69
+2026-7-1 10:30:23.152 TID = 21 INFO:  Ham_2 i =           70
+2026-7-1 10:30:23.153 TID = 37 INFO:  Ham_2 i =           71
+2026-7-1 10:30:23.156 TID = 30 INFO:  Ham_2 i =           72
+2026-7-1 10:30:23.157 TID = 41 INFO:  Ham_2 i =           73
+2026-7-1 10:30:23.157 TID = 6 INFO:  Ham_2 i =           74
+2026-7-1 10:30:23.157 TID = 9 INFO:  Ham_2 i =           75
+2026-7-1 10:30:23.159 TID = 2 INFO:  Ham_2 i =           76
+2026-7-1 10:30:23.163 TID = 16 INFO:  Ham_2 i =           77
+2026-7-1 10:30:23.164 TID = 25 INFO:  Ham_2 i =           78
+2026-7-1 10:30:23.168 TID = 7 INFO:  Ham_2 i =           79
+2026-7-1 10:30:23.168 TID = 40 INFO:  Ham_2 i =           80
+2026-7-1 10:30:23.168 TID = 39 INFO:  Ham_2 i =           81
+2026-7-1 10:30:23.169 TID = 34 INFO:  Ham_2 i =           82
+2026-7-1 10:30:23.170 TID = 13 INFO:  Ham_2 i =           83
+2026-7-1 10:30:23.171 TID = 27 INFO:  Ham_2 i =           84
+2026-7-1 10:30:23.171 TID = 46 INFO:  Ham_2 i =           85
+2026-7-1 10:30:23.171 TID = 33 INFO:  Ham_2 i =           86
+2026-7-1 10:30:23.175 TID = 35 INFO:  Ham_2 i =           87
+2026-7-1 10:30:23.179 TID = 24 INFO:  Ham_2 i =           88
+2026-7-1 10:30:23.181 TID = 31 INFO:  Ham_2 i =           89
+2026-7-1 10:30:23.182 TID = 42 INFO:  Ham_2 i =           90
+2026-7-1 10:30:23.184 TID = 23 INFO:  Ham_2 i =           91
+2026-7-1 10:30:23.184 TID = 36 INFO:  Ham_2 i =           92
+2026-7-1 10:30:23.185 TID = 29 INFO:  Ham_2 i =           93
+2026-7-1 10:30:23.186 TID = 38 INFO:  Ham_2 i =           94
+2026-7-1 10:30:23.187 TID = 32 INFO:  Ham_2 i =           95
+2026-7-1 10:30:23.187 TID = 44 INFO:  Ham_2 i =           96
+2026-7-1 10:30:23.251 TID = 15 INFO:  Ham_2 i =           97
+2026-7-1 10:30:23.254 TID = 1 INFO:  Ham_2 i =           98
+2026-7-1 10:30:23.259 TID = 4 INFO:  Ham_2 i =           99
+2026-7-1 10:30:23.260 TID = 12 INFO:  Ham_2 i =          100
+2026-7-1 10:30:23.260 TID = 43 INFO:  Ham_2 i =          101
+2026-7-1 10:30:23.263 TID = 21 INFO:  Ham_2 i =          102
+2026-7-1 10:30:23.265 TID = 17 INFO:  Ham_2 i =          103
+2026-7-1 10:30:23.265 TID = 26 INFO:  Ham_2 i =          104
+2026-7-1 10:30:23.266 TID = 5 INFO:  Ham_2 i =          105
+2026-7-1 10:30:23.267 TID = 11 INFO:  Ham_2 i =          106
+2026-7-1 10:30:23.269 TID = 8 INFO:  Ham_2 i =          107
+2026-7-1 10:30:23.270 TID = 19 INFO:  Ham_2 i =          108
+2026-7-1 10:30:23.270 TID = 46 INFO:  Ham_2 i =          109
+2026-7-1 10:30:23.271 TID = 45 INFO:  Ham_2 i =          110
+2026-7-1 10:30:23.271 TID = 27 INFO:  Ham_2 i =          111
+2026-7-1 10:30:23.272 TID = 13 INFO:  Ham_2 i =          112
+2026-7-1 10:30:23.272 TID = 2 INFO:  Ham_2 i =          113
+2026-7-1 10:30:23.273 TID = 34 INFO:  Ham_2 i =          114
+2026-7-1 10:30:23.273 TID = 18 INFO:  Ham_2 i =          115
+2026-7-1 10:30:23.273 TID = 9 INFO:  Ham_2 i =          116
+2026-7-1 10:30:23.273 TID = 0 INFO:  Ham_2 i =          117
+2026-7-1 10:30:23.273 TID = 39 INFO:  Ham_2 i =          118
+2026-7-1 10:30:23.274 TID = 28 INFO:  Ham_2 i =          119
+2026-7-1 10:30:23.274 TID = 25 INFO:  Ham_2 i =          120
+2026-7-1 10:30:23.275 TID = 6 INFO:  Ham_2 i =          121
+2026-7-1 10:30:23.275 TID = 40 INFO:  Ham_2 i =          122
+2026-7-1 10:30:23.275 TID = 41 INFO:  Ham_2 i =          123
+2026-7-1 10:30:23.275 TID = 37 INFO:  Ham_2 i =          124
+2026-7-1 10:30:23.276 TID = 16 INFO:  Ham_2 i =          125
+2026-7-1 10:30:23.276 TID = 10 INFO:  Ham_2 i =          126
+2026-7-1 10:30:23.276 TID = 22 INFO:  Ham_2 i =          127
+2026-7-1 10:30:23.276 TID = 7 INFO:  Ham_2 i =          128
+2026-7-1 10:30:23.276 TID = 47 INFO:  Ham_2 i =          129
+2026-7-1 10:30:23.277 TID = 30 INFO:  Ham_2 i =          130
+2026-7-1 10:30:23.278 TID = 3 INFO:  Ham_2 i =          131
+2026-7-1 10:30:23.278 TID = 14 INFO:  Ham_2 i =          132
+2026-7-1 10:30:23.279 TID = 20 INFO:  Ham_2 i =          133
+2026-7-1 10:30:23.279 TID = 44 INFO:  Ham_2 i =          134
+2026-7-1 10:30:23.280 TID = 33 INFO:  Ham_2 i =          135
+2026-7-1 10:30:23.280 TID = 32 INFO:  Ham_2 i =          136
+2026-7-1 10:30:23.281 TID = 38 INFO:  Ham_2 i =          137
+2026-7-1 10:30:23.281 TID = 29 INFO:  Ham_2 i =          138
+2026-7-1 10:30:23.281 TID = 35 INFO:  Ham_2 i =          139
+2026-7-1 10:30:23.282 TID = 36 INFO:  Ham_2 i =          140
+2026-7-1 10:30:23.283 TID = 42 INFO:  Ham_2 i =          141
+2026-7-1 10:30:23.283 TID = 23 INFO:  Ham_2 i =          142
+2026-7-1 10:30:23.284 TID = 24 INFO:  Ham_2 i =          143
+2026-7-1 10:30:23.284 TID = 31 INFO:  Ham_2 i =          144
+2026-7-1 10:30:23.331 TID = 31 INFO:  Ham_2 i =          145
+2026-7-1 10:30:23.332 TID = 24 INFO:  Ham_2 i =          146
+2026-7-1 10:30:23.334 TID = 23 INFO:  Ham_2 i =          147
+2026-7-1 10:30:23.334 TID = 33 INFO:  Ham_2 i =          148
+2026-7-1 10:30:23.334 TID = 42 INFO:  Ham_2 i =          149
+2026-7-1 10:30:23.335 TID = 44 INFO:  Ham_2 i =          150
+2026-7-1 10:30:23.335 TID = 36 INFO:  Ham_2 i =          151
+2026-7-1 10:30:23.337 TID = 35 INFO:  Ham_2 i =          152
+2026-7-1 10:30:23.337 TID = 20 INFO:  Ham_2 i =          153
+2026-7-1 10:30:23.338 TID = 14 INFO:  Ham_2 i =          154
+2026-7-1 10:30:23.338 TID = 29 INFO:  Ham_2 i =          155
+2026-7-1 10:30:23.339 TID = 3 INFO:  Ham_2 i =          156
+2026-7-1 10:30:23.339 TID = 30 INFO:  Ham_2 i =          157
+2026-7-1 10:30:23.339 TID = 38 INFO:  Ham_2 i =          158
+2026-7-1 10:30:23.339 TID = 37 INFO:  Ham_2 i =          159
+2026-7-1 10:30:23.340 TID = 32 INFO:  Ham_2 i =          160
+2026-7-1 10:30:23.340 TID = 47 INFO:  Ham_2 i =          161
+2026-7-1 10:30:23.342 TID = 41 INFO:  Ham_2 i =          162
+2026-7-1 10:30:23.342 TID = 15 INFO:  Ham_2 i =          163
+2026-7-1 10:30:23.342 TID = 40 INFO:  Ham_2 i =          164
+2026-7-1 10:30:23.342 TID = 7 INFO:  Ham_2 i =          165
+2026-7-1 10:30:23.342 TID = 1 INFO:  Ham_2 i =          166
+2026-7-1 10:30:23.344 TID = 6 INFO:  Ham_2 i =          167
+2026-7-1 10:30:23.344 TID = 22 INFO:  Ham_2 i =          168
+2026-7-1 10:30:23.345 TID = 10 INFO:  Ham_2 i =          169
+2026-7-1 10:30:23.345 TID = 25 INFO:  Ham_2 i =          170
+2026-7-1 10:30:23.346 TID = 4 INFO:  Ham_2 i =          171
+2026-7-1 10:30:23.347 TID = 28 INFO:  Ham_2 i =          172
+2026-7-1 10:30:23.347 TID = 16 INFO:  Ham_2 i =          173
+2026-7-1 10:30:23.347 TID = 13 INFO:  Ham_2 i =          174
+2026-7-1 10:30:23.347 TID = 39 INFO:  Ham_2 i =          175
+2026-7-1 10:30:23.348 TID = 27 INFO:  Ham_2 i =          176
+2026-7-1 10:30:23.349 TID = 0 INFO:  Ham_2 i =          177
+2026-7-1 10:30:23.349 TID = 45 INFO:  Ham_2 i =          178
+2026-7-1 10:30:23.350 TID = 46 INFO:  Ham_2 i =          179
+2026-7-1 10:30:23.351 TID = 9 INFO:  Ham_2 i =          180
+2026-7-1 10:30:23.351 TID = 19 INFO:  Ham_2 i =          181
+2026-7-1 10:30:23.352 TID = 5 INFO:  Ham_2 i =          182
+2026-7-1 10:30:23.352 TID = 8 INFO:  Ham_2 i =          183
+2026-7-1 10:30:23.352 TID = 18 INFO:  Ham_2 i =          184
+2026-7-1 10:30:23.352 TID = 11 INFO:  Ham_2 i =          185
+2026-7-1 10:30:23.353 TID = 43 INFO:  Ham_2 i =          186
+2026-7-1 10:30:23.353 TID = 34 INFO:  Ham_2 i =          187
+2026-7-1 10:30:23.354 TID = 26 INFO:  Ham_2 i =          188
+2026-7-1 10:30:23.354 TID = 21 INFO:  Ham_2 i =          189
+2026-7-1 10:30:23.354 TID = 2 INFO:  Ham_2 i =          190
+2026-7-1 10:30:23.381 TID = 0 INFO:  V_{iiii} integral for i =            1
+2026-7-1 10:30:23.382 TID = 0 INFO:  V_{iiii} integral for i =            2
+2026-7-1 10:30:23.382 TID = 0 INFO:  V_{iiii} integral for i =            3
+2026-7-1 10:30:23.382 TID = 0 INFO:  V_{iiii} integral for i =            4
+2026-7-1 10:30:23.382 TID = 0 INFO:  V_{iiii} integral for i =            5
+2026-7-1 10:30:23.383 TID = 0 INFO:  V_{iiii} integral for i =            6
+2026-7-1 10:30:23.383 TID = 0 INFO:  V_{iiii} integral for i =            7
+2026-7-1 10:30:23.383 TID = 0 INFO:  V_{iiii} integral for i =            8
+2026-7-1 10:30:23.384 TID = 0 INFO:  V_{iiii} integral for i =            9
+2026-7-1 10:30:23.384 TID = 0 INFO:  V_{iiii} integral for i =           10
+2026-7-1 10:30:23.384 TID = 0 INFO:  V_{iiii} integral for i =           11
+2026-7-1 10:30:23.385 TID = 0 INFO:  V_{iiii} integral for i =           12
+2026-7-1 10:30:23.385 TID = 0 INFO:  V_{iiii} integral for i =           13
+2026-7-1 10:30:23.385 TID = 0 INFO:  V_{iiii} integral for i =           14
+2026-7-1 10:30:23.386 TID = 0 INFO:  V_{iiii} integral for i =           15
+2026-7-1 10:30:23.386 TID = 0 INFO:  V_{iiii} integral for i =           16
+2026-7-1 10:30:23.386 TID = 0 INFO:  V_{iiii} integral for i =           17
+2026-7-1 10:30:23.386 TID = 0 INFO:  V_{iiii} integral for i =           18
+2026-7-1 10:30:23.387 TID = 0 INFO:  V_{iiii} integral for i =           19
+2026-7-1 10:30:23.387 TID = 0 INFO:  V_{iiii} integral for i =           20
+2026-7-1 10:30:23.387 TID = 0 INFO:  Diagonalizing Hamiltonian
+2026-7-1 10:30:23.416 TID = 0 INFO:  Slater normalization:    1.0000000000000000
+2026-7-1 10:30:23.416 TID = 0 INFO:  Slater normalization:   0.99999999999999989
+2026-7-1 10:30:23.475 TID = 0 INFO:  Density matrix for            1           1        (2.0000135121519005,-1.11301662864764905E-018)
+2026-7-1 10:30:23.535 TID = 0 INFO:  Density matrix for            1           2  (-8.13395499211637293E-005,2.67426689493710408E-005)
+2026-7-1 10:30:23.595 TID = 0 INFO:  Density matrix for            2           1 (-8.13395499211438613E-005,-2.67426689493630956E-005)
+2026-7-1 10:30:23.655 TID = 0 INFO:  Density matrix for            2           2         (1.5450014610300287,2.71914765404385758E-018)
+2026-7-1 10:30:23.655 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/ParticleDensity
+2026-7-1 10:30:24.355 TID = 0 INFO:  Running Crank-Nicolson scheme
+2026-7-1 10:30:24.383 TID = 0 INFO:  Max relative error is   4.4868617441544742E-005
+2026-7-1 10:30:24.383 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image_iter.dat
+2026-7-1 10:30:24.384 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_total_iter.dat
+2026-7-1 10:30:24.384 TID = 0 INFO:  Saving wavefunctions to file ./OutputData/Psi_1
+2026-7-1 10:30:24.440 TID = 0 INFO:  Saving 1e expectations to file ./OutputData/Expectations_1.dat
+2026-7-1 10:30:24.444 TID = 0 INFO:  Saving energies to file ./OutputData/Energies1.dat
+2026-7-1 10:30:24.444 TID = 0 INFO:  Saving Slater coeffs to file ./OutputData/C_slater.dat
+2026-7-1 10:30:24.445 TID = 0 INFO:  Saving 2e expectations to file ./OutputData/Expectations_2.dat
+2026-7-1 10:30:46.939 TID = 0 INFO:  Saving energies to file ./OutputData/Energies2.dat
+2026-7-1 10:30:46.940 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_image.dat
+2026-7-1 10:30:46.940 TID = 0 INFO:  Saving potential to file ./OutputData/Potential_total.dat
+ Time of simulation (seconds):    313.14317699999998     
  ==== END ====

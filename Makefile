@@ -63,11 +63,11 @@ LIBS_TSAN = -fsanitize=thread
 SRC_FILES_ALL := $(shell find $(SRC_DIR) -name '*.f90')
 
 # --- Exclude the two main programs from the common source set ---
-SRC_COMMON := $(filter-out $(SRC_DIR)/main.f90 $(SRC_DIR)/main_postprocessing.f90, $(SRC_FILES_ALL))
+SRC_COMMON := $(filter-out $(SRC_DIR)/main.f90 $(SRC_DIR)/main_postprocessing.f90 $(SRC_DIR)/postprocessing.f90, $(SRC_FILES_ALL))
 
 # --- Define two build sets ---
 SRC_FILES_MAIN := $(SRC_COMMON) $(SRC_DIR)/main.f90
-SRC_FILES_POST := $(SRC_COMMON) $(SRC_DIR)/main_postprocessing.f90
+SRC_FILES_POST := $(SRC_COMMON) $(SRC_DIR)/main_postprocessing.f90 $(SRC_DIR)/postprocessing.f90
 
 # --- Define corresponding object files ---
 OBJS_MAIN := $(patsubst $(SRC_DIR)/%.f90,$(OBJ_DIR)/%.o,$(SRC_FILES_MAIN))
@@ -213,14 +213,19 @@ $(OBJ_DIR)/swap.o: $(OBJ_DIR)/indata.o \
     							 $(OBJ_DIR)/combinatory.o \
     							 $(OBJ_DIR)/many_body.o
 
+$(OBJ_DIR)/postprocessing.o: $(OBJ_DIR)/indata.o \
+							 $(OBJ_DIR)/hamiltonian.o \
+							 $(OBJ_DIR)/diagonalize.o \
+							 $(OBJ_DIR)/combinatory.o \
+							 $(OBJ_DIR)/many_body.o \
+							 $(OBJ_DIR)/writers.o \
+							 $(OBJ_DIR)/utility.o \
+							 $(OBJ_DIR)/constants.o \
+							 $(OBJ_DIR)/logger.o
 
-$(OBJ_DIR)/main_postprocessing.o: $(OBJ_DIR)/indata.o \
-																	$(OBJ_DIR)/hamiltonian.o \
-																	$(OBJ_DIR)/diagonalize.o \
-																	$(OBJ_DIR)/combinatory.o \
-																	$(OBJ_DIR)/many_body.o \
-																	$(OBJ_DIR)/writers.o \
-																	$(OBJ_DIR)/utility.o \
-																	$(OBJ_DIR)/constants.o \
-																	$(OBJ_DIR)/logger.o
+
+$(OBJ_DIR)/main_postprocessing.o: $(OBJ_DIR)/logger.o \
+                                  $(OBJ_DIR)/postprocessing.o \
+								  $(OBJ_DIR)/writers.o \
+								  $(OBJ_DIR)/utility.o
 
